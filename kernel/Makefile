@@ -2,6 +2,7 @@
 
 include Make.defaults
 
-all: $(OBJ_DIR)/main.o
+all:
+	echo $(OSNAME)
 
 include Make.rules

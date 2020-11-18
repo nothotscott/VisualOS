@@ -14,15 +14,6 @@ MAKE	:= make
 OBJCOPY	:= objcopy
 
 # Other stuff
-HOST	:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
-ARCH	:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
-LIBGCC	:= $(shell $(CC) -print-libgcc-file-name)
-
-ifeq ($(ARCH),x86_64)
-	LIBDIR=/usr/lib64
-	FORMAT=efi-app-x86-64
-else
-	ARCH=ia32
-	LIBDIR=/usr/lib
-	FORMAT=efi-app-$(ARCH)
-endif
+# HOST	:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
+# ARCH	:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
+# LIBGCC	:= $(shell $(CC) -print-libgcc-file-name)

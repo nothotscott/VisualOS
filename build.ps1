@@ -1,7 +1,7 @@
 param($tasks)
 
 # Configurable
-$OSNAME = "VisualOS"
+$OSNAME = "VisualOSTest"
 $BUILD_DIR = "build"
 $OVMF_URL = "https://github.com/Absurdponcho/OVMFbin"
 
@@ -43,7 +43,7 @@ foreach($task in $tasks){
 		build clean
 	}
 	elseif($task -eq "build-bootloader"){
-		build efi
+		build gnu-efi
 	}
 	elseif($task -eq "build-kernel"){
 		build kernel

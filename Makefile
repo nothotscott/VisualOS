@@ -1,7 +1,7 @@
 include Make.defaults
 
-SUBDIRS	:= efi
-EFI_BIN	:= $(BUILD_DIR)/main.efi
+SUBDIRS	:= kernel
+EFI_BIN	:= $(BUILD_DIR)/gnu-efi/bootloader/main.efi
 
 all:		$(SUBDIRS) $(BUILD_DIR)/$(OSNAME).img
 
@@ -14,6 +14,11 @@ setup:
 $(SUBDIRS):	
 			@echo "Building $@"
 			$(MAKE) -f $@/Makefile THIS=$@
+
+.PHONY: gnu-efi
+gnu-efi:
+			@echo "Building $@"
+			cd $@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR) OBJ_DIR=$(OBJ_DIR)
 
 $(BUILD_DIR)/$(OSNAME).img:
 			dd if=/dev/zero of=$@ bs=512 count=93750
