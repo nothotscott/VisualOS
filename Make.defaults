@@ -1,0 +1,28 @@
+## The following should be from the command line
+OSNAME		:= VisualOS
+BUILD_DIR	:= build
+
+# Directories
+OBJ_DIR		:= $(BUILD_DIR)/obj
+
+# Programs
+CC		:= gcc
+CXX		:= g++
+LD		:= ld
+AS		:= nasm
+MAKE	:= make
+OBJCOPY	:= objcopy
+
+# Other stuff
+HOST	:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
+ARCH	:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
+LIBGCC	:= $(shell $(CC) -print-libgcc-file-name)
+
+ifeq ($(ARCH),x86_64)
+	LIBDIR=/usr/lib64
+	FORMAT=efi-app-x86-64
+else
+	ARCH=ia32
+	LIBDIR=/usr/lib
+	FORMAT=efi-app-$(ARCH)
+endif

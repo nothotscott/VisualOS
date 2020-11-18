@@ -1,0 +1,18 @@
+.PRECIOUS: $(OBJ_DIR)/%.o
+
+$(OBJ_DIR)/%.o:		$(THIS)/%.c
+					$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o:		$(THIS)/%.cpp
+					$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o:		$(THIS)/%.asm
+					$(AS) $(ASFLAGS) $< -o $@
+
+#######################################
+
+$(OBJ_DIR)/%.so:	$(OBJ_DIR)/%.o
+					$(LD) $(LDFLAGS) $^ -o $@ $(LOADLIBES)
+
+$(BUILD_DIR)/%.efi:	$(OBJ_DIR)/%.so
+					$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc $(OBJCOPYFLAGS) $< $@
