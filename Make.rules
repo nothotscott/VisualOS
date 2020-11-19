@@ -11,7 +11,8 @@ $(OBJ_DIR)/%.o:		$(THIS)/%.asm
 
 #######################################
 
-$(OBJ_DIR)/%.so:	$(OBJ_DIR)/%.o
+LINKED_OBJS	:= $(OBJ_DIR)/%.so $(OBJ_DIR)/%.elf
+$(LINKED_OBJS):		$(OBJ_DIR)/%.o
 					$(LD) $(LDFLAGS) $^ -o $@ $(LOADLIBES)
 
 $(BUILD_DIR)/%.efi:	$(OBJ_DIR)/%.so

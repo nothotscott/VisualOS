@@ -2,7 +2,8 @@
 
 include Make.defaults
 
-all:
-	echo $(OSNAME)
+LDFLAGS	:= -T $(THIS)/kernel.ld -static -Bsymbolic -nostdlib
+
+all:	$(OBJ_DIR)/kernel.elf
 
 include Make.rules

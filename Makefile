@@ -1,7 +1,9 @@
 include Make.defaults
 
-SUBDIRS	:= kernel
-EFI_BIN	:= $(BUILD_DIR)/gnu-efi/bootloader/main.efi
+SUBDIRS			:= kernel
+EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/main.efi
+KERNEL_BIN		:= $(OBJ_DIR)/kernel.elf
+STARTUP_SCRIPT	:= gnu-efi/startup.nsh
 
 all:		$(SUBDIRS) $(BUILD_DIR)/$(OSNAME).img
 
@@ -26,8 +28,16 @@ $(BUILD_DIR)/$(OSNAME).img:
 			mmd -i $@ ::/EFI
 			mmd -i $@ ::/EFI/BOOT
 			mcopy -i $@ $(EFI_BIN) ::/EFI/BOOT
-			mcopy -i $@ efi/startup.nsh ::
+			mcopy -i $@ $(STARTUP_SCRIPT) ::
+			mcopy -i $@ $(KERNEL_BIN) ::
 
+.PHONY: objclean
+objclean:		
+			cd $(OBJ_DIR) && rm -rf *.o *.so *.elf
+
+.PHONY: imgclean
+imgclean:		
+			cd $(BUILD_DIR) && rm -rf *.img *.iso
 
 .PHONY: clean
 clean:		
@@ -36,3 +46,7 @@ clean:
 .PHONY: superclean
 superclean:	
 			rm -rf $(BUILD_DIR)
+
+.PHONY: devclean
+devclean:	objclean imgclean
+			rm -rf $(BUILD_DIR)/gnu-efi/bootloader/*.*
