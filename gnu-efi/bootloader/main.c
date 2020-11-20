@@ -101,5 +101,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	int (*kernel_start)() = ((__attribute__((sysv_abi)) int(*)()) header.e_entry);
 	Print(L"%d\n\r", kernel_start());
 
+	while(1); // test
+
 	return EFI_SUCCESS; // Exit the UEFI application
 }

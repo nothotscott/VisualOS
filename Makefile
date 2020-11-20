@@ -1,7 +1,7 @@
 include Make.defaults
 
 SUBDIRS			:= kernel
-EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/main.efi
+EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
 KERNEL_BIN		:= $(OBJ_DIR)/kernel.elf
 STARTUP_SCRIPT	:= gnu-efi/startup.nsh
 
