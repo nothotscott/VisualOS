@@ -14,6 +14,7 @@ MAKE	:= make
 OBJCOPY	:= objcopy
 
 # Other stuff
-# HOST	:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
-# ARCH	:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
-# LIBGCC	:= $(shell $(CC) -print-libgcc-file-name)
+BUILD_DIR_ABS	:= $(abspath $(BUILD_DIR))
+# HOST			:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
+# ARCH			:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
+# LIBGCC		:= $(shell $(CC) -print-libgcc-file-name)

@@ -42,8 +42,11 @@ foreach($task in $tasks){
 	if($task -eq "clean"){
 		build clean
 	}
-	if($task -eq "devclean"){
-		build devclean
+	if($task -eq "bootloaderclean"){
+		build gnueficlean
+	}
+	if($task -eq "kernelclean"){
+		build kernelclean
 	}
 	elseif($task -eq "build-bootloader"){
 		build gnu-efi
@@ -52,7 +55,10 @@ foreach($task in $tasks){
 		build kernel
 	}
 	elseif($task -eq "build-img"){
-		build "$BUILD_DIR/$OSNAME.img"
+		build img
+	}
+	elseif($task -eq "build-iso"){
+		build iso
 	}
 	elseif($tasks -eq "run"){
 		launch-qemu
