@@ -22,7 +22,7 @@ gnu-efi:
 				@echo "Building $@"
 				cd $@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR) OBJ_DIR=$(OBJ_DIR)
 
-$(BUILD_DIR)/$(OSNAME).img:
+$(BUILD_DIR)/$(OSNAME).img:	$(KERNEL_BIN)
 				dd if=/dev/zero of=$@ bs=512 count=93750
 				mformat -i $@ -f 1440 ::
 				mmd -i $@ ::/EFI
