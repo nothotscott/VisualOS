@@ -55,6 +55,13 @@ foreach($task in $tasks){
 	if($task -eq "clean"){
 		build clean
 	}
+	if($task -eq "superclean"){
+		build superclean
+		Remove-Item $OVMF_DIR
+	}
+	if($task -eq "devclean"){
+		build devclean
+	}
 	if($task -eq "bootloaderclean"){
 		build gnueficlean
 	}

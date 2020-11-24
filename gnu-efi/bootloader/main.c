@@ -1,8 +1,28 @@
 #include <efi.h>
 #include <efilib.h>
 #include <elf.h>
+#include "bootloader.h"
 
 typedef unsigned long long	size_t;
+
+struct FrameBuffer frame_buffer;
+
+void initalize_gop(){
+	EFI_GUID gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+	EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
+	EFI_STATUS status = uefi_call_wrapper(BS->LocateProtocol, 3, &gop_guid, NULL, (void**)&gop);
+	if(EFI_ERROR(status)){
+		Print(L"Cannot locate GOP\n\r");
+		return;
+	}
+	Print(L"GOP located\n\r");
+	// Frame buffer
+	frame_buffer.base_ptr = (void*)gop->Mode->FrameBufferBase;
+	frame_buffer.size  = gop->Mode->FrameBufferSize;
+	frame_buffer.width  = gop->Mode->Info->HorizontalResolution;
+	frame_buffer.height  = gop->Mode->Info->VerticalResolution;
+	frame_buffer.ppsl  = gop->Mode->Info->PixelsPerScanLine;
+}
 
 EFI_FILE* load_file(EFI_FILE* dir, CHAR16* path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	EFI_FILE* loaded_file;
@@ -94,14 +114,23 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 				break;
 			}
 			default: {
-				Print(L"Kernel program header read (Unknown)\n\r");
+				Print(L"Kernel program header read (Unknown=%u)\n\r", ph_ptr->p_type);
 			}
 		}
 	}
-	int (*kernel_start)() = ((__attribute__((sysv_abi)) int(*)()) header.e_entry);
-	Print(L"%d\n\r", kernel_start());
+	// Get important values for the kernel
+	initalize_gop();
+	Print(L"GOP frame buffer data:\n\r"
+		"  Base=0x%x\n\r"
+		"  Size=%x\n\r"
+		"  Width=%d\n\r"
+		"  Height=%d\n\r"
+		"  Pixels per scanline=%d\n\r", 
+	frame_buffer.base_ptr, frame_buffer.size, frame_buffer.width, frame_buffer.height, frame_buffer.ppsl);
 
-	while(1); // test
+	// Enter into the kernel
+	void (*kernel_start)(struct FrameBuffer*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
+	kernel_start(&frame_buffer);
 
 	return EFI_SUCCESS; // Exit the UEFI application
 }

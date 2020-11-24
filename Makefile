@@ -27,9 +27,11 @@ $(BUILD_DIR)/$(OSNAME).img:	$(KERNEL_BIN)
 				mformat -i $@ -f 1440 ::
 				mmd -i $@ ::/EFI
 				mmd -i $@ ::/EFI/BOOT
+#				mmd -i $@ ::/extras
+				mcopy -i $@ $(KERNEL_BIN) ::
 				mcopy -i $@ $(EFI_BIN) ::/EFI/BOOT
 				mcopy -i $@ $(STARTUP_SCRIPT) ::
-				mcopy -i $@ $(KERNEL_BIN) ::
+				mcopy -i $@ -s extras/ ::/extras
 .PHONY: img
 img:			$(BUILD_DIR)/$(OSNAME).img
 
@@ -59,7 +61,7 @@ gnueficlean:	imgclean
 kernelclean:	objclean
 
 .PHONY: devclean
-devclean:		gnueficlean kernelclean
+devclean:		gnueficlean kernelclean imgclean
 
 .PHONY: clean
 clean:		

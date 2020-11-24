@@ -13,7 +13,7 @@ $(OBJ_DIR)/%.o:		$(THIS)/%.asm
 
 LINKED_OBJS	:= $(OBJ_DIR)/%.so $(OBJ_DIR)/%.elf
 $(LINKED_OBJS):		$(OBJ_DIR)/%.o
-					$(LD) $(LDFLAGS) $^ -o $@ $(LOADLIBES)
+					$(LD) $(LDFLAGS) $^ $(LDADDITIONS) -o $@ $(LOADLIBES)
 
 $(BUILD_DIR)/%.efi:	$(OBJ_DIR)/%.so
 					$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc $(OBJCOPYFLAGS) $< $@

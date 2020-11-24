@@ -2,8 +2,17 @@
 
 include Make.defaults
 
-LDFLAGS	:= -T $(THIS)/kernel.ld -static -Bsymbolic -nostdlib
+BOOTLOADER	:= gnu-efi/bootloader
+SUBDIRS		:= $(shell find $(THIS)/* -maxdepth 1 -type d)
 
-all:	$(OBJ_DIR)/kernel.elf
+export CFLAGS	:= -I$(BOOTLOADER) -I$(THIS)
+LDFLAGS			:= -T $(THIS)/kernel.ld -static -Bsymbolic -nostdlib
+LDADDITIONS		= $(addprefix $(OBJ_DIR)/, $(notdir $(wildcard $(OBJ_DIR)/*.o)))
+
+all:	$(SUBDIRS) $(OBJ_DIR)/kernel.elf
+
+.PHONY: $(SUBDIRS)
+$(SUBDIRS):	
+		$(MAKE) -f $@/Makefile THIS=$@
 
 include Make.rules
