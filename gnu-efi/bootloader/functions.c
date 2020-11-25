@@ -43,3 +43,35 @@ EFI_FILE* load_file(EFI_FILE* directory, CHAR16* path, EFI_HANDLE ImageHandle, E
 	}
 	return loaded_file;
 }
+
+struct PSF1Font* load_psf1_font(EFI_FILE* directory, CHAR16* path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable){
+	EFI_FILE* font_file = load_file(directory, path, ImageHandle, SystemTable);
+	struct PSF1Header* font_header;
+	UINTN header_size = sizeof(struct PSF1Header);
+	// Load font header
+	if(font_file == NULL){
+		return NULL;
+	}
+	SystemTable->BootServices->AllocatePool(EfiLoaderData, header_size, (void**)&font_header);
+	font_file->Read(font_file, &header_size, font_header);
+	if(font_header->magic[0] != PSF1_MAGIC0 || font_header->magic[1] != PSF1_MAGIC1){
+		return NULL;
+	}
+	// Load glyph
+	UINTN glyph_buffer_size = font_header->charsize * 256;
+	if(font_header->mode == 1){	// larger glyph mode
+		glyph_buffer_size = font_header->charsize * 512;
+	}
+	void* glyph_buffer;
+	{
+		font_file->SetPosition(font_file, header_size);
+		SystemTable->BootServices->AllocatePool(EfiLoaderData, glyph_buffer_size, (void**)&glyph_buffer);
+		font_file->Read(font_file, &glyph_buffer_size, glyph_buffer);
+	}
+	// Finish up
+	struct PSF1Font* font;
+	SystemTable->BootServices->AllocatePool(EfiLoaderData, sizeof(struct PSF1Font), (void**)&font);
+	font->header_ptr = font_header;
+	font->glyph_buffer = glyph_buffer;
+	return font;
+}

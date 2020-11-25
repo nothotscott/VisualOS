@@ -45,7 +45,7 @@ function get_ovmf {
 }
 
 function launch-qemu {
-	Start-Process "qemu-system-x86_64.exe" -PassThru -NoNewWindow -Wait -ArgumentList "-drive file=$ABSOLUTE/$BUILD_DIR/$OSNAME.img -m 256M -cpu qemu64 -net none -drive if=pflash,format=raw,unit=0,file=$ABSOLUTE/$OVMF_DIR/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=$ABSOLUTE/$OVMF_DIR/OVMF_VARS-pure-efi.fd"
+	Start-Process "qemu-system-x86_64.exe" -NoNewWindow -Wait -ArgumentList "-drive file=$ABSOLUTE/$BUILD_DIR/$OSNAME.img -m 256M -cpu qemu64 -net none -drive if=pflash,format=raw,unit=0,file=$ABSOLUTE/$OVMF_DIR/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=$ABSOLUTE/$OVMF_DIR/OVMF_VARS-pure-efi.fd"
 }
 
 function vbox-manage {
@@ -90,6 +90,9 @@ foreach ($task in $tasks) {
 	}
 	if ($task -eq "clean-kernel") {
 		build clean-kernel
+	}
+	if ($task -eq "clean-img") {
+		build clean-img
 	}
 
 	elseif ($task -eq "build-bootloader") {

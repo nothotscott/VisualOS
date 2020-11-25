@@ -9,6 +9,10 @@
 
 #pragma once
 
+#define PSF1_MAGIC0	0x36
+#define PSF1_MAGIC1	0x04
+#define PSF1_WIDTH	8
+
 struct FrameBuffer {
 	void*				base_ptr;
 	unsigned long long	size;		// size of buffer
@@ -17,9 +21,18 @@ struct FrameBuffer {
 	unsigned int		ppsl;		// pixels per scanline
 };
 
+struct PSF1Header {
+	unsigned char	magic[2];	// identifier bytes
+	unsigned char	mode;
+	unsigned char	charsize;	// how large the characters are
+};
+
+struct PSF1Font {
+	struct PSF1Header*	header_ptr;
+	void*				glyph_buffer;
+};
+
 struct UefiKernelInterface {
 	struct FrameBuffer*	frame_buffer_ptr;
-	void* (*malloc_ptr)(unsigned long int);
-	void (*mfree_ptr)(void*);
-	void* (*load_file_ptr)(void*, unsigned short int*);
+	struct PSF1Font*	font_ptr;
 };

@@ -16,27 +16,11 @@ typedef unsigned long long	size_t;
 // Headers for functions.c
 int mem_compare(const void*, const void*, unsigned long long);
 EFI_FILE* load_file(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
-
-// Global variables for efi_main
-EFI_HANDLE ImageHandle;
-EFI_SYSTEM_TABLE* SystemTable;
+struct PSF1Font* load_psf1_font(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
 
 // Global structs
 struct FrameBuffer frame_buffer;
 struct UefiKernelInterface interface;
-
-// Uefi-kernel Interface functions
-void* bootloader_load_file(void* directory, CHAR16* path){
-	return load_file((EFI_FILE*)directory, path, ImageHandle, SystemTable);
-}
-void* bootloader_malloc(UINT64 size){
-	void* location;
-	SystemTable->BootServices->AllocatePool(EfiLoaderData, size, &location);
-	return location;
-}
-void bootloader_mfree(void* location){
-	SystemTable->BootServices->FreePool(location);
-}
 
 // Main code
 void initalize_gop(){
@@ -56,9 +40,7 @@ void initalize_gop(){
 	frame_buffer.ppsl  = gop->Mode->Info->PixelsPerScanLine;
 }
 
-EFI_STATUS efi_main (EFI_HANDLE _ImageHandle, EFI_SYSTEM_TABLE* _SystemTable) {
-	ImageHandle = _ImageHandle;
-	SystemTable = _SystemTable;
+EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	// Begin loading the kernel
 	InitializeLib(ImageHandle, SystemTable);	// UEFI environment to make out lives easier
 	Print(L"Loading VisualOS\n\r");
@@ -121,7 +103,7 @@ EFI_STATUS efi_main (EFI_HANDLE _ImageHandle, EFI_SYSTEM_TABLE* _SystemTable) {
 			}
 		}
 	}
-	// Get important values for the kernel
+	// Initalize GOP
 	initalize_gop();
 	Print(L"GOP frame buffer data:\n\r"
 		"  Base=0x%x\n\r"
@@ -131,18 +113,22 @@ EFI_STATUS efi_main (EFI_HANDLE _ImageHandle, EFI_SYSTEM_TABLE* _SystemTable) {
 		"  Pixels per scanline=%d\n\r", 
 	frame_buffer.base_ptr, frame_buffer.size, frame_buffer.width, frame_buffer.height, frame_buffer.ppsl);
 
-	// Populate the kernel interface
-	interface = (struct UefiKernelInterface){
-		.frame_buffer_ptr = &frame_buffer,
-		.malloc_ptr = &bootloader_malloc,
-		.mfree_ptr = &bootloader_mfree,
-		.load_file_ptr = &bootloader_load_file
-	};
+	// Get font
+	EFI_FILE* extras = load_file(NULL, L"extras", ImageHandle, SystemTable);
+	struct PSF1Font* font = load_psf1_font(extras, L"zap-ext-light18.psf", ImageHandle, SystemTable);
+	if(font == NULL){
+		Print(L"Could not load font\n\r");
+	}else{
+		Print(L"Font found, Charsize=%d\n\r", font->header_ptr->charsize);
+	}
+
+	// Get important values for the kernel
+	interface.frame_buffer_ptr = &frame_buffer;
+	interface.font_ptr = font;
 
 	// Enter into the kernel
 	void (*kernel_start)(struct UefiKernelInterface*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
 	kernel_start(&interface);
-	//load_file(NULL, L"kernel.elf", ImageHandle, SystemTable);
 
 	return EFI_SUCCESS; // Exit the UEFI application
 }

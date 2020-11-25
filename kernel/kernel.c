@@ -6,14 +6,15 @@
  * You should have received a copy of the GNU General Public License along with this program. 
  * If not, see https://www.gnu.org/licenses/gpl-2.0
  */
-#include "shell/font.h"
+
+#include "shell/shell.h"
 
 void _start(struct UefiKernelInterface* interface){
 	struct FrameBuffer* frame_buffer = interface->frame_buffer_ptr;
-	unsigned int y = 300;
-	unsigned int bbp = 4;
-	for(unsigned int x  = 0; x < (frame_buffer->width / 2) * bbp; x+=bbp){
-		unsigned int* pixel_ptr = frame_buffer->base_ptr + (frame_buffer->ppsl * bbp * y) + x;
-		*pixel_ptr = 0x123456ff;
+	struct PSF1Font* font = interface->font_ptr;
+
+	for(uint i = 0; i < 50; i++){
+		print(frame_buffer, font, "Hello, kernel!", 0xffffffff);
 	}
 }
+

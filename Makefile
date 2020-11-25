@@ -27,7 +27,6 @@ $(BUILD_DIR)/$(OSNAME).img:	$(KERNEL_BIN)
 				mformat -i $@ -f 1440 ::
 				mmd -i $@ ::/EFI
 				mmd -i $@ ::/EFI/BOOT
-#				mmd -i $@ ::/extras
 				mcopy -i $@ $(KERNEL_BIN) ::
 				mcopy -i $@ $(EFI_BIN) ::/EFI/BOOT
 				mcopy -i $@ $(STARTUP_SCRIPT) ::
