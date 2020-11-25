@@ -1,3 +1,11 @@
+/*
+ * File:		main.c
+ * *****************************************************************************
+ * Copyright 2020 Scott Maday
+ * You should have received a copy of the GNU General Public License along with this program. 
+ * If not, see https://www.gnu.org/licenses/gpl-2.0
+ */
+
 #include <efi.h>
 #include <efilib.h>
 #include <elf.h>
@@ -5,8 +13,32 @@
 
 typedef unsigned long long	size_t;
 
-struct FrameBuffer frame_buffer;
+// Headers for functions.c
+int mem_compare(const void*, const void*, unsigned long long);
+EFI_FILE* load_file(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
 
+// Global variables for efi_main
+EFI_HANDLE ImageHandle;
+EFI_SYSTEM_TABLE* SystemTable;
+
+// Global structs
+struct FrameBuffer frame_buffer;
+struct UefiKernelInterface interface;
+
+// Uefi-kernel Interface functions
+void* bootloader_load_file(void* directory, CHAR16* path){
+	return load_file((EFI_FILE*)directory, path, ImageHandle, SystemTable);
+}
+void* bootloader_malloc(UINT64 size){
+	void* location;
+	SystemTable->BootServices->AllocatePool(EfiLoaderData, size, &location);
+	return location;
+}
+void bootloader_mfree(void* location){
+	SystemTable->BootServices->FreePool(location);
+}
+
+// Main code
 void initalize_gop(){
 	EFI_GUID gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
 	EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
@@ -24,39 +56,10 @@ void initalize_gop(){
 	frame_buffer.ppsl  = gop->Mode->Info->PixelsPerScanLine;
 }
 
-EFI_FILE* load_file(EFI_FILE* dir, CHAR16* path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
-	EFI_FILE* loaded_file;
-	EFI_LOADED_IMAGE_PROTOCOL* loaded_image;
-	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL* file_system;
-	// Load
-	SystemTable->BootServices->HandleProtocol(ImageHandle, &gEfiLoadedImageProtocolGuid, (void**)&loaded_image);
-	SystemTable->BootServices->HandleProtocol(loaded_image->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, (void**)&file_system);
-	// Check if directory is null, and open the root of the file system if so
-	if(dir == NULL){
-		file_system->OpenVolume(file_system, &dir);
-	}
-	// Open directory and save into loaded_file
-	EFI_STATUS s = dir->Open(dir, &loaded_file, path, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY);
-	if(s != EFI_SUCCESS){
-		return NULL;
-	}
-	return loaded_file;
-}
-
-int mem_compare(const void* aptr, const void* bptr, size_t n) {
-	const unsigned char* a = aptr;
-	const unsigned char* b = bptr;
-	for (size_t i = 0l; i < n; i++){
-		if (a[i] < b[i]){
-			return -1;
-		} else if (a[i] > b[i]){
-			return 1;
-		}
-	}
-	return 0;
-}
-
-EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
+EFI_STATUS efi_main (EFI_HANDLE _ImageHandle, EFI_SYSTEM_TABLE* _SystemTable) {
+	ImageHandle = _ImageHandle;
+	SystemTable = _SystemTable;
+	// Begin loading the kernel
 	InitializeLib(ImageHandle, SystemTable);	// UEFI environment to make out lives easier
 	Print(L"Loading VisualOS\n\r");
 
@@ -128,9 +131,18 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		"  Pixels per scanline=%d\n\r", 
 	frame_buffer.base_ptr, frame_buffer.size, frame_buffer.width, frame_buffer.height, frame_buffer.ppsl);
 
+	// Populate the kernel interface
+	interface = (struct UefiKernelInterface){
+		.frame_buffer_ptr = &frame_buffer,
+		.malloc_ptr = &bootloader_malloc,
+		.mfree_ptr = &bootloader_mfree,
+		.load_file_ptr = &bootloader_load_file
+	};
+
 	// Enter into the kernel
-	void (*kernel_start)(struct FrameBuffer*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
-	kernel_start(&frame_buffer);
+	void (*kernel_start)(struct UefiKernelInterface*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
+	kernel_start(&interface);
+	//load_file(NULL, L"kernel.elf", ImageHandle, SystemTable);
 
 	return EFI_SUCCESS; // Exit the UEFI application
 }

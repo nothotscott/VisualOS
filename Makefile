@@ -13,12 +13,12 @@ setup:
 				@mkdir -p $(OBJ_DIR)
 
 .PHONY: $(SUBDIRS)
-$(SUBDIRS):	
+$(SUBDIRS):		setup
 				@echo "Building $@"
-				$(MAKE) -f $@/Makefile THIS=$@
+				$(MAKE) --no-print-directory -f $@/Makefile THIS=$@
 
 .PHONY: gnu-efi
-gnu-efi:
+gnu-efi:		setup
 				@echo "Building $@"
 				cd $@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR) OBJ_DIR=$(OBJ_DIR)
 
@@ -45,28 +45,28 @@ $(BUILD_DIR)/$(OSNAME).iso:	img
 iso:			$(BUILD_DIR)/$(OSNAME).iso
 
 
-.PHONY: objclean
-objclean:		
+.PHONY: clean-obj
+clean-obj:		
 				cd $(OBJ_DIR) && rm -rf *.o *.so *.elf
 
-.PHONY: imgclean
-imgclean:		
+.PHONY: clean-img
+clean-img:		
 				cd $(BUILD_DIR) && rm -rf *.img *.iso
 
-.PHONY: gnueficlean
-gnueficlean:	imgclean
+.PHONY: clean-gnuefi
+clean-gnuefi:	clean-img
 				rm -rf $(BUILD_DIR)/gnu-efi/bootloader/*.*
 
-.PHONY: kernelclean
-kernelclean:	objclean
+.PHONY: clean-kernel
+clean-kernel:	clean-obj
 
-.PHONY: devclean
-devclean:		gnueficlean kernelclean imgclean
+.PHONY: clean-dev
+clean-dev:		clean-gnuefi clean-kernel clean-img
 
 .PHONY: clean
 clean:		
 				find $(BUILD_DIR) -type f -name '*.*' -delete
 
-.PHONY: superclean
-superclean:	
+.PHONY: clean-super
+clean-super:	
 				rm -rf $(BUILD_DIR)

@@ -46,7 +46,7 @@
 		$(FORMAT) $*.so $@
 
 %.so: %.o
-	$(LD) $(LDFLAGS) $^ -o $@ $(LOADLIBES)
+	$(LD) $(LDFLAGS) $^ $(LDADDITIONS) -o $@ $(LOADLIBES)
 
 %.o: %.c
 	$(CC) $(INCDIR) $(CFLAGS) $(CPPFLAGS) -c $< -o $@

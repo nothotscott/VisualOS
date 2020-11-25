@@ -1,0 +1,6 @@
+SOURCES	:= $(notdir $(wildcard $(THIS)/*.c $(THIS)/*.cpp $(THIS)/*.asm))
+TARGETS	:= $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
+
+CFLAGS	+= -I$(THIS)
+
+all:	$(TARGETS)

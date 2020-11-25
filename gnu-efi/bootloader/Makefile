@@ -59,7 +59,7 @@ LOADLIBES	+= -lefi -lgnuefi
 LOADLIBES	+= $(LIBGCC)
 LOADLIBES	+= -T $(LDSCRIPT)
 
-TARGET_APPS = main.efi
+TARGET_APPS = main.efi functions.o
 TARGET_BSDRIVERS =
 TARGET_RTDRIVERS =
 
@@ -80,7 +80,8 @@ LDFLAGS		+= --defsym=EFI_SUBSYSTEM=$(SUBSYSTEM)
 
 endif
 
-TARGETS = $(TARGET_APPS) $(TARGET_BSDRIVERS) $(TARGET_RTDRIVERS)
+LDADDITIONS	= $(filter %.o, $(TARGET_APPS))
+TARGETS		= $(LDADDITIONS) $(TARGET_APPS) $(TARGET_BSDRIVERS) $(TARGET_RTDRIVERS)
 
 CFLAGS += -Wno-error=unused-parameter -Wno-error=unused-variable
 
