@@ -11,6 +11,9 @@ all:			$(SUBDIRS) $(BUILD_DIR)/$(OSNAME).img
 setup:	
 				@mkdir -p $(BUILD_DIR)
 				@mkdir -p $(OBJ_DIR)
+ifdef ASMDUMP
+				@mkdir -p $(ASMDUMP_DIR)
+endif
 
 .PHONY: $(SUBDIRS)
 $(SUBDIRS):		setup
@@ -58,6 +61,9 @@ clean-gnuefi:	clean-img
 
 .PHONY: clean-kernel
 clean-kernel:	clean-obj
+ifneq "$(wildcard $(ASMDUMP_DIR))" ""
+				cd $(ASMDUMP_DIR) && rm -rf *.s
+endif
 
 .PHONY: clean-dev
 clean-dev:		clean-gnuefi clean-kernel clean-img

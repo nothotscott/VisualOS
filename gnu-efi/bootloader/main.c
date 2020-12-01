@@ -13,10 +13,15 @@
 
 typedef unsigned long long	size_t;
 
+#define SYSTEM_FONT	L"zap-ext-light18.psf"
+#define SYSTEM_BMP	L"VisualOS.bmp"
+#define SYSTEM_TGA	L"VisualOS.tga"
+
 // Headers for functions.c
 int mem_compare(const void*, const void*, unsigned long long);
 EFI_FILE* load_file(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
 struct PSF1Font* load_psf1_font(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
+struct TGAImage* load_tga_image(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
 
 // Global structs
 struct FrameBuffer frame_buffer;
@@ -113,18 +118,28 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		"  Pixels per scanline=%d\n\r", 
 	frame_buffer.base_ptr, frame_buffer.size, frame_buffer.width, frame_buffer.height, frame_buffer.ppsl);
 
-	// Get font
 	EFI_FILE* extras = load_file(NULL, L"extras", ImageHandle, SystemTable);
-	struct PSF1Font* font = load_psf1_font(extras, L"zap-ext-light18.psf", ImageHandle, SystemTable);
+	// Get font
+	struct PSF1Font* font = load_psf1_font(extras, SYSTEM_FONT, ImageHandle, SystemTable);
 	if(font == NULL){
 		Print(L"Could not load font\n\r");
 	}else{
-		Print(L"Font found, Charsize=%d\n\r", font->header_ptr->charsize);
+		Print(L"Font found: Charsize=%d\n\r", font->header_ptr->charsize);
+	}
+	// Get TGA image
+	struct TGAImage* image = load_tga_image(extras, SYSTEM_TGA, ImageHandle, SystemTable);
+	if(image == NULL){
+		Print(L"Could not find system TGA image\n\r");
+	}else{
+		Print(L"System TGA image found: Dimensions=%dx%d, Image type=%d, Bits per pixel=%d\n\r",
+			image->header_ptr->width, image->header_ptr->height, image->header_ptr->image_type, image->header_ptr->bbp
+		);
 	}
 
 	// Get important values for the kernel
 	interface.frame_buffer_ptr = &frame_buffer;
 	interface.font_ptr = font;
+	interface.img_ptr = image;
 
 	// Enter into the kernel
 	void (*kernel_start)(struct UefiKernelInterface*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);

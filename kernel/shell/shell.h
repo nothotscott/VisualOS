@@ -15,7 +15,14 @@ struct Point {
 	uint	y;
 };
 
-// Puts a character at the location in the FrameBuffer
+// Sets the cursor to the x and y
+void set_cursor(uint, uint);
+
+// Puts a character at the location in the FrameBuffer using the font
 void put_char(struct FrameBuffer*, struct PSF1Font*, char, uint, uint, uint);
 
+// Prints a string at the cursor in the FrameBuffer using the font
 void print(struct FrameBuffer*, struct PSF1Font*, char*, uint);
+
+// Draws image img on the FrameBuffer
+void draw_tga(struct FrameBuffer*, struct TGAImage*, uint, uint);

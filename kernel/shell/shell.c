@@ -8,10 +8,17 @@
 
 #include "shell.h"
 
+// Initalize globals
 struct Point cursor = {
 	.x = 0,
 	.y = 0
 };
+
+
+void set_cursor(uint x, uint y) {
+	cursor.x = x;
+	cursor.y = y;
+}
 
 void put_char(struct FrameBuffer* frame_buffer, struct PSF1Font* font, char chr, uint color, uint xoff, uint yoff){
 	uint* pixel_ptr = (uint*)frame_buffer->base_ptr;
@@ -20,7 +27,7 @@ void put_char(struct FrameBuffer* frame_buffer, struct PSF1Font* font, char chr,
 	// Draw; dx is delta x and dy is delta y
 	for(size_t dy = 0; dy < charsize; dy++){
 		for(size_t dx = 0; dx < PSF1_WIDTH; dx++){
-			if((*font_ptr & (0b10000000 >> dx)) > 0){	// bit is enabled along the dx'th position on the glyph line
+			if((*font_ptr & (0b10000000 >> dx)) > 0){	// bit is enabled along the dx'th position on the glyph row
 				size_t x = dx + xoff;
 				size_t y = dy + yoff;
 				*(uint*)(pixel_ptr + x + (y * frame_buffer->ppsl)) = color;
@@ -41,5 +48,21 @@ void print(struct FrameBuffer* frame_buffer, struct PSF1Font* font, char* str, u
 			cursor.y += font->header_ptr->charsize;
 		}
 		chr++;
+	}
+}
+
+void draw_tga(struct FrameBuffer* frame_buffer, struct TGAImage* img, uint xoff, uint yoff){
+	uint* pixel_ptr = (uint*)frame_buffer->base_ptr;
+	uint* img_ptr = (uint*)img->buffer;
+	uint height = img->header_ptr->height;
+	uint width = img->header_ptr->width;
+	for(size_t dy = 0; dy < height; dy++){
+		for(size_t dx = 0; dx < width; dx++){
+			size_t offset = dx + (height * dy);
+			uint color = *(img_ptr + offset);
+			size_t x = dx + xoff;
+			size_t y = dy + yoff;
+			*(uint*)(pixel_ptr + x + (y * frame_buffer->ppsl)) = color;
+		}
 	}
 }

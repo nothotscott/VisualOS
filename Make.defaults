@@ -4,6 +4,7 @@ BUILD_DIR	:= build
 
 # Directories
 OBJ_DIR		:= $(BUILD_DIR)/obj
+ASMDUMP_DIR	:= $(BUILD_DIR)/asm
 
 # Programs
 CC		:= gcc

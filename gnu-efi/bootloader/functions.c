@@ -48,10 +48,10 @@ struct PSF1Font* load_psf1_font(EFI_FILE* directory, CHAR16* path, EFI_HANDLE Im
 	EFI_FILE* font_file = load_file(directory, path, ImageHandle, SystemTable);
 	struct PSF1Header* font_header;
 	UINTN header_size = sizeof(struct PSF1Header);
-	// Load font header
 	if(font_file == NULL){
 		return NULL;
 	}
+	// Load font header
 	SystemTable->BootServices->AllocatePool(EfiLoaderData, header_size, (void**)&font_header);
 	font_file->Read(font_file, &header_size, font_header);
 	if(font_header->magic[0] != PSF1_MAGIC0 || font_header->magic[1] != PSF1_MAGIC1){
@@ -74,4 +74,30 @@ struct PSF1Font* load_psf1_font(EFI_FILE* directory, CHAR16* path, EFI_HANDLE Im
 	font->header_ptr = font_header;
 	font->glyph_buffer = glyph_buffer;
 	return font;
+}
+
+struct TGAImage* load_tga_image(EFI_FILE* directory, CHAR16* path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable){
+	EFI_FILE* file = load_file(directory, path, ImageHandle, SystemTable);
+	struct TGAHeader* header;
+	UINTN header_size = sizeof(struct TGAHeader);
+	if(file == NULL){
+		return NULL;
+	}
+	// Load image header
+	SystemTable->BootServices->AllocatePool(EfiLoaderData, header_size, (void**)&header);
+	file->Read(file, &header_size, header);
+	// Load image
+	UINTN buffer_size = header->width * header->height * header->bbp / 8;
+	void* buffer;
+	{
+		file->SetPosition(file, header_size);
+		SystemTable->BootServices->AllocatePool(EfiLoaderData, buffer_size, (void**)&buffer);
+		file->Read(file, &buffer_size, buffer);
+	}
+	// Finish up
+	struct TGAImage* image;
+	SystemTable->BootServices->AllocatePool(EfiLoaderData, sizeof(struct TGAImage), (void**)&image);
+	image->header_ptr = header;
+	image->buffer = buffer;
+	return image;
 }

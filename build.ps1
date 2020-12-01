@@ -22,9 +22,9 @@ $OVMF_URL = "https://github.com/Absurdponcho/OVMFbin"
 $ABSOLUTE = Split-Path $script:MyInvocation.MyCommand.Path
 $OVMF_DIR = Split-Path $OVMF_URL -leaf
 $DEFAULT_TASK = @("setup", "build-bootloader", "build-kernel", "build-img")
-$MAKE_VARS = @("OSNAME=$OSNAME", "BUILD_DIR=$BUILD_DIR")
 $VBOX = Get-Command "VBoxManage.exe" -ErrorAction SilentlyContinue
 $WSL = $(Get-ChildItem -Path Env:WSL_DISTRO_NAME -ErrorAction SilentlyContinue | Select-Object -last 1).Value
+[System.Collections.ArrayList]$MAKE_VARS = @("OSNAME=$OSNAME", "BUILD_DIR=$BUILD_DIR")
 
 function build {
 	param (
@@ -73,25 +73,22 @@ foreach ($task in $tasks) {
 	if ($task -eq "setup") {
 		build setup
 		get_ovmf
+	} elseif ($task -eq "asmdump") {
+		$MAKE_VARS.Add("ASMDUMP=true") | Out-Null
 	}
 
-	if ($task -eq "clean") {
+	elseif ($task -eq "clean") {
 		build clean
-	}
-	if ($task -eq "clean-super") {
+	} elseif ($task -eq "clean-super") {
 		build clean-super
 		Remove-Item $OVMF_DIR -Recurse -Force
-	}
-	if ($task -eq "clean-dev") {
+	} elseif ($task -eq "clean-dev") {
 		build clean-dev
-	}
-	if ($task -eq "clean-bootloader") {
+	} elseif ($task -eq "clean-bootloader") {
 		build clean-bootloader
-	}
-	if ($task -eq "clean-kernel") {
+	} elseif ($task -eq "clean-kernel") {
 		build clean-kernel
-	}
-	if ($task -eq "clean-img") {
+	} elseif ($task -eq "clean-img") {
 		build clean-img
 	}
 

@@ -15,7 +15,7 @@ SECTIONS
 	{
 		*(.rodata)
 	}
-	.bss : ALIGN(4K) /* Uninitalized */
+	.bss : ALIGN(4K)
 	{
 		*(COMMON)
 		*(.bss)

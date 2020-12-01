@@ -1,6 +1,11 @@
 SOURCES	:= $(notdir $(wildcard $(THIS)/*.c $(THIS)/*.cpp $(THIS)/*.asm))
 TARGETS	:= $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
 
+ifdef ASMDUMP
+	TARGETS	:= $(addprefix $(ASMDUMP_DIR)/, $(addsuffix .s, $(notdir $(basename $(TARGETS)))))
+endif
+
+
 CFLAGS	+= -I$(THIS)
 
 all:	$(TARGETS)
