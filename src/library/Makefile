@@ -2,7 +2,7 @@
 
 include Make.defaults
 
-GIVENS		:= $(THIS)/library.h universal.h
+GIVENS		:= $(THIS)/library.h $(SRC_DIR)/universal.h
 
 SUBDIRS		:= $(shell find $(THIS)/* -maxdepth 1 -type d)
 INCLUDES	:= $(addprefix -include , $(GIVENS))

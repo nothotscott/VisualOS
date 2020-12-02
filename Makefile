@@ -1,9 +1,8 @@
 include Make.defaults
 
-SUBDIRS			:= kernel library
 EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
 KERNEL_BIN		:= $(OBJ_DIR)/kernel.elf
-STARTUP_SCRIPT	:= gnu-efi/startup.nsh
+STARTUP_SCRIPT	:= $(SRC_DIR)/$(BOOTLOADER)/startup.nsh
 
 all:			$(SUBDIRS) $(BUILD_DIR)/$(OSNAME).img
 
@@ -16,15 +15,27 @@ ifdef ASMDUMP
 				@mkdir -p $(ASMDUMP_DIR)
 endif
 
-.PHONY: $(SUBDIRS)
-$(SUBDIRS):		setup
-				@echo "Building $@"
-				$(MAKE) --no-print-directory -f $@/Makefile THIS=$@
+###############################################################################
 
-.PHONY: gnu-efi
-gnu-efi:		setup
+MAKE_VOS	= $(MAKE) --no-print-directory -f $(SRC_DIR)/$@/Makefile THIS=$(SRC_DIR)/$@
+
+.PHONY: $(BOOTLOADER)
+$(BOOTLOADER):	setup
 				@echo "Building $@"
-				cd $@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR) OBJ_DIR=$(OBJ_DIR)
+				cd $(SRC_DIR)/$@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS) OBJ_DIR=$(OBJ_DIR)
+
+.PHONY: $(LIBRARY)
+$(LIBRARY):		setup
+				@echo "Building $@"
+				$(MAKE_VOS)
+
+.PHONY: $(KERNEL)
+$(KERNEL):		setup $(LIBRARY)
+				@echo "Building $@"
+				$(MAKE_VOS)
+
+###############################################################################
+
 
 $(BUILD_DIR)/$(OSNAME).img:	$(KERNEL_BIN)
 				dd if=/dev/zero of=$@ bs=512 count=93750
@@ -47,36 +58,27 @@ $(BUILD_DIR)/$(OSNAME).iso:	img
 .PHONY: iso
 iso:			$(BUILD_DIR)/$(OSNAME).iso
 
+###############################################################################
 
-.PHONY: clean-obj
-clean-obj:		
-				cd $(OBJ_DIR) && rm -rf *.o *.so *.elf
-
-.PHONY: clean-img
-clean-img:		
-				cd $(BUILD_DIR) && rm -rf *.img *.iso
+RM_OBJ	:= rm -rf *.o *.a *.so *.elf
+RM_IMG	:= rm -rf *.img *.iso *.vdi
 
 .PHONY: clean-gnuefi
 clean-gnuefi:	clean-img
-				rm -rf $(BUILD_DIR)/gnu-efi/bootloader/*.*
+				rm -rf $(BUILD_DIR)/gnu-efi/bootloader
 
-.PHONY: clean-library
-clean-library:	clean-obj
-				rm -rf $(LIB_DIR)/gnu-efi/bootloader/*.*
-
-.PHONY: clean-kernel
-clean-kernel:	clean-library
+.PHONY: clean-vos
+clean-vos:		clean-img
+				rm -rf $(OBJ_DIR)/
+				rm -rf $(LIB_DIR)/
 ifneq "$(wildcard $(ASMDUMP_DIR))" ""
 				cd $(ASMDUMP_DIR) && rm -rf *.s
 endif
 
-.PHONY: clean-dev
-clean-dev:		clean-gnuefi clean-kernel clean-library clean-img
+.PHONY: clean-img
+clean-img:		
+				cd $(BUILD_DIR) && $(RM_IMG)
 
 .PHONY: clean
 clean:		
-				find $(BUILD_DIR) -type f -name '*.*' -delete
-
-.PHONY: clean-super
-clean-super:	
 				rm -rf $(BUILD_DIR)

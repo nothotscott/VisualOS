@@ -2,7 +2,13 @@
 OSNAME		:= VisualOS
 BUILD_DIR	:= build
 
+# Build procedures
+BOOTLOADER	:= gnu-efi
+LIBRARY		:= library
+KERNEL		:= kernel
+
 # Directories
+SRC_DIR		:= src
 OBJ_DIR		:= $(BUILD_DIR)/obj
 LIB_DIR		:= $(BUILD_DIR)/library
 ASMDUMP_DIR	:= $(BUILD_DIR)/asm

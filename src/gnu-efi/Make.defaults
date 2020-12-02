@@ -35,7 +35,7 @@
 #
 
 TOPDIR		:= $(shell if [ "$$PWD" != "" ]; then echo $$PWD; else pwd; fi)
-ROOT_DIR	:= $(TOPDIR)/..
+ROOT_DIR	:= $(BUILD_DIR)/..
 
 #
 # Variables below overridable from command-line:
@@ -80,7 +80,7 @@ endif
 # Where to build the package
 #
 # $(TOPDIR)/$(ARCH)
-OBJDIR       := $(ROOT_DIR)/$(BUILD_DIR)/$(THIS)
+OBJDIR       := $(BUILD_DIR)/$(THIS)
 
 #
 # Variables below derived from variables above

@@ -79,19 +79,15 @@ foreach ($task in $tasks) {
 
 	elseif ($task -eq "clean") {
 		build clean
-	} elseif ($task -eq "clean-super") {
-		build clean-super
 		Remove-Item $OVMF_DIR -Recurse -Force
-	} elseif ($task -eq "clean-dev") {
-		build clean-dev
-	} elseif ($task -eq "clean-bootloader") {
-		build clean-bootloader
-	} elseif ($task -eq "clean-kernel") {
-		build clean-kernel
 	} elseif ($task -eq "clean-img") {
 		build clean-img
+	} elseif ($task -eq "clean-bootloader") {
+		build clean-gnuefi
+	} elseif ($task -eq "clean-vos") {
+		build clean-vos
 	}
-
+	
 	elseif ($task -eq "build-bootloader") {
 		build gnu-efi
 	} elseif ($task -eq "build-library") {
