@@ -10,19 +10,24 @@
 
 #pragma once
 
-struct Point {
-	uint	x;
-	uint	y;
-};
+#define	SHELL_WHITE	0xffffffff
+#define	SHELL_RED	0xffff0000
+#define	SHELL_GREEN	0xff00ff00
+#define	SHELL_BLUE	0xff0000ff
+
+
+// Initalize shell with the _frame_buffer and _font
+void shell_init(struct FrameBuffer* _frame_buffer, struct PSF1Font* _font);
+
 
 // Sets the cursor to the x and y
-void set_cursor(uint, uint);
+void set_cursor(uint x, uint y);
 
-// Puts a character at the location in the FrameBuffer using the font
-void put_char(struct FrameBuffer*, struct PSF1Font*, char, uint, uint, uint);
+// Draws a character chr with color at xoffset and yoffset
+void draw_char(char chr, uint color, uint xoff, uint yoff);
 
-// Prints a string at the cursor in the FrameBuffer using the font
-void print(struct FrameBuffer*, struct PSF1Font*, char*, uint);
+// Prints a string at the current cursor position with color
+void print(char* str, uint color);
 
-// Draws image img on the FrameBuffer
-void draw_tga(struct FrameBuffer*, struct TGAImage*, uint, uint);
+// Draws TGA img at xoffset and yoffset
+void draw_tga(struct TGAImage* img, uint xoff, uint yoff);

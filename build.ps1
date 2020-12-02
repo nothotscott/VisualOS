@@ -21,7 +21,7 @@ $OVMF_URL = "https://github.com/Absurdponcho/OVMFbin"
 # Don't configure
 $ABSOLUTE = Split-Path $script:MyInvocation.MyCommand.Path
 $OVMF_DIR = Split-Path $OVMF_URL -leaf
-$DEFAULT_TASK = @("setup", "build-bootloader", "build-kernel", "build-img")
+$DEFAULT_TASK = @("setup", "build-bootloader", "build-library", "build-kernel", "build-img")
 $VBOX = Get-Command "VBoxManage.exe" -ErrorAction SilentlyContinue
 $WSL = $(Get-ChildItem -Path Env:WSL_DISTRO_NAME -ErrorAction SilentlyContinue | Select-Object -last 1).Value
 [System.Collections.ArrayList]$MAKE_VARS = @("OSNAME=$OSNAME", "BUILD_DIR=$BUILD_DIR")
@@ -94,6 +94,8 @@ foreach ($task in $tasks) {
 
 	elseif ($task -eq "build-bootloader") {
 		build gnu-efi
+	} elseif ($task -eq "build-library") {
+		build library
 	} elseif ($task -eq "build-kernel") {
 		build kernel
 	} elseif ($task -eq "build-img") {

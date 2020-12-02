@@ -6,6 +6,8 @@
  * If not, see https://www.gnu.org/licenses/gpl-2.0
  */
 
+#include <string.h>
+#include <spacial.h>
 #include "shell.h"
 
 // Initalize globals
@@ -13,14 +15,20 @@ struct Point cursor = {
 	.x = 0,
 	.y = 0
 };
+struct FrameBuffer* frame_buffer;
+struct PSF1Font* font;
 
+void shell_init(struct FrameBuffer* _frame_buffer, struct PSF1Font* _font){
+	frame_buffer = _frame_buffer;
+	font = _font;
+}
 
 void set_cursor(uint x, uint y) {
 	cursor.x = x;
 	cursor.y = y;
 }
 
-void put_char(struct FrameBuffer* frame_buffer, struct PSF1Font* font, char chr, uint color, uint xoff, uint yoff){
+void draw_char(char chr, uint color, uint xoff, uint yoff){
 	uint* pixel_ptr = (uint*)frame_buffer->base_ptr;
 	byte charsize = font->header_ptr->charsize;
 	byte* font_ptr = font->glyph_buffer + (chr * charsize);	// map character to glyph "array"
@@ -37,10 +45,10 @@ void put_char(struct FrameBuffer* frame_buffer, struct PSF1Font* font, char chr,
 	}
 }
 
-void print(struct FrameBuffer* frame_buffer, struct PSF1Font* font, char* str, uint color){
+void print(char* str, uint color){
 	char* chr = str;
 	while(*chr != 0){
-		put_char(frame_buffer, font, *chr, color, cursor.x, cursor.y);
+		draw_char(*chr, color, cursor.x, cursor.y);
 		cursor.x += PSF1_WIDTH;
 		// Check for overflow
 		if(cursor.x >= frame_buffer->width){
@@ -51,7 +59,7 @@ void print(struct FrameBuffer* frame_buffer, struct PSF1Font* font, char* str, u
 	}
 }
 
-void draw_tga(struct FrameBuffer* frame_buffer, struct TGAImage* img, uint xoff, uint yoff){
+void draw_tga(struct TGAImage* img, uint xoff, uint yoff){
 	uint* pixel_ptr = (uint*)frame_buffer->base_ptr;
 	uint* img_ptr = (uint*)img->buffer;
 	uint height = img->header_ptr->height;

@@ -1,6 +1,6 @@
 include Make.defaults
 
-SUBDIRS			:= kernel
+SUBDIRS			:= kernel library
 EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
 KERNEL_BIN		:= $(OBJ_DIR)/kernel.elf
 STARTUP_SCRIPT	:= gnu-efi/startup.nsh
@@ -11,6 +11,7 @@ all:			$(SUBDIRS) $(BUILD_DIR)/$(OSNAME).img
 setup:	
 				@mkdir -p $(BUILD_DIR)
 				@mkdir -p $(OBJ_DIR)
+				@mkdir -p $(LIB_DIR)
 ifdef ASMDUMP
 				@mkdir -p $(ASMDUMP_DIR)
 endif
@@ -59,14 +60,18 @@ clean-img:
 clean-gnuefi:	clean-img
 				rm -rf $(BUILD_DIR)/gnu-efi/bootloader/*.*
 
+.PHONY: clean-library
+clean-library:	clean-obj
+				rm -rf $(LIB_DIR)/gnu-efi/bootloader/*.*
+
 .PHONY: clean-kernel
-clean-kernel:	clean-obj
+clean-kernel:	clean-library
 ifneq "$(wildcard $(ASMDUMP_DIR))" ""
 				cd $(ASMDUMP_DIR) && rm -rf *.s
 endif
 
 .PHONY: clean-dev
-clean-dev:		clean-gnuefi clean-kernel clean-img
+clean-dev:		clean-gnuefi clean-kernel clean-library clean-img
 
 .PHONY: clean
 clean:		

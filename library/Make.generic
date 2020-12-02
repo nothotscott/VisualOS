@@ -1,0 +1,15 @@
+LIBNAME			:= $(notdir $(THIS))
+SOURCES			:= $(notdir $(wildcard $(THIS)/*.c $(THIS)/*.cpp $(THIS)/*.asm))
+INTERMEDIATES	:= $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
+TARGETS			:= $(addprefix $(LIB_DIR)/, $(addsuffix .a, $(LIBNAME))) $(addprefix $(LIB_DIR)/, $(addsuffix .so, $(LIBNAME)))
+
+ifdef ASMDUMP
+	TARGETS	:= $(addprefix $(ASMDUMP_DIR)/, $(addsuffix .s, $(notdir $(basename $(TARGETS)))))
+endif
+
+
+CXXFLAGS	+= -I$(THIS)
+LDFLAGS		= -shared
+ARFLAGS		= -rcs
+
+all:	$(INTERMEDIATES) $(TARGETS)

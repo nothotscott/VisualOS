@@ -11,11 +11,14 @@ $(OBJ_DIR)/%.o:		$(THIS)/%.asm
 
 #######################################
 
-LINKED_OBJS	:= $(OBJ_DIR)/%.so $(OBJ_DIR)/%.elf
+LINKED_OBJS	:= $(OBJ_DIR)/%.elf $(LIB_DIR)/%.so
 $(LINKED_OBJS):		$(OBJ_DIR)/%.o
 					$(LD) $(LDFLAGS) $^ $(LDADDITIONS) -o $@ $(LOADLIBES)
 
-$(BUILD_DIR)/%.efi:	$(OBJ_DIR)/%.so
+$(LIB_DIR)/%.a:		$(OBJ_DIR)/%.o
+					$(AR) $(ARFLAGS) $@ $^
+
+$(BUILD_DIR)/%.efi:	$(LIB_DIR)/%.so
 					$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc $(OBJCOPYFLAGS) $< $@
 
 # Convert to assembly
