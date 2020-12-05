@@ -28,7 +28,7 @@ void set_cursor(uint x, uint y) {
 	cursor.y = y;
 }
 
-void draw_char(char chr, uint color, uint xoff, uint yoff){
+void draw_char(char chr, SHELL_COLOR color, uint xoff, uint yoff){
 	uint* pixel_ptr = (uint*)frame_buffer->base_ptr;
 	byte charsize = font->header_ptr->charsize;
 	byte* font_ptr = font->glyph_buffer + (chr * charsize);	// map character to glyph "array"
@@ -45,18 +45,30 @@ void draw_char(char chr, uint color, uint xoff, uint yoff){
 	}
 }
 
-void print(char* str, uint color){
+void print(char* str, SHELL_COLOR color){
 	char* chr = str;
 	while(*chr != 0){
-		draw_char(*chr, color, cursor.x, cursor.y);
-		cursor.x += PSF1_WIDTH;
-		// Check for overflow
-		if(cursor.x >= frame_buffer->width){
-			cursor.x = 0;
-			cursor.y += font->header_ptr->charsize;
-		}
+		print_char(*chr, color);
 		chr++;
 	}
+}
+void print_char(char chr, SHELL_COLOR color){
+	if(chr == '\n'){
+		goto newline;
+	}
+	// Draw, if there's no objections
+	draw_char(chr, color, cursor.x, cursor.y);
+	cursor.x += PSF1_WIDTH;
+	// Check for overflow
+	if(cursor.x < frame_buffer->width){
+		return;
+	}
+	newline:
+		cursor.x = 0;
+		cursor.y += font->header_ptr->charsize;
+}
+void print_newline(){
+	print_char('\n', NULL);
 }
 
 void draw_tga(struct TGAImage* img, uint xoff, uint yoff){

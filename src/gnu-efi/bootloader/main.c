@@ -13,9 +13,10 @@
 
 typedef unsigned long long	size_t;
 
-#define SYSTEM_FONT	L"zap-ext-light18.psf"
-#define SYSTEM_BMP	L"VisualOS.bmp"
-#define SYSTEM_TGA	L"VisualOS.tga"
+#define CLEAR_OUTPUT	1
+#define SYSTEM_FONT		L"zap-ext-light18.psf"
+#define SYSTEM_BMP		L"VisualOS.bmp"
+#define SYSTEM_TGA		L"VisualOS.tga"
 
 // Headers for functions.c
 int mem_compare(const void*, const void*, unsigned long long);
@@ -134,6 +135,10 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		Print(L"System TGA image found: Dimensions=%dx%d, Image type=%d, Bits per pixel=%d\n\r",
 			image->header_ptr->width, image->header_ptr->height, image->header_ptr->image_type, image->header_ptr->bbp
 		);
+	}
+	// Prepare for kernel space
+	if(CLEAR_OUTPUT){
+		uefi_call_wrapper(SystemTable->ConOut->ClearScreen, 1, SystemTable->ConOut);
 	}
 
 	// Get important values for the kernel

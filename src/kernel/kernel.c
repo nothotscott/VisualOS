@@ -9,9 +9,12 @@
 
 #include <string.h>
 #include "shell/shell.h"
+#include "shell/tools.h"
 
 // Global interface
 struct UefiKernelInterface* interface;
+
+const char* poop = "this is some poop";
 
 void setup_shell(){
 	struct FrameBuffer* frame_buffer = interface->frame_buffer_ptr;
@@ -32,10 +35,10 @@ void _start(struct UefiKernelInterface* _interface){
 	interface = _interface;
 	setup_shell();
 
-	print("This is a test of the kernel printing to the screen using a custom font. ", SHELL_RED);
-	print("This is a test of the kernel printing to the screen using a custom font. ", SHELL_GREEN);
-	print("This is a test of the kernel printing to the screen using a custom font. ", SHELL_BLUE);
-	print(string_get_str(string_from_int(-12345678)), SHELL_WHITE);
-	//print(string_get_str(string_from_int(12345678)), SHELL_WHITE);
+	print("This is a test of the kernel printing to the screen using a custom font. \nAnd this is a new line\n", SHELL_COLOR_WHITE);
+	print_newline();
+	print_memory((void*)poop, 128, SHELL_COLOR_WHITE);
+
+	while(1);
 }
 

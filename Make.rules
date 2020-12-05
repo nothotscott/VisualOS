@@ -24,3 +24,6 @@ $(BUILD_DIR)/%.efi:	$(LIB_DIR)/%.so
 # Convert to assembly
 $(ASMDUMP_DIR)/%.s:	$(THIS)/%.c
 					$(CC) $(CFLAGS) -S -masm=intel -fverbose-asm $< -o $@
+
+$(ASMDUMP_DIR)/%.s:	$(THIS)/%.cpp
+					$(CXX) $(CXXFLAGS) -S -masm=intel -fverbose-asm $< -o $@
