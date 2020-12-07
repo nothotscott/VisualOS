@@ -1,7 +1,7 @@
 include Make.defaults
 
 EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
-KERNEL_BIN		:= $(OBJ_DIR)/kernel.elf
+KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 STARTUP_SCRIPT	:= $(SRC_DIR)/$(BOOTLOADER)/startup.nsh
 
 all:			$(SUBDIRS) $(BUILD_DIR)/$(OSNAME).img
@@ -9,7 +9,7 @@ all:			$(SUBDIRS) $(BUILD_DIR)/$(OSNAME).img
 .PHONY: setup
 setup:	
 				@mkdir -p $(BUILD_DIR)
-				@mkdir -p $(OBJ_DIR)
+				@mkdir -p $(KERNEL_DIR)
 				@mkdir -p $(LIB_DIR)
 ifdef ASMDUMP
 				@mkdir -p $(ASMDUMP_DIR)
@@ -22,17 +22,17 @@ MAKE_VOS	= $(MAKE) --no-print-directory -f $(SRC_DIR)/$@/Makefile THIS=$(SRC_DIR
 .PHONY: $(BOOTLOADER)
 $(BOOTLOADER):	setup
 				@echo "Building $@"
-				cd $(SRC_DIR)/$@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS) OBJ_DIR=$(OBJ_DIR)
+				cd $(SRC_DIR)/$@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS)
 
 .PHONY: $(LIBRARY)
 $(LIBRARY):		setup
 				@echo "Building $@"
-				$(MAKE_VOS)
+				$(MAKE_VOS) TARGET_DIR=$(LIB_DIR)
 
 .PHONY: $(KERNEL)
 $(KERNEL):		setup $(LIBRARY)
 				@echo "Building $@"
-				$(MAKE_VOS)
+				$(MAKE_VOS) TARGET_DIR=$(KERNEL_DIR)
 
 ###############################################################################
 
@@ -69,8 +69,8 @@ clean-gnuefi:	clean-img
 
 .PHONY: clean-vos
 clean-vos:		clean-img
-				rm -rf $(OBJ_DIR)/
 				rm -rf $(LIB_DIR)/
+				rm -rf $(KERNEL_DIR)/
 ifneq "$(wildcard $(ASMDUMP_DIR))" ""
 				cd $(ASMDUMP_DIR) && rm -rf *.s
 endif

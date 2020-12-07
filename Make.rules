@@ -1,25 +1,31 @@
-.PRECIOUS: $(OBJ_DIR)/%.o
+ifndef TARGET_DIR
+	TARGET_DIR	:= $(BUILD_DIR)
+endif
 
-$(OBJ_DIR)/%.o:		$(THIS)/%.c
-					$(CC) $(CFLAGS) -c $< -o $@
+.PRECIOUS: $(TARGET_DIR)/%.o
 
-$(OBJ_DIR)/%.o:		$(THIS)/%.cpp
-					$(CXX) $(CXXFLAGS) -c $< -o $@
+$(TARGET_DIR)/%.o:		$(THIS)/%.c
+						$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o:		$(THIS)/%.asm
-					$(AS) $(ASFLAGS) $< -o $@
+$(TARGET_DIR)/%.o:		$(THIS)/%.cpp
+						$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(TARGET_DIR)/%.o:		$(THIS)/%.asm
+						$(AS) $(ASFLAGS) $< -o $@
 
 #######################################
 
-LINKED_OBJS	:= $(OBJ_DIR)/%.elf $(LIB_DIR)/%.so
-$(LINKED_OBJS):		$(OBJ_DIR)/%.o
-					$(LD) $(LDFLAGS) $^ $(LDADDITIONS) -o $@ $(LOADLIBES)
+$(TARGET_DIR)/%.elf:	$(TARGET_DIR)/%.o
+						$(LD) $(LDFLAGS) $^ $(LDADDITIONS) -o $@ $(LOADLIBES)
 
-$(LIB_DIR)/%.a:		$(OBJ_DIR)/%.o
-					$(AR) $(ARFLAGS) $@ $^
+$(TARGET_DIR)/%.so:		$(TARGET_DIR)/%.o
+						$(LD) $(LDFLAGS) $^ $(LDADDITIONS) -o $@ $(LOADLIBES)
 
-$(BUILD_DIR)/%.efi:	$(LIB_DIR)/%.so
-					$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc $(OBJCOPYFLAGS) $< $@
+$(TARGET_DIR)/%.a:		$(TARGET_DIR)/%.o
+						$(AR) $(ARFLAGS) $@ $^
+
+$(TARGET_DIR)/%.efi:	$(TARGET_DIR)/%.so
+						$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc $(OBJCOPYFLAGS) $< $@
 
 # Convert to assembly
 $(ASMDUMP_DIR)/%.s:	$(THIS)/%.c

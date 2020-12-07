@@ -1,6 +1,6 @@
 LIBNAME			:= $(notdir $(THIS))
 SOURCES			:= $(notdir $(wildcard $(THIS)/*.c $(THIS)/*.cpp $(THIS)/*.asm))
-INTERMEDIATES	:= $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
+INTERMEDIATES	:= $(addprefix $(LIB_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
 TARGETS			:= $(addprefix $(LIB_DIR)/, $(addsuffix .a, $(LIBNAME))) $(addprefix $(LIB_DIR)/, $(addsuffix .so, $(LIBNAME)))
 
 ifdef ASMDUMP
