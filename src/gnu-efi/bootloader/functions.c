@@ -8,7 +8,6 @@
  */
 #include <efi.h>
 #include <efilib.h>
-#include "bootloader.h"
 
 typedef unsigned long long	size_t;
 

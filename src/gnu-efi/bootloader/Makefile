@@ -42,6 +42,8 @@ include $(SRCDIR)/../Make.defaults
 
 TOPDIR = $(SRCDIR)/..
 
+GIVENS	:= $(ROOT_DIR)/$(KERNEL_SRC)/bootloader.h
+
 # $(TOPDIR)/.. $(TOPDIR)/../../bin
 CDIR=$(TOPDIR)/..
 LINUX_HEADERS	= /usr/src/sys/build
@@ -83,7 +85,7 @@ endif
 LDADDITIONS	= $(filter %.o, $(TARGET_APPS))
 TARGETS		= $(LDADDITIONS) $(TARGET_APPS) $(TARGET_BSDRIVERS) $(TARGET_RTDRIVERS)
 
-CFLAGS += -Wno-error=unused-parameter -Wno-error=unused-variable
+CFLAGS += $(addprefix -include , $(GIVENS)) -Wno-error=unused-parameter -Wno-error=unused-variable
 
 all:	$(TARGETS)
 		mv main.efi BOOTX64.efi

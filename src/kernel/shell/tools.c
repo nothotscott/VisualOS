@@ -14,7 +14,7 @@
 #define SHELL_PRINT_MEMORY_COLUMNS	16
 #define SHELL_PRINT_MEMORY_FILLER	'.'
 
-void print_memory(void* address, size_t size, SHELL_COLOR content_color) {
+void print_memory(void* address, size_t size, SHELL_COLOR content_color, SHELL_COLOR fade_color) {
 	ulong start = (ulong)address - (ulong)address % SHELL_PRINT_MEMORY_COLUMNS;
 	ulong end = start + size + (SHELL_PRINT_MEMORY_COLUMNS - size % SHELL_PRINT_MEMORY_COLUMNS);
 	// Print header
@@ -30,13 +30,15 @@ void print_memory(void* address, size_t size, SHELL_COLOR content_color) {
 		print(string_str_from_ulong(row), SHELL_COLOR_MEMORY_LOCATION);
 		print("  ", SHELL_COLOR_MEMORY_LOCATION);
 		for(byte* ptr = (byte*)row; ptr < (byte*)(row + SHELL_PRINT_MEMORY_COLUMNS); ptr++){
-			print(string_str_from_byte(*ptr), content_color);
-			print_char(' ', content_color);
+			SHELL_COLOR color = (ulong)ptr < (ulong)address || (ulong)ptr > (ulong)address + size ? fade_color : content_color;
+			print(string_str_from_byte(*ptr), color);
+			print_char(' ', color);
 		}
 		print_char(' ', content_color);
 		for(byte* ptr = (byte*)row; ptr < (byte*)(row + SHELL_PRINT_MEMORY_COLUMNS); ptr++){
+			SHELL_COLOR color = (ulong)ptr < (ulong)address || (ulong)ptr > (ulong)address + size ? fade_color : content_color;
 			char chr = *ptr >= '!' && *ptr <= '~' ? *ptr : SHELL_PRINT_MEMORY_FILLER;
-			print_char(chr, content_color);
+			print_char(chr, color);
 		}
 		print_newline();
 	}

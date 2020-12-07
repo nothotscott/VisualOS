@@ -9,7 +9,6 @@
 #include <efi.h>
 #include <efilib.h>
 #include <elf.h>
-#include "bootloader.h"
 
 typedef unsigned long long	size_t;
 
@@ -26,7 +25,7 @@ struct TGAImage* load_tga_image(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE
 
 // Global structs
 struct FrameBuffer frame_buffer;
-struct UefiKernelInterface interface;
+struct KernelEntryInterface interface;
 
 // Main code
 void initalize_gop(){
@@ -136,19 +135,35 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 			image->header_ptr->width, image->header_ptr->height, image->header_ptr->image_type, image->header_ptr->bbp
 		);
 	}
+	// Get memory descriptor
+	EFI_MEMORY_DESCRIPTOR* map;
+	UINTN map_size, map_key, descriptor_size;
+	UINT32 descriptor_version;
+	{
+		SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
+		SystemTable->BootServices->AllocatePool(EfiLoaderData, map_size, (void**)&map);
+		SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
+	}
+
 	// Prepare for kernel space
 	if(CLEAR_OUTPUT){
 		uefi_call_wrapper(SystemTable->ConOut->ClearScreen, 1, SystemTable->ConOut);
 	}
 
 	// Get important values for the kernel
-	interface.frame_buffer_ptr = &frame_buffer;
-	interface.font_ptr = font;
-	interface.img_ptr = image;
+	interface = (struct KernelEntryInterface){
+		.frame_buffer_ptr = &frame_buffer,
+		.font_ptr = font,
+		.img_ptr = image,
+		.mem_map = (struct MemoryDescriptor*)map,
+		.mem_map_size = map_size,
+		.mem_map_descriptor_size = descriptor_size
+	};
 
 	// Enter into the kernel
-	void (*kernel_start)(struct UefiKernelInterface*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
+	void (*kernel_start)(struct KernelEntryInterface*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
+	SystemTable->BootServices->ExitBootServices(ImageHandle, map_key); // Exit the UEFI application
 	kernel_start(&interface);
 
-	return EFI_SUCCESS; // Exit the UEFI application
+	return EFI_SUCCESS;
 }

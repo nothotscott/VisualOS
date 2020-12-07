@@ -55,8 +55,22 @@ struct TGAImage {
 	void*				buffer;
 };
 
-struct UefiKernelInterface {
-	struct FrameBuffer*	frame_buffer_ptr;
-	struct PSF1Font*	font_ptr;
-	struct TGAImage*	img_ptr;
+
+struct MemoryDescriptor {
+	unsigned int		type;			// type of memory segment
+	void*				phys_address;
+	void*				virt_address;
+	unsigned long long	num_pages;
+	unsigned long long	attribs;
+};//  __attribute__((__packed__));
+
+struct KernelEntryInterface {
+	struct FrameBuffer*			frame_buffer_ptr;
+	struct PSF1Font*			font_ptr;
+	struct TGAImage*			img_ptr;
+	struct MemoryDescriptor*	mem_map;
+	unsigned long int 			mem_map_size;
+	unsigned long int 			mem_map_descriptor_size;
 };
+
+extern const char* memory_type_names[];

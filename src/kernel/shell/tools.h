@@ -13,8 +13,10 @@
 
 #define SHELL_COLOR_MEMORY_HEADER	SHELL_COLOR_CYAN
 #define SHELL_COLOR_MEMORY_LOCATION	SHELL_COLOR_GREEN
+#define SHELL_COLOR_MEMORY_CONTENT	SHELL_COLOR_WHITE
+#define SHELL_COLOR_MEMORY_FADE		SHELL_COLOR_GRAY
 
 
 // Prints the contents at address (rounded down to nearest 16 bytes) for size
 // bytes (rounded up to the nearest 16 bytes)
-void print_memory(void* address, size_t size, SHELL_COLOR content_color);
+void print_memory(void* address, size_t size, SHELL_COLOR content_color, SHELL_COLOR fade_color);

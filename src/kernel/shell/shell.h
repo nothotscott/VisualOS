@@ -10,13 +10,17 @@
 
 #pragma once
 
+#include "bootloader.h"
+
 typedef uint	SHELL_COLOR;
 
 #define	SHELL_COLOR_WHITE	0xffffffff
+#define	SHELL_COLOR_GRAY	0xff888888
 #define	SHELL_COLOR_RED		0xffff0000
 #define	SHELL_COLOR_GREEN	0xff00ff00
 #define	SHELL_COLOR_BLUE	0xff0000ff
 #define	SHELL_COLOR_CYAN	0xff00ffff
+#define	SHELL_COLOR_YELLOW	0xffffff00
 
 
 // Initalize shell with the _frame_buffer and _font
