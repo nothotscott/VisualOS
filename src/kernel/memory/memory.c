@@ -9,7 +9,7 @@
 #include "bootloader.h"
 #include "memory.h"
 
-struct MemoryRegion memory_space_primary;
+size_t memory_total_size = 0;
 
 void memory_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t mem_map_descriptor_size) {
 	uint num_enteries = mem_map_size / mem_map_descriptor_size;
@@ -20,6 +20,7 @@ void memory_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t m
 		if(descriptor->type == MEMORY_PRIMARY_REGION_TYPE && (largest_primary == NULL || descriptor->num_pages > largest_primary->num_pages)){
 			largest_primary = descriptor;
 		}
+		memory_total_size += descriptor->num_pages * BOOTLOADER_MEMORY_PAGE_SIZE;
 	}
 	memory_space_primary = (struct MemoryRegion){
 		.base = largest_primary->phys_address,

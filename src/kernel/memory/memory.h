@@ -19,7 +19,9 @@ struct MemoryRegion {
 };
 
 // Where there's memory that's available for the kernel
-extern struct MemoryRegion memory_space_primary;
+struct MemoryRegion memory_space_primary;
+// Total size of memory space, regardless of whether it's usable or not
+size_t memory_total_size;
 
 // Initalize memory
 void memory_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t mem_map_descriptor_size);

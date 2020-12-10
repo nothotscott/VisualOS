@@ -3,7 +3,7 @@
 include Make.defaults
 
 PRIMARY		:= kernel
-GIVENS		:= $(SRC_DIR)/$(LIBRARY)/library.h $(SRC_DIR)/universal.h $(THIS)/kernel.h
+GIVENS		:= $(SRC_DIR)/$(LIBRARY)/library.h $(SRC_DIR)/universal.h $(SRC_DIR)/universalc.h $(THIS)/kernel.h
 
 SOURCES		:= $(filter-out $(PRIMARY).c, $(notdir $(wildcard $(THIS)/*.c $(THIS)/*.cpp $(THIS)/*.asm)))
 SUBDIRS		:= $(shell find $(THIS)/* -maxdepth 1 -type d)
