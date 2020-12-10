@@ -7,6 +7,7 @@
  */
 
 #include "string.h"
+#include "libvos/libvos.h"
 
 using namespace libvos;
 
@@ -75,25 +76,29 @@ template String* String::from_decimal(double, byte);
 // TODO Dynamic memory char* _from_hex(T value) C++ function
 
 char from_hex_buffer[128];	// TODO Dynamic memory
-String from_hex_return;		// TODO Dynamic memory
+
 template<typename T>
-String* String::from_hex(T value) {
+char* _from_hex(T value) {
 	byte size = sizeof(T) * 2 - 1;
-	//char* buffer = new char[size];
+	char* buffer = new char[size];
 	T* val_ptr = &value;
 	byte* ptr;
 	byte nibble;
 	for (byte i = 0; i < size; i++){
 		ptr = (byte*)val_ptr + i;
 		nibble = (*ptr & 0xF0) >> 4;
-		from_hex_buffer[size - (i * 2 + 1)] = nibble + (nibble > 9 ? 55 : 48);
+		buffer[size - (i * 2 + 1)] = nibble + (nibble > 9 ? 55 : 48);
 		nibble = *ptr & 0x0F;
-		from_hex_buffer[size - (i * 2)] = nibble + (nibble > 9 ? 55 : 48);
+		buffer[size - (i * 2)] = nibble + (nibble > 9 ? 55 : 48);
 	}
 	size++;
-	from_hex_buffer[size] = 0;
-	from_hex_return = String((char*)&from_hex_buffer, (size_t)size);
-	return (String*)&from_hex_return;
+	buffer[size] = 0;
+	return buffer;
+}
+template<typename T>
+String* String::from_hex(T value) {
+	char* str = _from_hex(value);
+	return new String(str);
 }
 template String* String::from_hex<>(byte);
 template String* String::from_hex<>(ushort);
@@ -113,8 +118,8 @@ extern "C" {
 	// TODO Dynamic memory invokes templated "_from" functions
 	char* string_str_from_int(slong value)						{ return String::from_int(value)->get_str(); }
 	char* string_str_from_decimal(double value, byte places)	{ return String::from_decimal(value, places)->get_str(); }
-	char* string_str_from_byte(byte value)						{ return String::from_hex(value)->get_str(); }
-	char* string_str_from_ushort(ushort value)					{ return String::from_hex(value)->get_str(); }
-	char* string_str_from_uint(uint value)						{ return String::from_hex(value)->get_str(); }
-	char* string_str_from_ulong(ulong value)					{ return String::from_hex(value)->get_str(); }
+	char* string_str_from_byte(byte value)						{ return _from_hex(value); }
+	char* string_str_from_ushort(ushort value)					{ return _from_hex(value); }
+	char* string_str_from_uint(uint value)						{ return _from_hex(value); }
+	char* string_str_from_ulong(ulong value)					{ return _from_hex(value); }
 }

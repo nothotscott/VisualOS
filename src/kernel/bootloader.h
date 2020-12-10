@@ -15,6 +15,8 @@
 #define BMP_MAGIC0	0x42	// B
 #define BMP_MAGIC1	0x4D	// M
 
+#define BOOTLOADER_MEMORY_PAGE_SIZE	4096
+
 // gop uses alpha(0x00=transparent), red, green, blue
 struct FrameBuffer {
 	void*				base_ptr;
@@ -56,13 +58,30 @@ struct TGAImage {
 };
 
 
+enum MemoryType {
+	RESERVED_MEMORY_TYPE,
+	LOADER_CODE,
+	LOADER_DATA,
+	BOOT_SERVICES_CODE,
+	BOOT_SERVICES_DATA,
+	RUNTIME_SERVICES_CODE,
+	RUNTIME_SERVICES_DATA,
+	CONVENTIONAL_MEMORY,
+	UNUSABLE_MEMORY,
+	ACPI_RECLAIM_MEMORY,
+	ACPI_MEMORYNVS,
+	MEMORY_MAPPED_IO,
+	MEMORY_MAPPED_IO_PORT_SPACE,
+	PAL_CODE,
+};
+
 struct MemoryDescriptor {
-	unsigned int		type;			// type of memory segment
+	enum MemoryType		type;			// type of memory segment
 	void*				phys_address;
 	void*				virt_address;
 	unsigned long long	num_pages;
 	unsigned long long	attribs;
-};//  __attribute__((__packed__));
+};
 
 struct KernelEntryInterface {
 	struct FrameBuffer*			frame_buffer_ptr;
@@ -73,4 +92,4 @@ struct KernelEntryInterface {
 	unsigned long int 			mem_map_descriptor_size;
 };
 
-extern const char* memory_type_names[];
+//extern const char* memory_type_names[];

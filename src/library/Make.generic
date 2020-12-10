@@ -7,9 +7,12 @@ ifdef ASMDUMP
 	TARGETS	:= $(addprefix $(ASMDUMP_DIR)/, $(addsuffix .s, $(notdir $(basename $(TARGETS)))))
 endif
 
+ifneq ($(notdir $(THIS)), $(LIBVOS))
+	ARADDITIONS	:= $(TARGET_DIR)/$(LIBVOS).a
+endif
 
 CXXFLAGS	+= -I$(THIS)
 LDFLAGS		= -shared
-ARFLAGS		= -rcs
+ARFLAGS		= -rcsT
 
 all:	$(INTERMEDIATES) $(TARGETS)

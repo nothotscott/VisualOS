@@ -11,6 +11,8 @@
 #include "bootloader.h"
 #include "shell/shell.h"
 #include "shell/tools.h"
+#include "memory/memory.h"
+#include "memory/heap.h"
 
 // Global interface
 struct KernelEntryInterface* interface;
@@ -31,22 +33,30 @@ void setup_shell(){
 }
 
 void setup_memory(){
-	uint num_enteries = interface->mem_map_size / interface->mem_map_descriptor_size;
-	for(uint i = 0; i < num_enteries; i++){
-		//struct MemoryDescriptor* descriptor = interface->mem_map + i;
-		struct MemoryDescriptor* descriptor = (struct MemoryDescriptor*)((void*)interface->mem_map + (i * interface->mem_map_descriptor_size));
-		print_newline();
-		print((char*)memory_type_names[descriptor->type], SHELL_COLOR_YELLOW);
-	}
+	memory_init(interface->mem_map, interface->mem_map_size, interface->mem_map_descriptor_size);
+	heap_init(&memory_space_primary);
+}
+
+void setup(){
+	// Don't do string to numbers until after setup_memory() is called
+	setup_shell();
+	print("Shell setup\n", SHELL_COLOR_FOREGROUND);
+
+	setup_memory();
+	print("Primary kernel memory region address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong)memory_space_primary.base), SHELL_COLOR_ADDRESS); print_newline();
+	print("Primary kernel memory region size:    ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)memory_space_primary.size * 1024), SHELL_COLOR_NUMBER); print(" KB\n", SHELL_COLOR_NUMBER);
+
+	print_newline();
+	char* poop = string_str_from_uint((ulong)0x1234);
+	print(string_str_from_uint((ulong)poop), SHELL_COLOR_NUMBER); print_newline();
+	print_memory(poop - 24, 128 + 24, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
+	void* page2 = malloc(0x1000);
+	print(string_str_from_uint((ulong)page2), SHELL_COLOR_NUMBER); print_newline();
 }
 
 void _start(struct KernelEntryInterface* _interface){
 	interface = _interface;
-
-	setup_shell();
-	print("Shell setup\n", SHELL_COLOR_WHITE);
-	setup_memory();
-	//print("Memory setup\n", SHELL_COLOR_WHITE);
+	setup();
 
 	while(1);
 }

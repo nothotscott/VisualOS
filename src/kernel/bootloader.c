@@ -10,6 +10,7 @@
 
 #include "bootloader.h"
 
+// TODO delete this if it's not needed anymore
 const char* memory_type_names[] = {
 	"EfiReservedMemoryType",
 	"EfiLoaderCode",
