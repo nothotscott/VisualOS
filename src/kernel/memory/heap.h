@@ -22,8 +22,8 @@ struct PageTableEntry {
 	ulong					properties;
 };
 
-// Initalize heap at base location
-void heap_init(struct MemoryRegion* base);
+// Initalize heap at base location plus the offset
+void heap_init(struct MemoryRegion* base, size_t offset);
 
 // Allocates memory for size block
 void* malloc(size_t size);

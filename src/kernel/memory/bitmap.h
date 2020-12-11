@@ -10,10 +10,12 @@
 #pragma once
 
 struct Bitmap {
-	size_t	size;
 	byte*	buffer;
+	size_t	size;
 };
 
+// Initalize bitmap with size and buffer. Will also clear buffer.
+void bitmap_initalize(struct Bitmap* bitmap, void* buffer, size_t size);
 
 // Get value based on index for the bitmap
 bool bitmap_get(struct Bitmap* bitmap, ulong index);

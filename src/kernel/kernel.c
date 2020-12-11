@@ -13,6 +13,7 @@
 #include "shell/tools.h"
 #include "memory/memory.h"
 #include "memory/heap.h"
+#include "io/idt.h"
 
 #include "memory/bitmap.h"
 
@@ -36,7 +37,7 @@ void setup_shell(){
 
 void setup_memory(){
 	memory_init(interface->mem_map, interface->mem_map_size, interface->mem_map_descriptor_size);
-	heap_init(&memory_space_primary);
+	heap_init(&memory_space_primary, 0);
 }
 
 void setup(){
@@ -58,32 +59,11 @@ void setup(){
 
 }
 
-byte test[20];
-
-struct Bitmap bitmap = (struct Bitmap){
-	.buffer = (byte*)&test,
-	.size = 20
-};
-
 void _start(struct KernelEntryInterface* _interface){
 	interface = _interface;
 	setup();
 
-	bitmap_set(&bitmap, 0, true);
-	bitmap_set(&bitmap, 1, false);
-	bitmap_set(&bitmap, 2, false);
-	bitmap_set(&bitmap, 3, true);
-	bitmap_set(&bitmap, 4, true);
-	bitmap_set(&bitmap, 5, false);
-	bitmap_set(&bitmap, 6, false);
-	bitmap_set(&bitmap, 7, true);
-	bitmap_set(&bitmap, 8, true);
-
-	print_memory((void*)&test, 8, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
-	for(int i = 0; i < 20; i++){
-		bool val = bitmap_get(&bitmap, i);
-		print(val == true ? "true\n" : "false\n", SHELL_COLOR_FOREGROUND);
-	}
+	//print(string_str_from_int(test(5)), SHELL_COLOR_NUMBER); print_newline();
 
 	while(1);
 }

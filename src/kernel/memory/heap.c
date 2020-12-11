@@ -13,8 +13,8 @@ struct PageTableEntry* start;
 
 // TODO pretty much redo all this when virtual memory implemented
 // TODO WAY LATER mutex locks on table entries
-void heap_init(struct MemoryRegion* base){
-	start = (struct PageTableEntry*)(base->base + MEMORY_HEAP_START_OFFSET);
+void heap_init(struct MemoryRegion* base, size_t offset){
+	start = (struct PageTableEntry*)(base->base + offset);
 	start->size = base->size - sizeof(struct PageTableEntry);
 	start->next = NULL;
 	start->properties = MEMORY_HEAP_PROPERTY_FREE;
