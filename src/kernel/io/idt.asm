@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; File:		idt.asm
-;; Desciption:	x86_64 Interrupt Descriptor Table functions
+;; Description:	x86_64 Interrupt Descriptor Table functions
 ;; 
 ;; Copyright 2020 Scott Maday
 ;; You should have received a copy of the GNU General Public License along with this program. 

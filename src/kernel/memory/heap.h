@@ -1,6 +1,6 @@
 /*
  * File:		heap.h
- * Desciption:	Heap for memory
+ * Description:	Heap for memory
  * *****************************************************************************
  * Copyright 2020 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 
@@ -16,14 +16,14 @@
 
 #define MEMORY_HEAP_PROPERTY_FREE	0b00000001
 
-struct PageTableEntry {
-	size_t					size;
-	struct PageTableEntry*	next;
-	ulong					properties;
+struct HeapEntry {
+	size_t				size;
+	struct HeapEntry*	next;
+	ulong				properties;
 };
 
-// Initalize heap at base location plus the offset
-void heap_init(struct MemoryRegion* base, size_t offset);
+// Initalize heap at base location with size
+void heap_init(void* base, size_t size);
 
 // Allocates memory for size block
 void* malloc(size_t size);

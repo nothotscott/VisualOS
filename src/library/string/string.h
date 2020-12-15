@@ -1,6 +1,6 @@
 /*
  * File:		string.h
- * Desciption:	An all-purpose string class and wrapper
+ * Description:	An all-purpose string class and wrapper
  * *****************************************************************************
  * Copyright 2020 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 

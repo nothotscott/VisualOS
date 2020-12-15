@@ -1,6 +1,6 @@
 /*
  * File:		bootloader.h
- * Desciption:	Interface for bootloader and kernel coupling
+ * Description:	Interface for bootloader and kernel coupling
  * *****************************************************************************
  * Copyright 2020 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 
@@ -91,5 +91,3 @@ struct KernelEntryInterface {
 	unsigned long int 			mem_map_size;
 	unsigned long int 			mem_map_descriptor_size;
 };
-
-//extern const char* memory_type_names[];

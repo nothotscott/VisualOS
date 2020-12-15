@@ -1,6 +1,6 @@
 /*
  * File:		libvos.h
- * Desciption:	VisualOS routines that need to talk to the kernel in order to work
+ * Description:	VisualOS routines that need to talk to the kernel in order to work
  * *****************************************************************************
  * Copyright 2020 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 

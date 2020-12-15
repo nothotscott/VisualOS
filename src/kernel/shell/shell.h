@@ -1,6 +1,6 @@
 /*
  * File:		shell.h
- * Desciption:	Provide a temporary, full resoluton, text interface 
+ * Description:	Provide a temporary, full resoluton, text interface 
  * Isn't it ironic to have a shell in an OS named VisualOS?
  * *****************************************************************************
  * Copyright 2020 Scott Maday
@@ -29,20 +29,20 @@ typedef uint	SHELL_COLOR;
 #define SHELL_COLOR_ADDRESS		SHELL_COLOR_MAGENTA
 #define SHELL_COLOR_NUMBER		SHELL_COLOR_YELLOW
 
-// Initalize shell with the _frame_buffer and _font
+// Initalize shell with the [_frame_buffer] and [_font]
 void shell_init(struct FrameBuffer* _frame_buffer, struct PSF1Font* _font);
 
 
-// Sets the cursor to the x and y
+// Sets the cursor to the [x] and [y]
 void set_cursor(uint x, uint y);
 
-// Draws a character chr with color at xoffset and yoffset
+// Draws a character [chr] with color at [xoffset] and [yoffset]
 void draw_char(char chr, SHELL_COLOR color, uint xoff, uint yoff);
 
-// Prints a string at the current cursor position with color
+// Prints a string [str] at the current cursor position with [color]
 void print(char* str, SHELL_COLOR color);
 void print_char(char chr, SHELL_COLOR color);
 void print_newline();
 
-// Draws TGA img at xoffset and yoffset
+// Draws TGA img at [xoffset] and [yoffset]
 void draw_tga(struct TGAImage* img, uint xoff, uint yoff);

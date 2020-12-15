@@ -1,6 +1,6 @@
 /*
  * File:		idt.h
- * Desciption:	Provides functions for the Interrupt Descriptor Table
+ * Description:	Provides functions for the Interrupt Descriptor Table
  * *****************************************************************************
  * Copyright 2020 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 

@@ -1,6 +1,6 @@
 /*
  * File:		bitmap.h
- * Desciption:	Map of bits data structure for each page
+ * Description:	Map an index to a bit
  * *****************************************************************************
  * Copyright 2020 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 
@@ -9,16 +9,23 @@
 
 #pragma once
 
+// TODO port to library?
+
+#define BITMAP_SCALE	sizeof(size_t)
+
 struct Bitmap {
-	byte*	buffer;
-	size_t	size;
+	byte*	buffer;	
+	size_t	size;	// Real size
 };
 
-// Initalize bitmap with size and buffer. Will also clear buffer.
-void bitmap_initalize(struct Bitmap* bitmap, void* buffer, size_t size);
+// Initialize [bitmap] with real [size] of [buffer]. Will also clear buffer.
+void bitmap_initialize(struct Bitmap* bitmap, void* buffer, size_t size);
 
-// Get value based on index for the bitmap
+// Gets the adjusted [bitmap] size, or 8 time [bitmap] size
+size_t bitmap_adjusted_size(struct Bitmap* bitmap);
+
+// Get value based on [index] for the [bitmap]
 bool bitmap_get(struct Bitmap* bitmap, ulong index);
 
-// Set value based on index for the bitmap
+// Set [value] based on [index] for the [bitmap]
 void bitmap_set(struct Bitmap* bitmap, ulong index, bool value);

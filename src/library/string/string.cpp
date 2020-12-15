@@ -73,9 +73,6 @@ String* String::from_decimal(T value, byte places) {
 }
 template String* String::from_decimal(double, byte);
 
-// TODO Dynamic memory char* _from_hex(T value) C++ function
-
-char from_hex_buffer[128];	// TODO Dynamic memory
 
 template<typename T>
 char* _from_hex(T value) {

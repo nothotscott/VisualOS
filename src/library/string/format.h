@@ -1,6 +1,6 @@
 /*
- * File:		spacial.h
- * Description:	Describes locality in 2D space
+ * File:		format.h
+ * Description: Continuation of string.h for formatting
  * *****************************************************************************
  * Copyright 2020 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 
@@ -9,24 +9,11 @@
 
 #pragma once
 
-#ifdef __cplusplus
-namespace libvos {
-#endif
-
-struct Point {
-	uint	x;
-	uint	y;
-};
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+#include "string.h"
 
 
 #ifdef __cplusplus
-} // extern "C"
-#endif
-#ifdef __cplusplus
-} // namespace
+//libvos::String::format(const char* restrict format, ...);
+#else
+char* string_str_format(const char* restrict format, ...);
 #endif

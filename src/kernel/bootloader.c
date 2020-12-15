@@ -1,6 +1,6 @@
 /*
  * File:		bootloader.c
- * Desciption:	Definitions of consts and functions from bootloader.h.
+ * Description:	Definitions of consts and functions from bootloader.h.
  *				Only necessary to compile if the target requires the definitions
  * *****************************************************************************
  * Copyright 2020 Scott Maday
