@@ -7,7 +7,14 @@
 ;; If not, see https://www.gnu.org/licenses/gpl-2.0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-EXTERN	g_idt_descriptor
+; EXTERN	g_idt_descriptor
+
+EXTERN	g_idt
+
+GLOBAL	g_idt_descriptor
+g_idt_descriptor:
+	dw	4095
+	dq	g_idt
 
 GLOBAL	idt_load
 idt_load:

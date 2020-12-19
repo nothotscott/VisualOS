@@ -15,11 +15,11 @@ void idt_init(){
 	size_t pages = MEMORY_PAGE_SIZE / idt_total_size;			// pages needed to accomodate all the idt entries
 	// TODO handle a case where pages is not 1
 	g_idt = (struct IDTEntry*)page_request();
-	g_idt_descriptor.limit = idt_total_size - 1;
-	g_idt_descriptor.base = g_idt;
+	//g_idt_descriptor.limit = idt_total_size - 1;
+	//g_idt_descriptor.base = g_idt;
 }
 
-void idt_set_isr(size_t offset, void* isr_ptr){
+void idt_set_isr(size_t offset, ulong isr_ptr){
 	struct IDTEntry* idt_entry = g_idt + offset;
 	idt_entry->zero = 0;
 	idt_entry->offset_low = (ushort)(((ulong)isr_ptr & 0x000000000000ffff));

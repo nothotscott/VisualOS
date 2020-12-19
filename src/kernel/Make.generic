@@ -2,7 +2,7 @@ SOURCES	:= $(notdir $(wildcard $(THIS)/*.c $(THIS)/*.cpp $(THIS)/*.asm))
 TARGETS	:= $(addprefix $(KERNEL_DIR)/, $(addsuffix .o, $(subst .,_, $(SOURCES))))
 
 ifdef ASMDUMP
-	TARGETS	:= $(addprefix $(ASMDUMP_DIR)/, $(addsuffix .s, $(notdir $(subst .,_, $(SOURCES)))))
+	TARGETS	:= $(addprefix $(ASMDUMP_DIR)/, $(addsuffix .s, $(notdir $(basename $(filter-out %.asm, $(SOURCES))))))
 endif
 
 

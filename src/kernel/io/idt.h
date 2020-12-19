@@ -41,7 +41,7 @@ struct IDTDescriptor g_idt_descriptor;
 void idt_init();
 
 // Sets the global idt entry plus offset to the [isr_ptr]
-void idt_set_isr(size_t offset, void* isr_ptr);
+void idt_set_isr(size_t offset, ulong isr_ptr);
 
 // Loads the global idt descriptor
 extern void idt_load();

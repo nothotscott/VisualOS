@@ -24,5 +24,3 @@ void _start(struct KernelEntryInterface* interface) {
 
 	while(1);
 }
-
-//print_memory((void*)pagemap.buffer, pagemap.size, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
