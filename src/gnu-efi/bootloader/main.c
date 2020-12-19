@@ -24,8 +24,8 @@ struct PSF1Font* load_psf1_font(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE
 struct TGAImage* load_tga_image(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
 
 // Global structs
-struct FrameBuffer frame_buffer;
-struct KernelEntryInterface interface;
+struct FrameBuffer g_frame_buffer;
+struct KernelEntryInterface g_interface;
 
 // Main code
 void initalize_gop(){
@@ -38,11 +38,11 @@ void initalize_gop(){
 	}
 	Print(L"GOP located\n\r");
 	// Frame buffer
-	frame_buffer.base_ptr = (void*)gop->Mode->FrameBufferBase;
-	frame_buffer.size  = gop->Mode->FrameBufferSize;
-	frame_buffer.width  = gop->Mode->Info->HorizontalResolution;
-	frame_buffer.height  = gop->Mode->Info->VerticalResolution;
-	frame_buffer.ppsl  = gop->Mode->Info->PixelsPerScanLine;
+	g_frame_buffer.base_ptr = (void*)gop->Mode->FrameBufferBase;
+	g_frame_buffer.size  = gop->Mode->FrameBufferSize;
+	g_frame_buffer.width  = gop->Mode->Info->HorizontalResolution;
+	g_frame_buffer.height  = gop->Mode->Info->VerticalResolution;
+	g_frame_buffer.ppsl  = gop->Mode->Info->PixelsPerScanLine;
 }
 
 EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
@@ -116,7 +116,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		"  Width=%d\n\r"
 		"  Height=%d\n\r"
 		"  Pixels per scanline=%d\n\r", 
-	frame_buffer.base_ptr, frame_buffer.size, frame_buffer.width, frame_buffer.height, frame_buffer.ppsl);
+	g_frame_buffer.base_ptr, g_frame_buffer.size, g_frame_buffer.width, g_frame_buffer.height, g_frame_buffer.ppsl);
 
 	EFI_FILE* extras = load_file(NULL, L"extras", ImageHandle, SystemTable);
 	// Get font
@@ -151,8 +151,8 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	}
 
 	// Get important values for the kernel
-	interface = (struct KernelEntryInterface){
-		.frame_buffer_ptr = &frame_buffer,
+	g_interface = (struct KernelEntryInterface){
+		.frame_buffer_ptr = &g_frame_buffer,
 		.font_ptr = font,
 		.img_ptr = image,
 		.mem_map = (struct MemoryDescriptor*)map,
@@ -163,7 +163,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	// Enter into the kernel
 	void (*kernel_start)(struct KernelEntryInterface*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
 	SystemTable->BootServices->ExitBootServices(ImageHandle, map_key); // Exit the UEFI application
-	kernel_start(&interface);
+	kernel_start(&g_interface);
 
 	return EFI_SUCCESS;
 }

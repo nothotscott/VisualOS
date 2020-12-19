@@ -1,5 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; File:		io.asm
+;; File:		isr.asm
+;; Description:	x86_64 Interrupt Descriptor Table functions
 ;; 
 ;; Copyright 2020 Scott Maday
 ;; You should have received a copy of the GNU General Public License along with this program. 
@@ -7,15 +8,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-GLOBAL	outb
-outb:	; rdi=[port], rsi=[value]
-	mov	rdx, rdi	; port 
-	mov rax, rsi	; value
-	out dx, al
-	ret
+EXTERN	isr1_handler
 
-GLOBAL	inb
-inb:	; rdi=[port], al=return(value)
-	mov	rdx, rdi	; port 
-	in	al, dx
-	ret
+GLOBAL	isr1
+isr1:
+	jmp		isr_common
+
+isr_common:
+	PUSH_REG
+	; mov	rdi, rsp	; stack location as a parameter
+	call	isr1_handler
+	POP_REG
+	iretq

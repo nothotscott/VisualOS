@@ -9,8 +9,13 @@
 
 #pragma once
 
+#define IDT_SIZE	256
 
-struct IDT {
+#define IDT_DEFAULT_SELECTOR	0x08
+#define IDT_DEFAULT_TYPES_ATTR	0x8E
+
+
+struct IDTEntry {
 	ushort	offset_low;
 	ushort	selector;
 	byte	ist;
@@ -21,9 +26,22 @@ struct IDT {
 } __attribute__((__packed__));
 
 struct IDTDescriptor {
-	ushort		size;	// max size of 64 bit idt
-	struct IDT*	idt;	// where the IDT is
+	ushort				limit;	// max size of 64 bit idt
+	struct IDTEntry*	base;	// where the IDT is
 } __attribute__((__packed__));
 
 
-extern void idt_load(struct IDTDescriptor* idt);
+// Global idt entry pointer
+struct IDTEntry* g_idt;
+// Global idt descriptor
+struct IDTDescriptor g_idt_descriptor;
+
+
+// Sets the global idt entry pointer and global idt descriptor
+void idt_init();
+
+// Sets the global idt entry plus offset to the [isr_ptr]
+void idt_set_isr(size_t offset, void* isr_ptr);
+
+// Loads the global idt descriptor
+extern void idt_load();

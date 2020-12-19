@@ -2,16 +2,16 @@ ifndef TARGET_DIR
 	TARGET_DIR	:= $(BUILD_DIR)
 endif
 
-.PRECIOUS: $(TARGET_DIR)/%.o
+.PRECIOUS: $(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o $(TARGET_DIR)/%_cpp.o $(TARGET_DIR)/%_asm.o
 
-$(TARGET_DIR)/%.o:		$(THIS)/%.c
-						$(CC) $(CFLAGS) -c $< -o $@
+$(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o:		$(THIS)/%.c
+											$(CC) $(CFLAGS) -c $< -o $@
 
-$(TARGET_DIR)/%.o:		$(THIS)/%.cpp
-						$(CXX) $(CXXFLAGS) -c $< -o $@
+$(TARGET_DIR)/%.o $(TARGET_DIR)/%_cpp.o:	$(THIS)/%.cpp
+											$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TARGET_DIR)/%.o:		$(THIS)/%.asm
-						$(AS) $(ASFLAGS) $< -o $@
+$(TARGET_DIR)/%.o $(TARGET_DIR)/%_asm.o:	$(THIS)/%.asm
+											$(AS) $(ASFLAGS) $< -o $@
 
 #######################################
 

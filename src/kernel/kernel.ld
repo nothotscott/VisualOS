@@ -8,6 +8,11 @@ SECTIONS
 	{
 		*(.text)
 	}
+	/*.idt BLOCK(4K) : ALIGN(4K)
+	{
+		_idt = .;
+		. = . + 4K;
+	}*/
 	.data : ALIGN(4K)
 	{
 		*(.data)

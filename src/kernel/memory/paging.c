@@ -10,15 +10,15 @@
 #include "bitmap.h"
 
 
-size_t memory_total_size = 0;
-size_t memory_used_size = 0;
-size_t memory_reserved_size = 0;
+size_t g_memory_total_size = 0;
+size_t g_memory_used_size = 0;
+size_t g_memory_reserved_size = 0;
 
 
 void init_paging(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t mem_map_descriptor_size) {
-	memory_total_size = 0;
-	memory_used_size = 0;
-	memory_reserved_size = 0;
+	g_memory_total_size = 0;
+	g_memory_used_size = 0;
+	g_memory_reserved_size = 0;
 	uint num_enteries = mem_map_size / mem_map_descriptor_size;
 	struct MemoryDescriptor* largest_primary = NULL;
 	// Find largest primary memory region
@@ -27,13 +27,13 @@ void init_paging(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t m
 		if(descriptor->type == MEMORY_PAGEABLE_TYPE && (largest_primary == NULL || descriptor->num_pages > largest_primary->num_pages)){
 			largest_primary = descriptor;
 		}
-		memory_total_size += descriptor->num_pages * BOOTLOADER_MEMORY_PAGE_SIZE;
+		g_memory_total_size += descriptor->num_pages * BOOTLOADER_MEMORY_PAGE_SIZE;
 	}
 	// Assign bitmap
-	bitmap_initialize(&pagemap, largest_primary->phys_address, memory_total_size / MEMORY_PAGE_SIZE / BITMAP_SCALE);
-	// Reserve the pagemap itself
-	size_t pagemap_pages = pagemap.size % MEMORY_PAGE_SIZE > 0 ? pagemap.size / MEMORY_PAGE_SIZE + 1 : pagemap.size / MEMORY_PAGE_SIZE;
-	page_reserve(pagemap.buffer, pagemap_pages);
+	bitmap_initialize(&g_pagemap, largest_primary->phys_address, g_memory_total_size / MEMORY_PAGE_SIZE / BITMAP_SCALE);
+	// Reserve the g_pagemap itself
+	size_t g_pagemap_pages = g_pagemap.size % MEMORY_PAGE_SIZE > 0 ? g_pagemap.size / MEMORY_PAGE_SIZE + 1 : g_pagemap.size / MEMORY_PAGE_SIZE;
+	page_reserve(g_pagemap.buffer, g_pagemap_pages);
 	// Reserve kernel space
 	size_t kernel_size = (size_t)&_kernel_end - (size_t)&_kernel_start;
 	size_t kernel_pages = kernel_size % MEMORY_PAGE_SIZE > 0 ? kernel_size / MEMORY_PAGE_SIZE + 1 : kernel_size / MEMORY_PAGE_SIZE;
@@ -50,20 +50,20 @@ void init_paging(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t m
 }
 
 size_t paging_get_free() {
-	return memory_total_size - memory_used_size - memory_reserved_size;
+	return g_memory_total_size - g_memory_used_size - g_memory_reserved_size;
 }
 
 bool page_manipulate(ulong index, bool state) {
-	if(bitmap_get(&pagemap, index) == state){
+	if(bitmap_get(&g_pagemap, index) == state){
 		return true;	// already in state
 	}
-	bitmap_set(&pagemap, index, state);
+	bitmap_set(&g_pagemap, index, state);
 	return false;
 }
 
 void* page_request() {
-	for(ulong i = 0; i < bitmap_adjusted_size(&pagemap); i++){
-		if(bitmap_get(&pagemap, i) == true){
+	for(ulong i = 0; i < bitmap_adjusted_size(&g_pagemap); i++){
+		if(bitmap_get(&g_pagemap, i) == true){
 			continue;	// not free
 		}
 		void* page = (void*)(i * MEMORY_PAGE_SIZE);	// transform the index into the page address
@@ -78,8 +78,8 @@ void page_free(void* address, size_t pages) {
 	ulong start = (ulong)address / MEMORY_PAGE_SIZE;
 	for(ulong i = start; i < start + pages; i++){
 		if(page_manipulate(i, false)){
-			if(memory_used_size >= MEMORY_PAGE_SIZE) {		// prevent overflow
-				memory_used_size -= MEMORY_PAGE_SIZE;
+			if(g_memory_used_size >= MEMORY_PAGE_SIZE) {		// prevent overflow
+				g_memory_used_size -= MEMORY_PAGE_SIZE;
 			}
 		}
 	}
@@ -89,7 +89,7 @@ void page_lock(void* address, size_t pages) {
 	ulong start = (ulong)address / MEMORY_PAGE_SIZE;
 	for(ulong i = start; i < start + pages; i++){
 		if(page_manipulate(i, true)){
-			memory_used_size += MEMORY_PAGE_SIZE;
+			g_memory_used_size += MEMORY_PAGE_SIZE;
 		}
 	}
 }
@@ -98,8 +98,8 @@ void page_unreserve(void* address, size_t pages) {
 	ulong start = (ulong)address / MEMORY_PAGE_SIZE;
 	for(ulong i = start; i < start + pages; i++){
 		if(page_manipulate(i, false)){
-			if(memory_reserved_size >= MEMORY_PAGE_SIZE) {	// prevent overflow
-				memory_reserved_size -= MEMORY_PAGE_SIZE;
+			if(g_memory_reserved_size >= MEMORY_PAGE_SIZE) {	// prevent overflow
+				g_memory_reserved_size -= MEMORY_PAGE_SIZE;
 			}
 		}
 	}
@@ -109,7 +109,7 @@ void page_reserve(void* address, size_t pages) {
 	ulong start = (ulong)address / MEMORY_PAGE_SIZE;
 	for(ulong i = start; i < start + pages; i++){
 		if(page_manipulate(i, true)){
-			memory_reserved_size += MEMORY_PAGE_SIZE;
+			g_memory_reserved_size += MEMORY_PAGE_SIZE;
 		}
 	}
 }

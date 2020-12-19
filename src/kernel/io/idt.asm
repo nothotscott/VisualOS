@@ -7,8 +7,10 @@
 ;; If not, see https://www.gnu.org/licenses/gpl-2.0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+EXTERN	g_idt_descriptor
 
 GLOBAL	idt_load
 idt_load:
-	lidt	[rdi]
+	lidt	[g_idt_descriptor]
+	sti
 	ret
