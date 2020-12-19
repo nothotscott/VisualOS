@@ -25,7 +25,7 @@ extern size_t g_memory_reserved_size;
 
 // Bitmap of usable memory space
 // A bit will be 1 if it's in-use, else 0 if it's free
-struct Bitmap g_pagemap;
+extern struct Bitmap g_pagemap;
 
 
 // Initalizes paging by discovering the usable memory segment from [mem_map],

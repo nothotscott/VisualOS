@@ -13,6 +13,7 @@
 size_t g_memory_total_size = 0;
 size_t g_memory_used_size = 0;
 size_t g_memory_reserved_size = 0;
+struct Bitmap g_pagemap;
 
 
 void init_paging(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t mem_map_descriptor_size) {

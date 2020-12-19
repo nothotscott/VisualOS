@@ -23,8 +23,8 @@ void pic_remap(){
 	outb(IO_PIC1_COMMAND, IO_ICW1_INIT | IO_ICW1_ICW4);
 	outb(IO_PIC2_COMMAND, IO_ICW1_INIT | IO_ICW1_ICW4);
 	// Tell each PIC their offset
-	outb(IO_PIC1_DATA, 0);
-	outb(IO_PIC2_DATA, 8);
+	outb(IO_PIC1_DATA, 0x28);
+	outb(IO_PIC2_DATA, 0x20);
 	outb(IO_PIC1_DATA, 4);
 	outb(IO_PIC2_DATA, 2);
 	// Set 8086 mode

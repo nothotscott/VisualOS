@@ -68,7 +68,7 @@ void setup() {
 	print("Interrupt descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong)g_idt), SHELL_COLOR_ADDRESS); print_newline();
 	print_newline();
 
-	print_memory((void*)&g_idt_descriptor, sizeof(struct IDTDescriptor), SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
+	print_memory((void*)&g_idt_descriptor, 10, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
 }
 
 //print_memory((void*)pagemap.buffer, pagemap.size, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
