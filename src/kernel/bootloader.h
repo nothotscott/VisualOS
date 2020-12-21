@@ -30,7 +30,7 @@ struct PSF1Header {
 	unsigned char	magic[2];	// identifier bytes
 	unsigned char	mode;
 	unsigned char	charsize;	// how large the characters are
-} __attribute__((__packed__));
+} __attribute__((packed));
 
 struct PSF1Font {
 	struct PSF1Header*	header_ptr;
@@ -50,7 +50,7 @@ struct TGAHeader {
 	unsigned short	height;
 	unsigned char	bbp;				// bits per pixel
 	unsigned char	descriptor;
-} __attribute__((__packed__));
+} __attribute__((packed));
 
 struct TGAImage {
 	struct TGAHeader*	header_ptr;

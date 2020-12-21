@@ -16,6 +16,7 @@ void pic_mask(){
 }
 
 void pic_remap(){
+	/*
 	// Original PIC data
 	byte d1 = inb(IO_PIC1_DATA);
 	byte d2 = inb(IO_PIC2_DATA);
@@ -32,5 +33,32 @@ void pic_remap(){
 	outb(IO_PIC2_DATA, IO_ICW4_8086);
 	// Restore saved masks
 	outb(IO_PIC1_DATA, d1);
-	outb(IO_PIC2_DATA, d2);
+	outb(IO_PIC2_DATA, d2);*/
+
+	//Tell PIC's to start the initialization sequence
+	outb(IO_PIC1_COMMAND, IO_ICW1_INIT | IO_ICW1_ICW4);
+	io_wait();
+	outb(IO_PIC2_COMMAND, IO_ICW1_INIT | IO_ICW1_ICW4);
+	io_wait();
+
+	//Tell each PIC there offset
+	outb(IO_PIC1_DATA, 0x20);
+	io_wait();
+	outb(IO_PIC2_DATA, 0x28);
+	io_wait();
+
+	//
+	outb(IO_PIC1_DATA, 4);
+	io_wait();
+	outb(IO_PIC2_DATA, 2);
+	io_wait();
+
+	outb(IO_PIC1_DATA, IO_ICW4_8086);
+	io_wait();
+	outb(IO_PIC2_DATA, IO_ICW4_8086);
+	io_wait();
+
+	//restore the saved mask of the PIC
+	//outb(IO_PIC1_DATA, 0x0);
+	//outb(IO_PIC2_DATA, 0x0);
 }

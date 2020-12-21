@@ -68,7 +68,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		UINTN size = sizeof(header);
 		kernel->Read(kernel, &size, &header);
 	}
-	if( mem_compare(&header.e_ident[EI_MAG0], ELFMAG, SELFMAG) != 0 ||
+	if(	mem_compare(&header.e_ident[EI_MAG0], ELFMAG, SELFMAG) != 0 ||
 		header.e_ident[EI_CLASS] != ELFCLASS64 ||
 		header.e_ident[EI_DATA] != ELFDATA2LSB ||
 		header.e_type != ET_EXEC ||

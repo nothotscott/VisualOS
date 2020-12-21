@@ -9,8 +9,12 @@
 
 EXTERN	g_idt_descriptor
 
+
+SECTION .text
+
 GLOBAL	idt_load
 idt_load:
+	cli
 	lidt	[g_idt_descriptor]
 	sti
 	ret

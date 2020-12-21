@@ -44,7 +44,13 @@ void setup_memory() {
 
 void setup_interrupts() {
 	idt_init();
-	idt_set_isr(1, (ulong)isr1);
+	print("isr1: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong)isr1), SHELL_COLOR_ADDRESS); print_newline();
+	print("start: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong)&_kernel_start), SHELL_COLOR_ADDRESS); print_newline();
+	print_memory((void*)isr1, 8, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
+	//idt_set_isr(33, (ulong)isr1);
+	for(size_t i = 0; i < 256; i++){
+		idt_set_isr(i, (ulong)isr_nothing);
+	}
 	pic_remap();
 	pic_mask();
 	idt_load();
@@ -68,7 +74,8 @@ void setup() {
 	print("Interrupt descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong)g_idt), SHELL_COLOR_ADDRESS); print_newline();
 	print_newline();
 
-	print_memory((void*)&g_idt_descriptor, 10, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
+	print("IDT Descriptor address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong)&g_idt_descriptor), SHELL_COLOR_ADDRESS); print_newline();
+	print_memory((void*)&g_idt_descriptor - 16, 32, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
 }
 
 //print_memory((void*)pagemap.buffer, pagemap.size, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);

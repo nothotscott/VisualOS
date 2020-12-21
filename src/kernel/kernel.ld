@@ -10,7 +10,7 @@ SECTIONS
 	}
 	/*.idt BLOCK(4K) : ALIGN(4K)
 	{
-		_idt = .;
+		g_idt = .;
 		. = . + 4K;
 	}*/
 	.data : ALIGN(4K)

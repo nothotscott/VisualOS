@@ -9,6 +9,9 @@
 
 #pragma once
 
+
+extern void isr_nothing();
+
 extern void isr1();
 
 void isr1_handler();

@@ -23,18 +23,20 @@ struct IDTEntry {
 	ushort	offset_mid;
 	uint	offset_high;
 	uint	zero;
-} __attribute__((__packed__));
+} __attribute__((packed));
 
 struct IDTDescriptor {
 	ushort				limit;	// max size of 64 bit idt
 	struct IDTEntry*	base;	// where the IDT is
-} __attribute__((__packed__));
+} __attribute__((packed));
 
 
 // Global idt entry pointer
 extern struct IDTEntry* g_idt;
+
 // Global idt descriptor
 extern struct IDTDescriptor g_idt_descriptor;
+
 
 
 // Sets the global idt entry pointer and global idt descriptor

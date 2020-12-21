@@ -14,3 +14,6 @@ extern void outb(ushort port, byte value);
 
 // Returns value on the processor bus on port
 extern byte inb(ushort port);
+
+// Send byte onto port 0x80 to signal a checkpoint
+extern void io_wait();

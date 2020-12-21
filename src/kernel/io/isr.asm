@@ -7,9 +7,13 @@
 ;; If not, see https://www.gnu.org/licenses/gpl-2.0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-[bits 64]
-
 EXTERN	isr1_handler
+
+SECTION	.text
+
+GLOBAL isr_nothing
+isr_nothing:
+	iretq
 
 GLOBAL	isr1
 isr1:
