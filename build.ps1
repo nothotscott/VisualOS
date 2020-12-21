@@ -17,14 +17,21 @@ param($tasks)
 $OSNAME = "VisualOS"
 $BUILD_DIR = "build"
 $OVMF_URL = "https://github.com/Absurdponcho/OVMFbin"
+$DEFAULT_TASK = @("setup", "build-bootloader", "build-library", "build-kernel", "build-img")
 
 # Don't configure
 $ABSOLUTE = Split-Path $script:MyInvocation.MyCommand.Path
-$OVMF_DIR = Split-Path $OVMF_URL -leaf
-$DEFAULT_TASK = @("setup", "build-bootloader", "build-library", "build-kernel", "build-img")
-$VBOX = Get-Command "VBoxManage.exe" -ErrorAction SilentlyContinue
 $WSL = $(Get-ChildItem -Path Env:WSL_DISTRO_NAME -ErrorAction SilentlyContinue | Select-Object -last 1).Value
+$VBOX = Get-Command "VBoxManage.exe" -ErrorAction SilentlyContinue
 [System.Collections.ArrayList]$MAKE_VARS = @("OSNAME=$OSNAME", "BUILD_DIR=$BUILD_DIR")
+
+# Dependent on WSL or windows
+$ABSOLUTE_WIN = & { If ($WSL -ne $null) { wslpath -w $ABSOLUTE } Else { $ABSOLUTE } }
+$TEMP_DIR = & { If ($WSL -ne $null) { powershell.exe Write-Host '$env:temp' } Else { $env:temp } }
+
+# Dependent configurations
+$OVMF_DIR_WIN = Join-Path ($TEMP_DIR) (Split-Path $OVMF_URL -leaf)
+
 
 function build {
 	param (
@@ -38,14 +45,27 @@ function build {
 }
 
 function get_ovmf {
-	if ((Test-Path "$OVMF_DIR") -eq $true) {
-		return;
+	$ovmf_name = Split-Path $OVMF_URL -leaf
+	$ovmf_parent = Split-Path $OVMF_DIR_WIN -Parent
+	if ($WSL -ne $null) {
+		if ((powershell.exe "Test-Path $OVMF_DIR_WIN") -eq "True") {
+			return;
+		}
+	} else {
+		if ((Test-Path $OVMF_DIR_WIN) -eq $true) {
+			return;
+		}
 	}
 	git clone $OVMF_URL
+	if ($WSL -ne $null) {
+		powershell.exe "Move-Item $ovmf_name $ovmf_parent"
+	} else {
+		Move-Item $ovmf_name $ovmf_parent
+	}
 }
 
 function launch-qemu {
-	Start-Process "qemu-system-x86_64.exe" -NoNewWindow -Wait -ArgumentList "-drive file=$ABSOLUTE/$BUILD_DIR/$OSNAME.img -m 256M -cpu qemu64 -net none -drive if=pflash,format=raw,unit=0,file=$ABSOLUTE/$OVMF_DIR/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=$ABSOLUTE/$OVMF_DIR/OVMF_VARS-pure-efi.fd"
+	Start-Process "qemu-system-x86_64.exe" -NoNewWindow -Wait -ArgumentList "-drive file=$ABSOLUTE_WIN/$BUILD_DIR/$OSNAME.img -m 256M -no-reboot -cpu qemu64 -net none -drive if=pflash,format=raw,unit=0,file=$OVMF_DIR_WIN/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=$OVMF_DIR_WIN/OVMF_VARS-pure-efi.fd"
 }
 
 function vbox-manage {
@@ -65,8 +85,7 @@ if ($tasks -eq $null) {
 	$tasks = $DEFAULT_TASK
 }
 if ($WSL -ne $null) {
-	$ABSOLUTE = wslpath -w $ABSOLUTE
-	Write-Host "Detected WSL $WSL in equivalent windows path $ABSOLUTE"
+	Write-Host "Detected WSL $WSL where $ABSOLUTE is the equivalent windows path $ABSOLUTE_WIN"
 }
 
 foreach ($task in $tasks) {
