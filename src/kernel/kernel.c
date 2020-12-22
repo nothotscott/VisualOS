@@ -10,17 +10,19 @@
 #include "bootloader.h"
 #include "shell/shell.h"
 #include "shell/tools.h"
-
+#include "memory/heap.h"
 // From setup.c
 extern void setup();
+// From info.c
+extern void print_info();
 
 // Global interface
 struct KernelEntryInterface* g_interface;
 
-
 void _start(struct KernelEntryInterface* interface) {
 	g_interface = interface;
 	setup();
+	print_info();
 
 	while(1);
 }

@@ -8,11 +8,11 @@ SECTIONS
 	{
 		*(.text)
 	}
-	.idt BLOCK(4K) : ALIGN(4K)
+	/*.idt BLOCK(4K) : ALIGN(4K)
 	{
 		g_idt = ABSOLUTE(.);
 		. = . + 4K;
-	}
+	}*/
 	.data : ALIGN(4K)
 	{
 		*(.data)

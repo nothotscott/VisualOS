@@ -35,8 +35,8 @@ struct IDTDescriptor {
 
 
 // Global idt entry pointer
-//extern struct IDTEntry* g_idt;
-extern struct IDTEntry g_idt[IDT_SIZE];
+extern struct IDTEntry* g_idt;
+//extern struct IDTEntry g_idt[IDT_SIZE];
 
 // Global idt descriptor
 extern struct IDTDescriptor g_idt_descriptor;

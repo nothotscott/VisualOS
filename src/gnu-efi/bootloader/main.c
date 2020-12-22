@@ -160,9 +160,11 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		.mem_map_descriptor_size = descriptor_size
 	};
 
+	// Exit the UEFI application
+	SystemTable->BootServices->ExitBootServices(ImageHandle, map_key);
+	//SystemTable->RuntimeServices->SetVirtualAddressMap(map_size, descriptor_size, descriptor_version, map);
 	// Enter into the kernel
 	void (*kernel_start)(struct KernelEntryInterface*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
-	SystemTable->BootServices->ExitBootServices(ImageHandle, map_key); // Exit the UEFI application
 	kernel_start(&g_interface);
 
 	return EFI_SUCCESS;

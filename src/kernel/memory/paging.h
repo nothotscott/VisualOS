@@ -12,7 +12,7 @@
 #include "bootloader.h"
 #include "bitmap.h"
 
-#define MEMORY_PAGEABLE_TYPE	CONVENTIONAL_MEMORY
+#define MEMORY_PAGEABLE_TYPE	BOOTLOADER_CONVENTIONAL_MEMORY
 #define MEMORY_PAGE_SIZE		4096
 
 

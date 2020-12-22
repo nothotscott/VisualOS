@@ -20,3 +20,7 @@
 // Prints the contents at [address] (rounded down to nearest 16 bytes) for
 // [size] bytes (rounded up to the nearest 16 bytes)
 void print_memory(void* address, size_t size, SHELL_COLOR content_color, SHELL_COLOR fade_color);
+
+// Prints "false" in SHELL_COLOR_RED if [value] is false,
+// else "true" in SHELL_COLOR_GREEN
+void print_bool(bool value);

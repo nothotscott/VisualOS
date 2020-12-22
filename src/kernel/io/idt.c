@@ -9,17 +9,17 @@
 #include "memory/paging.h"
 #include "idt.h"
 
-//struct IDTEntry* g_idt;
-struct IDTEntry g_idt[IDT_SIZE] = {};
-struct IDTDescriptor g_idt_descriptor = {
+struct IDTEntry* g_idt;
+//struct IDTEntry g_idt[IDT_SIZE] = {};
+struct IDTDescriptor g_idt_descriptor;/* = {
 	.limit = 4095,
 	.base = (struct IDTEntry*)&g_idt
-};
+};*/
 
 
 void idt_init() {
 	size_t idt_total_size = IDT_SIZE * sizeof(struct IDTEntry);	// size of all IDT enteries in bytes
-	/*size_t pages = MEMORY_PAGE_SIZE / idt_total_size;			// pages needed to accomodate all the idt entries
+	size_t pages = MEMORY_PAGE_SIZE / idt_total_size;			// pages needed to accomodate all the idt entries
 	// TODO handle a case where pages is not 1
 	g_idt = (struct IDTEntry*)page_request();
 	// TODO memset
@@ -27,7 +27,7 @@ void idt_init() {
 		*(byte*)ptr = 0;
 	}
 	g_idt_descriptor.limit = idt_total_size - 1;
-	g_idt_descriptor.base = g_idt;*/
+	g_idt_descriptor.base = g_idt;
 }
 
 void idt_set_isr(size_t offset, ulong isr_ptr) {
