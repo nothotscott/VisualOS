@@ -11,8 +11,11 @@
 
 #define IDT_SIZE	256
 
-#define IDT_DEFAULT_SELECTOR	0x08
-#define IDT_DEFAULT_TYPES_ATTR	0x8E
+#define IDT_SELECTOR_INGATE		0x8e
+#define IDT_SELECTOR_TRAPGATE	0x08
+#define IDT_SELECTOR_DEFAULT	IDT_SELECTOR_TRAPGATE
+
+#define IDT_TYPES_ATTR_DEFAULT	0x8e
 
 
 struct IDTEntry {
@@ -23,7 +26,7 @@ struct IDTEntry {
 	ushort	offset_mid;
 	uint	offset_high;
 	uint	zero;
-} __attribute__((packed));
+};
 
 struct IDTDescriptor {
 	ushort				limit;	// max size of 64 bit idt
@@ -32,7 +35,8 @@ struct IDTDescriptor {
 
 
 // Global idt entry pointer
-extern struct IDTEntry* g_idt;
+//extern struct IDTEntry* g_idt;
+extern struct IDTEntry g_idt[IDT_SIZE];
 
 // Global idt descriptor
 extern struct IDTDescriptor g_idt_descriptor;
@@ -47,3 +51,6 @@ void idt_set_isr(size_t offset, ulong isr_ptr);
 
 // Loads the global idt descriptor
 extern void idt_load();
+
+// Gets the idt and stores it in [location]
+extern void idt_get(void* location);

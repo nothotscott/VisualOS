@@ -18,3 +18,8 @@ idt_load:
 	lidt	[g_idt_descriptor]
 	sti
 	ret
+
+GLOBAL idt_get
+idt_get:	; rdi=[location]
+	sidt	[rdi]
+	ret

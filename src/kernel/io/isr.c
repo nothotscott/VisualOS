@@ -22,5 +22,4 @@ void isr1_handler() {
 	print(string_str_from_ulong((ulong)scancode), SHELL_COLOR_FOREGROUND);
 	outb(IO_PIC1_COMMAND, 0x20);
 	outb(IO_PIC2_COMMAND, 0x20);
-	//asm("leave; iret");
 }
