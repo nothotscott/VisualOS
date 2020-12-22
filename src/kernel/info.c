@@ -31,6 +31,7 @@ void print_cpu() {
 	print("CPU Supports AVX2:   ", SHELL_COLOR_FOREGROUND); print_bool(cpu_features->set2 & CPUID_AVX2); print_newline();
 	print("CPU Supports AVX2:   ", SHELL_COLOR_FOREGROUND); print_bool(cpu_features->set2 & CPUID_AVX2); print_newline();
 	print("CPU Supports AVX512: ", SHELL_COLOR_FOREGROUND); print_bool(cpu_features->set3 & CPUID_AVX512_F); print_newline();
+	print("CPU Supports 3DNow!: ", SHELL_COLOR_FOREGROUND); print_bool(cpu_features->amd1 & CPUID_3DNOW); print_newline();
 	print("CPU Supports Hyper-threading: ", SHELL_COLOR_FOREGROUND); print_bool(cpu_features->set2 & CPUID_HYPERV); print_newline();
 	print("CPU Supports Sys-enter/exit:  ", SHELL_COLOR_FOREGROUND); print_bool(cpu_features->set1 & CPUID_SEP); print_newline();
 	print("CPU Supports Process context: ", SHELL_COLOR_FOREGROUND); print_bool(cpu_features->set2 & CPUID_PCID); print_newline();

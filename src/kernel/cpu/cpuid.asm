@@ -44,16 +44,24 @@ cpuid_get_str:	; rdi=[vendor_str], rsi=[brand_str]
 
 GLOBAL cpuid_get_features
 cpuid_get_features:		; rdi=[features]
-	mov		eax, 0x01
+	mov		eax, 0x01		; set 1 and 2
 	cpuid
 	mov		[rdi + 0], edx
 	mov		[rdi + 4], ecx
-	mov		eax, 0x07
+	mov		eax, 0x07		; set 3, 4, and 5
 	mov		ecx, 0x00
 	cpuid
 	mov		[rdi + 8], ebx
 	mov		[rdi + 12], ecx
 	mov		[rdi + 16], edx
-	mov		ecx, 0x01
+	mov		ecx, 0x01		; set 6
+	cpuid
 	mov		[rdi + 20], eax
+	mov		eax, 0x80000001	; amd1 and amd2
+	cpuid
+	mov		[rdi + 24], edx
+	mov		[rdi + 28], ecx
+	; Enable Intel's feature set 1 and AMD feature set 1 that are idempotent 
+	and		edx, 0b00000001100000111111111111111111
+	or		[rdi + 0], edx
 	ret
