@@ -141,8 +141,11 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	UINT32 descriptor_version;
 	{
 		SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
+		Print(L"Memory map at 0x%x\n\r", map);
 		SystemTable->BootServices->AllocatePool(EfiLoaderData, map_size, (void**)&map);
+		Print(L"Memory map size %d\n\r", map_size);
 		SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
+		Print(L"Memory map descriptor size %d\n\r", map_size);
 	}
 
 	// Prepare for kernel space
