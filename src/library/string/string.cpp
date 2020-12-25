@@ -9,7 +9,7 @@
 #include "string.h"
 #include "libvos/libvos.h"
 
-using namespace libvos;
+namespace libvos {
 
 String::String() : m_str { NULL }, m_size { 0 } {
 }
@@ -97,10 +97,10 @@ String* String::from_hex(T value) {
 	char* str = _from_hex(value);
 	return new String(str);
 }
-template String* String::from_hex<>(byte);
-template String* String::from_hex<>(ushort);
-template String* String::from_hex<>(uint);
-template String* String::from_hex<>(ulong);
+template String* String::from_hex(byte);
+template String* String::from_hex(ushort);
+template String* String::from_hex(uint);
+template String* String::from_hex(ulong);
 
 
 char* String::get_str(){
@@ -119,4 +119,6 @@ extern "C" {
 	char* string_str_from_ushort(ushort value)					{ return _from_hex(value); }
 	char* string_str_from_uint(uint value)						{ return _from_hex(value); }
 	char* string_str_from_ulong(ulong value)					{ return _from_hex(value); }
+}
+
 }

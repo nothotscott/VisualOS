@@ -11,6 +11,7 @@
 #include "bootloader.h"
 #include "shell/shell.h"
 #include "shell/tools.h"
+#include "memory/pageframe.h"
 #include "memory/paging.h"
 #include "memory/heap.h"
 #include "io/idt.h"
@@ -39,7 +40,7 @@ void setup_shell() {
 
 void setup_memory() {
 	init_paging(g_interface->mem_map, g_interface->mem_map_size, g_interface->mem_map_descriptor_size);
-	heap_init(g_pagemap.buffer + g_pagemap.size, paging_get_free());
+	heap_init(g_pageframemap.buffer + g_pageframemap.size, paging_get_free());
 }
 
 void setup_interrupts() {
@@ -62,13 +63,18 @@ void setup() {
 	print_newline();
 
 	setup_memory();
-	print("Total memory size:   ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)g_memory_total_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
-	print("Reserved memory:     ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)g_memory_reserved_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
-	print("Free memory:         ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)paging_get_free() / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
-	print("Page map address:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong)g_pagemap.buffer), SHELL_COLOR_ADDRESS); print_newline();
-	print("Heap start address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong)g_pagemap.buffer + g_pagemap.size), SHELL_COLOR_ADDRESS); print_newline();
+	print("Total memory size:      ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)g_memory_total_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
+	print("Reserved memory:        ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)g_memory_reserved_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
+	print("Free memory:            ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)paging_get_free() / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
+	print("Page frame map address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong)g_pageframemap.buffer), SHELL_COLOR_ADDRESS); print_newline();
 	print_newline();
-
+	struct PageLevelIndexes* pli = malloc(8);
+	page_get_indexes((void*)(0x1000 * 52 + 0x50000 * 7), pli); // 0x12ab34cd56ef7890
+	print("L4_i: ", SHELL_COLOR_FOREGROUND); print(string_str_from_ulong((ulong)pli->L4_i), SHELL_COLOR_NUMBER); print_newline();
+	print("L3_i: ", SHELL_COLOR_FOREGROUND); print(string_str_from_ulong((ulong)pli->L3_i), SHELL_COLOR_NUMBER); print_newline();
+	print("L2_i: ", SHELL_COLOR_FOREGROUND); print(string_str_from_ulong((ulong)pli->L2_i), SHELL_COLOR_NUMBER); print_newline();
+	print("L1_i: ", SHELL_COLOR_FOREGROUND); print(string_str_from_ulong((ulong)pli->L1_i), SHELL_COLOR_NUMBER); print_newline();
+	print_newline();
 
 	// TODO make interrupts better
 	/*setup_interrupts();

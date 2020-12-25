@@ -1,5 +1,6 @@
 #define	NULL	0
 
+
 /*
  * The following is a header template readable for C and C++
 

@@ -11,6 +11,11 @@ typedef	unsigned char		byte;
 typedef	unsigned short		ushort;
 typedef	unsigned int		uint;
 typedef	unsigned long long	ulong;
-typedef unsigned long int	size_t;
+typedef unsigned long		size_t;
+typedef unsigned long		uintptr_t;
 
 typedef signed long long	slong;
+
+#ifndef __cplusplus
+typedef enum {false, true}	bool;
+#endif

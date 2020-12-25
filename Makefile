@@ -21,17 +21,17 @@ MAKE_VOS	= $(MAKE) --no-print-directory -f $(SRC_DIR)/$@/Makefile THIS=$(SRC_DIR
 
 .PHONY: $(BOOTLOADER)
 $(BOOTLOADER):	setup
-				@echo "Building $@"
+				$(call echo_build)
 				cd $(SRC_DIR)/$@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS) KERNEL_SRC=$(SRC_DIR)/$(KERNEL)
 
 .PHONY: $(LIBRARY)
 $(LIBRARY):		setup
-				@echo "Building $@"
+				$(call echo_build)
 				$(MAKE_VOS) TARGET_DIR=$(LIB_DIR)
 
 .PHONY: $(KERNEL)
 $(KERNEL):		setup $(LIBRARY)
-				@echo "Building $@"
+				$(call echo_build)
 				$(MAKE_VOS) TARGET_DIR=$(KERNEL_DIR)
 
 ###############################################################################

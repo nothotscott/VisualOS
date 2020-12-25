@@ -9,10 +9,24 @@
 
 // For now, piggyback off the kernel's functions
 
+#ifdef __cplusplus
+namespace libvos {
+#endif
+
+
 // Allocates memory for size block
-extern "C" void* malloc(size_t size);
+#ifdef __cplusplus
+extern "C"
+#endif
+void* malloc(size_t size);
 
 // Frees the memory at address
-extern "C" void free(void* address);
+#ifdef __cplusplus
+extern "C"
+#endif
+void free(void* address);
 
 
+#ifdef __cplusplus
+} // namespace
+#endif

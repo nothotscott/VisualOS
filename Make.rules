@@ -2,7 +2,7 @@ ifndef TARGET_DIR
 	TARGET_DIR	:= $(BUILD_DIR)
 endif
 
-.PRECIOUS: $(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o $(TARGET_DIR)/%_cpp.o $(TARGET_DIR)/%_asm.o
+.PRECIOUS:	$(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o $(TARGET_DIR)/%_cpp.o $(TARGET_DIR)/%_asm.o
 
 $(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o:		$(THIS)/%.c
 											$(CC) $(CFLAGS) -c $< -o $@
@@ -16,13 +16,19 @@ $(TARGET_DIR)/%.o $(TARGET_DIR)/%_asm.o:	$(THIS)/%.asm
 #######################################
 
 $(TARGET_DIR)/%.elf:	$(TARGET_DIR)/%.o
-						$(LD) $(LDFLAGS) $^ $(LDADDITIONS) -o $@ $(LOADLIBES)
+						$(LD) $(LDFLAGS) $^ $(filter-out $^, $(LDADDITIONS)) -o $@ $(LOADLIBES)
 
 $(TARGET_DIR)/%.so:		$(TARGET_DIR)/%.o
-						$(LD) $(LDFLAGS) $^ $(LDADDITIONS) -o $@ $(LOADLIBES)
+						$(LD) $(LDFLAGS) $^ $(filter-out $^, $(LDADDITIONS)) -o $@ $(LOADLIBES)
+
+$(TARGET_DIR)/%.so:		# No prerequisites
+						$(LD) $(LDFLAGS) $(LDADDITIONS) -o $@ $(LOADLIBES)
 
 $(TARGET_DIR)/%.a:		$(TARGET_DIR)/%.o
-						$(AR) $(ARFLAGS) $@ $^ $(ARADDITIONS)
+						$(AR) $(ARFLAGS) $@ $^ $(filter-out $^, $(ARADDITIONS))
+
+$(TARGET_DIR)/%.a:		# No prerequisites
+						$(AR) $(ARFLAGS) $@ $(ARADDITIONS)
 
 $(TARGET_DIR)/%.efi:	$(TARGET_DIR)/%.so
 						$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc $(OBJCOPYFLAGS) $< $@

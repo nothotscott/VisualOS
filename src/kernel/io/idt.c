@@ -6,8 +6,9 @@
  * If not, see https://www.gnu.org/licenses/gpl-2.0
  */
 
-#include "memory/paging.h"
+#include "memory/pageframe.h"
 #include "idt.h"
+#include "memory/paging.h"
 
 struct IDTEntry* g_idt;
 //struct IDTEntry g_idt[IDT_SIZE] = {};

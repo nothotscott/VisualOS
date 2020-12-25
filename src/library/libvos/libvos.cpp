@@ -8,6 +8,8 @@
 
 #include "libvos.h"
 
+using namespace libvos;
+
 /* Operator implementations */
 void* operator new(size_t size) {
 	return malloc(size);

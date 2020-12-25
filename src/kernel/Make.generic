@@ -5,7 +5,6 @@ ifdef ASMDUMP
 	TARGETS	:= $(addprefix $(ASMDUMP_DIR)/, $(addsuffix .s, $(notdir $(basename $(filter-out %.asm, $(SOURCES))))))
 endif
 
-
 CFLAGS	+= -I$(THIS)
 
 all:	$(TARGETS)

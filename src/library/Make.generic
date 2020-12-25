@@ -4,15 +4,20 @@ INTERMEDIATES	:= $(addprefix $(LIB_DIR)/, $(addsuffix .o, $(basename $(SOURCES))
 TARGETS			:= $(addprefix $(LIB_DIR)/, $(addsuffix .a, $(LIBNAME))) $(addprefix $(LIB_DIR)/, $(addsuffix .so, $(LIBNAME)))
 
 ifdef ASMDUMP
-	TARGETS	:= $(addprefix $(ASMDUMP_DIR)/, $(addsuffix .s, $(notdir $(basename $(TARGETS)))))
+	TARGETS	:= $(addprefix $(ASMDUMP_DIR)/, $(addsuffix .s, $(basename $(notdir $(wildcard $(THIS)/*.c $(THIS)/*.cpp)))))
 endif
 
 ifneq ($(notdir $(THIS)), $(LIBVOS))
-	ARADDITIONS	:= $(TARGET_DIR)/$(LIBVOS).a
+	ARADDITIONS	+= $(TARGET_DIR)/$(LIBVOS).a
 endif
 
-CXXFLAGS	+= -I$(THIS)
+ARADDITIONS	+= $(INTERMEDIATES)
+LDADDITIONS	+= $(INTERMEDIATES)
+
+
+CXXFLAGS	+= -I$(THIS) -O3
 LDFLAGS		= -shared
 ARFLAGS		= -rcsT
+
 
 all:	$(INTERMEDIATES) $(TARGETS)

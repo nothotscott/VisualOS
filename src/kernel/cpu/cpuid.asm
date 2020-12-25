@@ -62,6 +62,6 @@ cpuid_get_features:		; rdi=[features]
 	mov		[rdi + 24], edx
 	mov		[rdi + 28], ecx
 	; Enable Intel's feature set 1 and AMD feature set 1 that are idempotent 
-	and		edx, 0b00000001100000111111111111111111
+	and		edx, 0b00000001100000111111111111111111 ;try mov
 	or		[rdi + 0], edx
 	ret

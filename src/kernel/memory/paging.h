@@ -1,6 +1,6 @@
 /*
  * File:		paging.h
- * Description:	Paging data structure
+ * Description:	Describes the 4-level page mapping
  * *****************************************************************************
  * Copyright 2020 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 
@@ -9,48 +9,40 @@
 
 #pragma once
 
-#include "bootloader.h"
-#include "bitmap.h"
-
-#define MEMORY_PAGEABLE_TYPE	BOOTLOADER_CONVENTIONAL_MEMORY
 #define MEMORY_PAGE_SIZE		4096
+#define	MEMORY_PAGE_ENTRY_SIZE	MEMORY_PAGE_SIZE/sizeof(long)
 
 
-// Total size of memory space (bytes), regardless of whether it's usable or not
-extern size_t g_memory_total_size;
-// Size of memory space (bytes) used by paging
-extern size_t g_memory_used_size;
-// Size of memory space (bytes_ used by reserved paging
-extern size_t g_memory_reserved_size;
+enum PageDirectoryEntry {
+	PAGE_PRESENT		= 1 << 0,	// Page is in RAM and MMU can access it
+	PAGE_WRITABLE		= 1 << 1,	// Page can be written to
+	PAGE_USER			= 1 << 2,	// Page can be accessed by userland
+	PAGE_WRITETHROUGH	= 1 << 3,	// Write-through cache (else write-back)
+	PAGE_NOCACHE		= 1 << 4,	// Disable cache
+	PAGE_ACCESSED		= 1 << 5,	// The page has previously been accessed
+	PAGE_LARGERPAGES	= 1 << 7,	// Page points to a page that describes a page
+	PAGE_OSAVAIL1		= 1 << 9,	// Undefined OS-specific 1
+	PAGE_OSAVAIL2		= 1 << 10,	// Undefined OS-specific 2
+	PAGE_OSAVAIL3		= 1 << 11,	// Undefined OS-specific 3
+	PAGE_ADDRESS		= 0xfffffffffffff << 12	// Final address
+};
 
-// Bitmap of usable memory space
-// A bit will be 1 if it's in-use, else 0 if it's free
-extern struct Bitmap g_pagemap;
+
+struct PageTable {
+	enum PageDirectoryEntry entries[MEMORY_PAGE_ENTRY_SIZE];
+} __attribute__((aligned(MEMORY_PAGE_SIZE)));
+
+// x86_64 multi-level addressing
+struct PageLevelIndexes {
+	ushort	L4_i;	// Index to the page directory pointer table
+	ushort	L3_i;	// Index to the page directory table
+	ushort	L2_i;	// Index to the page table
+	ushort	L1_i;	// Index to the page
+};
 
 
-// Initalizes paging by discovering the usable memory segment from [mem_map],
-// [mem_map_size], and [mem_map_descriptor_size] and creates a bitmap
-// of the usable space
-void init_paging(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t mem_map_descriptor_size);
+// Breaks the virtual [address] into its indexes and puts it in [out]
+void page_get_indexes(void* address, struct PageLevelIndexes* out);
 
-// Calculates free memory space that's pageable
-size_t paging_get_free();
-
-// Checks if a page is in [state] at [index] and sets it to [state]. 
-// Will return true if it's state is already in [state].
-bool page_manipulate(ulong index, bool state);
-
-// Will find, lock, and return a free page for use
-void* page_request();
-
-// Free pages at [address] and thereafter [pages] times and track used
-void page_free(void* address, size_t pages);
-
-// Make pages in-use at [address] and therafter [pages] times and track used
-void page_lock(void* address, size_t pages);
-
-// Free pages at [address] and thereafter [pages] times and track reserved
-void page_unreserve(void* address, size_t pages);
-
-// Make pages in-use at [address] and therafter [pages] times and track reserved
-void page_reserve(void* address, size_t pages);
+// Maps [virtual_address] to virtual_address using [pagetable_l4]
+void page_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address);

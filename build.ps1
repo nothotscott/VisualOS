@@ -99,7 +99,7 @@ foreach ($task in $tasks) {
 
 	elseif ($task -eq "clean") {
 		build clean
-		Remove-Item $OVMF_DIR -Recurse -Force
+		# Remove-Item $OVMF_DIR_WIN -Recurse -Force
 	} elseif ($task -eq "clean-img") {
 		build clean-img
 	} elseif ($task -eq "clean-bootloader") {

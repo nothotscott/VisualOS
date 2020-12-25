@@ -21,8 +21,23 @@ AS		:= nasm
 MAKE	:= make
 OBJCOPY	:= objcopy
 
+# Shell configurations
+NORMAL	:= $(shell tput sgr0)
+BOLD	:= $(shell tput bold)
+RED		:= $(shell tput setaf 1)
+GREEN	:= $(shell tput setaf 2)
+YELLOW	:= $(shell tput setaf 3)
+BLUE	:= $(shell tput setaf 4)
+MAGENTA	:= $(shell tput setaf 5)
+CYAN	:= $(shell tput setaf 6)
+
 # Other stuff
 BUILD_DIR_ABS	:= $(abspath $(BUILD_DIR))
 # HOST			:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
 # ARCH			:= $(shell $(CC) -dumpmachine | sed "s/\(-\).*$$//")
 # LIBGCC		:= $(shell $(CC) -print-libgcc-file-name)
+
+# Functions
+define echo_build
+	@echo "$(GREEN)$(BOLD)Building $@$(NORMAL)"
+endef
