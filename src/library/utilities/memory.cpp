@@ -16,7 +16,7 @@ template<typename T>
 void memset(void* start, T value, size_t size) {
 	size_t size_bytes = size % sizeof(T);
 	size_t size_words = size - size_bytes;
-	for(T* ptr = (T*)start; ptr < (T*)start + size_words; ptr++){
+	for(T* ptr = (T*)start; ptr < (T*)start + size_words / sizeof(T); ptr++){
 		*ptr = value;
 	}
 	byte* value_ptr = (byte*)&value;
@@ -31,7 +31,7 @@ template void memset(void*, byte, size_t);
 extern "C" void memset_ulong(void* start, ulong value, size_t size)		{ memset(start, value, size); }
 extern "C" void memset_uint(void* start, uint value, size_t size)		{ memset(start, value, size); }
 extern "C" void memset_ushort(void* start, ushort value, size_t size)	{ memset(start, value, size); }
-extern "C" void memset(void* start, byte value, size_t size)			{ memset(start, value, size); }
+extern "C" void memset_byte(void* start, byte value, size_t size)		{ memset(start, value, size); }
 
 
 }

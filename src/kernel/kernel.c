@@ -24,5 +24,5 @@ void _start(struct KernelEntryInterface* interface) {
 	setup();
 	print_info();
 
-	while(1);
+	while(true);
 }

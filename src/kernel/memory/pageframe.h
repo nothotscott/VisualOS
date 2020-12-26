@@ -30,26 +30,26 @@ extern struct Bitmap g_pageframemap;
 // Initalizes paging by discovering the usable memory segment from [mem_map],
 // [mem_map_size], and [mem_map_descriptor_size] and creates a bitmap
 // of the usable space
-void init_paging(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t mem_map_descriptor_size);
+void pageframe_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t mem_map_descriptor_size);
 
 // Calculates free memory space that's pageable
-size_t paging_get_free();
+size_t memory_get_free();
 
 // Checks if a page is in [state] at [index] and sets it to [state]. 
 // Will return true if it's state is already in [state].
-bool page_manipulate(ulong index, bool state);
+bool pageframe_manipulate(ulong index, bool state);
 
 // Will find, lock, and return a free page for use
-void* page_request();
+void* pageframe_request();
 
 // Free pages at [address] and thereafter [pages] times and track used
-void page_free(void* address, size_t pages);
+void pageframe_free(void* address, size_t pages);
 
 // Make pages in-use at [address] and therafter [pages] times and track used
-void page_lock(void* address, size_t pages);
+void pageframe_lock(void* address, size_t pages);
 
 // Free pages at [address] and thereafter [pages] times and track reserved
-void page_unreserve(void* address, size_t pages);
+void pageframe_unreserve(void* address, size_t pages);
 
 // Make pages in-use at [address] and therafter [pages] times and track reserved
-void page_reserve(void* address, size_t pages);
+void pageframe_reserve(void* address, size_t pages);

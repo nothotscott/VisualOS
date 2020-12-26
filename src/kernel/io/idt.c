@@ -22,7 +22,7 @@ void idt_init() {
 	size_t idt_total_size = IDT_SIZE * sizeof(struct IDTEntry);	// size of all IDT enteries in bytes
 	size_t pages = MEMORY_PAGE_SIZE / idt_total_size;			// pages needed to accomodate all the idt entries
 	// TODO handle a case where pages is not 1
-	g_idt = (struct IDTEntry*)page_request();
+	g_idt = (struct IDTEntry*)pageframe_request();
 	// TODO memset
 	for(void* ptr = g_idt; ptr < (void*)g_idt + idt_total_size; ptr++) {
 		*(byte*)ptr = 0;

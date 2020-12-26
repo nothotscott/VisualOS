@@ -50,5 +50,5 @@ void print_cpu() {
 }
 
 void print_info() {
-	print_cpu();
+	//print_cpu();
 }

@@ -155,9 +155,9 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 
 	// Get important values for the kernel
 	g_interface = (struct KernelEntryInterface){
-		.frame_buffer_ptr = &g_frame_buffer,
-		.font_ptr = font,
-		.img_ptr = image,
+		.frame_buffer = &g_frame_buffer,
+		.font = font,
+		.img = image,
 		.mem_map = (struct MemoryDescriptor*)map,
 		.mem_map_size = map_size,
 		.mem_map_descriptor_size = descriptor_size
