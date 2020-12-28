@@ -41,6 +41,11 @@ struct PageDirectoryEntry {
 	ulong	address			: 52;	// Final address
 };
 
+union PageDirectoryEntryUnion {
+	struct PageDirectoryEntry entry;
+	ulong num;
+};
+
 
 struct PageTable {
 	struct PageDirectoryEntry entries[MEMORY_PAGE_ENTRY_SIZE];

@@ -42,8 +42,8 @@ void setup_shell() {
 void setup_memory() {
 	pageframe_init(g_interface->mem_map, g_interface->mem_map_size, g_interface->mem_map_descriptor_size);
 	paging_init();
-	//paging_identity_map(g_interface->frame_buffer->base_ptr, g_interface->frame_buffer->size);
-	//paging_load();
+	paging_identity_map(g_interface->frame_buffer->base_ptr, g_interface->frame_buffer->size);
+	paging_load();
 	heap_init(g_pageframemap.buffer + g_pageframemap.size, memory_get_free());
 }
 
@@ -67,16 +67,11 @@ void setup() {
 	print_newline();
 
 	setup_memory();
-	/*print("Total memory size:      ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)g_memory_total_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
+	print("Total memory size:      ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)g_memory_total_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
 	print("Reserved memory:        ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)g_memory_reserved_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
 	print("Free memory:            ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong)memory_get_free() / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
 	print("Page frame map address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong)g_pageframemap.buffer), SHELL_COLOR_ADDRESS); print_newline();
 	print_newline();
-	for(uint i = 0; i < 128; i++){
-		pageframe_request();
-	}*/
-	print("2\n", SHELL_COLOR_FOREGROUND);
-
 	print_newline();
 
 	// TODO make interrupts better
