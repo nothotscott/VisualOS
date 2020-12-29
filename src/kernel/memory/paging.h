@@ -30,21 +30,6 @@ enum PageDirectoryFlagBit {
 	PAGE_NOEXECUTE		= 63	// Disabe execution, only if supported
 };
 
-/*struct PageDirectoryEntry {
-	bool	present			: 1;	// Page is in RAM and MMU can access it
-	bool	writable		: 1;	// Page can be written to
-	bool	userland		: 1;	// Page can be accessed by userland
-	bool	writethrough	: 1;	// Write-through cache (else write-back)
-	bool	nocache			: 1;	// Disable cache
-	bool	accessed		: 1;	// The page has previously been accessed
-	bool	ignore0			: 1;	
-	bool	largerpages		: 1;	// Page points to a page that describes a page
-	bool	ignore1			: 1;	
-	byte_t	os_available	: 3;	// Undefined OS-specific 1
-	ulong_t	address			: 52;	// Final address
-};*/
-
-
 struct PageTable {
 	ulong_t entries[MEMORY_PAGE_ENTRY_SIZE];
 } __attribute__((aligned(MEMORY_PAGE_SIZE)));

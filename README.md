@@ -19,18 +19,39 @@ the `build.ps1` PowerShell script. Tasks are comma separated. Common build tasks
 - `.\build.ps1 clean-vos,build-kernel`
 - `.\build.ps1 clean-img,build-img,run`
 
+Make sure the following tools are installed
+- GCC suite
+- nasm
+- mtools
+
 # Features
 - UEFI bootloader
-- Kernel
+- Paging
 
 ## Planned Features
 - Programs will use a built-in GUI framework. There will no be standard io. User input will strictly through GUI fields.
 - Programs that need to access other programs can only do so through libraries that should be bundled with the program in question.
-- Programs are encouraged to save user settings in a file that avoids asking them for input that will likley be the same the next time they go to run it.
+- Programs are encouraged to save user settings in a file that avoids asking them for input that will likely be the same the next time they go to run it.
 - Drives will mount similar to Windows, but present themselves as `$n/your/files.txt` where n is the drive number.
 - Programs will work best in C++, since my library will be object oriented.
 
 # Lua
 Lua is the primary scripting language of this OS. Lua easily integrates with the C language and is lightweight.
 Lua scripts will provide a simplified means of running programs nativley.
-Lua is also far simpler then shell scripting and can be adapted for many situations
+Lua is also far simpler then shell scripting and can be adapted for many situations. I plan lua scripts to look like the following:
+```lua
+local gui = vos.Gui:CreateWindow()
+local layout = gui:SetLayout("STACK")
+local addDeviceToList = function(device, isConnected)
+	if device:GetType() == "DISK" and device:GetMedium() == "USB" then
+		local label = vos.Gui:CreateComponent("LABEL")
+		label.Text = tostring(device)
+		layout:AddComponent(label)
+	end
+end
+
+for i,device in pairs(vos.Devices:GetDevices()) do
+	addDeviceToList(device, true)
+end
+vos.Devices.DeviceInserted:connect(addDeviceToList)
+```

@@ -29,7 +29,7 @@ struct IDTEntry {
 };
 
 struct IDTDescriptor {
-	ushort_t				limit;	// max size of 64 bit idt
+	ushort_t			limit;	// max size of 64 bit idt
 	struct IDTEntry*	base;	// where the IDT is
 } __attribute__((packed));
 

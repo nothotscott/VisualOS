@@ -80,10 +80,10 @@ void setup() {
 	print(string_str_from_int(*asd), SHELL_COLOR_NUMBER);
 
 	// TODO make interrupts better
-	/*setup_interrupts();
+	setup_interrupts();
 	print("Interrupt descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_idt), SHELL_COLOR_ADDRESS); print_newline();
 	print("IDT Descriptor address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)&g_idt_descriptor), SHELL_COLOR_ADDRESS); print_newline();
-	print_newline();*/
+	print_newline();
 }
 
 //print_memory((void*)pagemap.buffer, pagemap.size, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
