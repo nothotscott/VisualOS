@@ -19,7 +19,7 @@
 extern size_t g_memory_total_size;
 // Size of memory space (bytes) used by paging
 extern size_t g_memory_used_size;
-// Size of memory space (bytes_ used by reserved paging
+// Size of memory space (bytes) used by reserved paging
 extern size_t g_memory_reserved_size;
 
 // Bitmap of usable memory space
@@ -37,7 +37,7 @@ size_t memory_get_free();
 
 // Checks if a page is in [state] at [index] and sets it to [state]. 
 // Will return true if it's state is already in [state].
-bool pageframe_manipulate(ulong index, bool state);
+bool pageframe_manipulate(ulong_t index, bool state);
 
 // Will find, lock, and return a free page for use
 void* pageframe_request();

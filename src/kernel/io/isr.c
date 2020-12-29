@@ -18,8 +18,8 @@
 #include "shell/tools.h"
 
 void isr1_handler() {
-	byte scancode = inb(0x60);
-	print(string_str_from_ulong((ulong)scancode), SHELL_COLOR_FOREGROUND);
+	byte_t scancode = inb(0x60);
+	print(string_str_from_ulong((ulong_t)scancode), SHELL_COLOR_FOREGROUND);
 	outb(IO_PIC1_COMMAND, 0x20);
 	outb(IO_PIC2_COMMAND, 0x20);
 }

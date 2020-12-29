@@ -12,7 +12,7 @@ INCLUDES	:= $(addprefix -include , $(GIVENS))
 LIBINCLUDES	:= $(addprefix -I, $(addsuffix /, $(shell find $(SRC_DIR)/$(LIBRARY)/* -maxdepth 1 -type d) $(SRC_DIR)/$(LIBRARY)))
 LIBARCHIVES	:= $(addprefix $(LIB_DIR)/, $(notdir $(wildcard $(LIB_DIR)/*.a)))
 
-export CFLAGS	:= $(INCLUDES) $(LIBINCLUDES) -I$(THIS)/ -m64 -ffreestanding -fshort-wchar
+export CFLAGS	:= $(INCLUDES) $(LIBINCLUDES) -I$(THIS)/ -m64 -ffreestanding -fshort-wchar -O1
 export ASFLAGS	:= -p $(THIS)/kernel.inc -i $(THIS)/ -f elf64
 LDFLAGS			:= -T $(THIS)/kernel.ld -L$(LIB_DIR) -static -Bsymbolic -nostdlib
 LDADDITIONS		= $(addprefix $(KERNEL_DIR)/, $(filter-out $(PRIMARY).o, $(notdir $(wildcard $(KERNEL_DIR)/*.o)))) $(LIBARCHIVES)

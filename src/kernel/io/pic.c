@@ -17,8 +17,8 @@ void pic_mask(){
 
 void pic_remap(){
 	// Original PIC data
-	byte d1 = inb(IO_PIC1_DATA);
-	byte d2 = inb(IO_PIC2_DATA);
+	byte_t d1 = inb(IO_PIC1_DATA);
+	byte_t d2 = inb(IO_PIC2_DATA);
 	// Tell PIC's to start the initialization sequence
 	outb(IO_PIC1_COMMAND, IO_ICW1_INIT | IO_ICW1_ICW4);
 	//io_wait();

@@ -20,10 +20,10 @@ namespace libvos {
 template<typename T>
 void memset(void* start, T value, size_t size);
 #else
-void memset_ulong(void*, ulong, size_t);
-void memset_uint(void*, uint, size_t);
-void memset_ushort(void*, ushort, size_t);
-void memset_byte(void*, byte, size_t);
+void memset_ulong(void*, ulong_t, size_t);
+void memset_uint(void*, uint_t, size_t);
+void memset_ushort(void*, ushort_t, size_t);
+void memset_byte(void*, byte_t, size_t);
 #endif
 
 

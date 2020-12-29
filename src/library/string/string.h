@@ -28,7 +28,7 @@ class String {
 		template<typename T>
 		static String* from_int(T value);
 		template<typename T>
-		static String* from_decimal(T value, byte places);
+		static String* from_decimal(T value, byte_t places);
 		template<typename T>
 		static String* from_hex(T value);
 
@@ -45,10 +45,10 @@ struct String;
 char* string_get_str(struct String*);
 
 // Convenience wrappers
-char* string_str_from_int(slong);
-char* string_str_from_decimal(double, byte);
-char* string_str_from_byte(byte);
-char* string_str_from_ushort(ushort);
-char* string_str_from_uint(uint);
-char* string_str_from_ulong(ulong);
+char* string_str_from_int(slong_t);
+char* string_str_from_decimal(double, byte_t);
+char* string_str_from_byte(byte_t);
+char* string_str_from_ushort(ushort_t);
+char* string_str_from_uint(uint_t);
+char* string_str_from_ulong(ulong_t);
 #endif

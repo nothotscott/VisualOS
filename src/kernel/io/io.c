@@ -1,14 +1,14 @@
 #include "io.h"
 
 
-void outb(ushort port, byte val) {
+void outb(ushort_t port, byte_t val) {
 	asm volatile ("outb %0, %1"
 				:
 				: "a"(val), "Nd"(port));
 }
 
-byte inb(ushort port) {
-	byte ret;
+byte_t inb(ushort_t port) {
+	byte_t ret;
 	asm volatile ("inb %1, %0"
 				: "=a"(ret)
 				: "Nd"(port));

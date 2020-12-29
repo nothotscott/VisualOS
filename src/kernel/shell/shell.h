@@ -12,7 +12,7 @@
 
 #include "bootloader.h"
 
-typedef uint	SHELL_COLOR;
+typedef uint_t	SHELL_COLOR;
 
 #define	SHELL_COLOR_WHITE	0xffffffff
 #define	SHELL_COLOR_BLACK	0xff000000
@@ -34,10 +34,10 @@ void shell_init(struct FrameBuffer* _frame_buffer, struct PSF1Font* _font);
 
 
 // Sets the cursor to the [x] and [y]
-void set_cursor(uint x, uint y);
+void shell_set_cursor(uint_t x, uint_t y);
 
 // Draws a character [chr] with color at [xoffset] and [yoffset]
-void draw_char(char chr, SHELL_COLOR color, uint xoff, uint yoff);
+void shell_draw_char(char chr, SHELL_COLOR color, uint_t xoff, uint_t yoff);
 
 // Prints a string [str] at the current cursor position with [color]
 void print(char* str, SHELL_COLOR color);
@@ -45,4 +45,7 @@ void print_char(char chr, SHELL_COLOR color);
 void print_newline();
 
 // Draws TGA img at [xoffset] and [yoffset]
-void draw_tga(struct TGAImage* img, uint xoff, uint yoff);
+void shell_draw_tga(struct TGAImage* img, uint_t xoff, uint_t yoff);
+
+// Clears the framebuffer
+void shell_clear();

@@ -25,17 +25,17 @@ void idt_init() {
 	g_idt = (struct IDTEntry*)pageframe_request();
 	// TODO memset
 	for(void* ptr = g_idt; ptr < (void*)g_idt + idt_total_size; ptr++) {
-		*(byte*)ptr = 0;
+		*(byte_t*)ptr = 0;
 	}
 	g_idt_descriptor.limit = idt_total_size - 1;
 	g_idt_descriptor.base = g_idt;
 }
 
-void idt_set_isr(size_t offset, ulong isr_ptr) {
+void idt_set_isr(size_t offset, ulong_t isr_ptr) {
 	g_idt[offset].zero = 0;
-	g_idt[offset].offset_low = (ushort)(((ulong)isr_ptr & 0x000000000000ffff));
-	g_idt[offset].offset_mid = (ushort)(((ulong)isr_ptr & 0x00000000ffff0000) >> 16);
-	g_idt[offset].offset_high = (uint)(((ulong)isr_ptr & 0xffffffff00000000) >> 32);
+	g_idt[offset].offset_low = (ushort_t)(((ulong_t)isr_ptr & 0x000000000000ffff));
+	g_idt[offset].offset_mid = (ushort_t)(((ulong_t)isr_ptr & 0x00000000ffff0000) >> 16);
+	g_idt[offset].offset_high = (uint_t)(((ulong_t)isr_ptr & 0xffffffff00000000) >> 32);
 	g_idt[offset].ist = 0;
 	g_idt[offset].selector = IDT_SELECTOR_DEFAULT;
 	g_idt[offset].types_attr = IDT_TYPES_ATTR_DEFAULT;

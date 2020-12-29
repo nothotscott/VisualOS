@@ -14,9 +14,11 @@
 #define BITMAP_SCALE	sizeof(size_t)
 
 struct Bitmap {
-	byte*	buffer;	
+	byte_t*	buffer;	
 	size_t	size;	// Real size
 };
+
+// *** Class functions  *** //
 
 // Initialize [bitmap] with real [size] of [buffer]. Will also clear buffer.
 void bitmap_initialize(struct Bitmap* bitmap, void* buffer, size_t size);
@@ -25,7 +27,7 @@ void bitmap_initialize(struct Bitmap* bitmap, void* buffer, size_t size);
 size_t bitmap_adjusted_size(struct Bitmap* bitmap);
 
 // Get value based on [index] for the [bitmap]
-bool bitmap_get(struct Bitmap* bitmap, ulong index);
+bool bitmap_get(struct Bitmap* bitmap, size_t index);
 
-// Set [value] based on [index] for the [bitmap]
-void bitmap_set(struct Bitmap* bitmap, ulong index, bool value);
+// Set [value] based on [index] for the [bitmap] and returns true on success
+bool bitmap_set(struct Bitmap* bitmap, size_t index, bool value);

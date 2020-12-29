@@ -19,19 +19,19 @@ void memset(void* start, T value, size_t size) {
 	for(T* ptr = (T*)start; ptr < (T*)start + size_words / sizeof(T); ptr++){
 		*ptr = value;
 	}
-	byte* value_ptr = (byte*)&value;
-	for(byte* ptr = (byte*)start + size_words; ptr < (byte*)start + size; ptr++){
+	byte_t* value_ptr = (byte_t*)&value;
+	for(byte_t* ptr = (byte_t*)start + size_words; ptr < (byte_t*)start + size; ptr++){
 		*ptr = *value_ptr;
 	}
 }
-template void memset(void*, ulong, size_t);
-template void memset(void*, uint, size_t);
-template void memset(void*, ushort, size_t);
-template void memset(void*, byte, size_t);
-extern "C" void memset_ulong(void* start, ulong value, size_t size)		{ memset(start, value, size); }
-extern "C" void memset_uint(void* start, uint value, size_t size)		{ memset(start, value, size); }
-extern "C" void memset_ushort(void* start, ushort value, size_t size)	{ memset(start, value, size); }
-extern "C" void memset_byte(void* start, byte value, size_t size)		{ memset(start, value, size); }
+template void memset(void*, ulong_t, size_t);
+template void memset(void*, uint_t, size_t);
+template void memset(void*, ushort_t, size_t);
+template void memset(void*, byte_t, size_t);
+extern "C" void memset_ulong(void* start, ulong_t value, size_t size)		{ memset(start, value, size); }
+extern "C" void memset_uint(void* start, uint_t value, size_t size)		{ memset(start, value, size); }
+extern "C" void memset_ushort(void* start, ushort_t value, size_t size)	{ memset(start, value, size); }
+extern "C" void memset_byte(void* start, byte_t value, size_t size)		{ memset(start, value, size); }
 
 
 }

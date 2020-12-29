@@ -13,21 +13,24 @@
 #define	MEMORY_PAGE_ENTRY_SIZE	MEMORY_PAGE_SIZE/sizeof(long)
 
 
-/*enum PageDirectoryEntry {
-	PAGE_PRESENT		= 1 << 0,	// Page is in RAM and MMU can access it
-	PAGE_WRITABLE		= 1 << 1,	// Page can be written to
-	PAGE_USER			= 1 << 2,	// Page can be accessed by userland
-	PAGE_WRITETHROUGH	= 1 << 3,	// Write-through cache (else write-back)
-	PAGE_NOCACHE		= 1 << 4,	// Disable cache
-	PAGE_ACCESSED		= 1 << 5,	// The page has previously been accessed
-	PAGE_LARGERPAGES	= 1 << 7,	// Page points to a page that describes a page
-	PAGE_OSAVAIL1		= 1 << 9,	// Undefined OS-specific 1
-	PAGE_OSAVAIL2		= 1 << 10,	// Undefined OS-specific 2
-	PAGE_OSAVAIL3		= 1 << 11,	// Undefined OS-specific 3
-	PAGE_ADDRESS		= 0xfffffffffffff << 12	// Final address
-};*/
+typedef ulong_t	page_directory_entry_t;
 
-struct PageDirectoryEntry {
+
+enum PageDirectoryFlagBit {
+	PAGE_PRESENT		= 0,	// Page is in RAM and MMU can access it
+	PAGE_WRITABLE		= 1,	// Page can be written to
+	PAGE_USER			= 2,	// Page can be accessed by userland
+	PAGE_WRITETHROUGH	= 3,	// Write-through cache (else write-back)
+	PAGE_NOCACHE		= 4,	// Disable cache
+	PAGE_ACCESSED		= 5,	// The page has previously been accessed
+	PAGE_LARGERPAGES	= 7,	// Page points to a page that describes a page
+	PAGE_OSAVAIL1		= 9,	// Undefined OS-specific 1
+	PAGE_OSAVAIL2		= 10,	// Undefined OS-specific 2
+	PAGE_OSAVAIL3		= 11,	// Undefined OS-specific 3
+	PAGE_NOEXECUTE		= 63	// Disabe execution, only if supported
+};
+
+/*struct PageDirectoryEntry {
 	bool	present			: 1;	// Page is in RAM and MMU can access it
 	bool	writable		: 1;	// Page can be written to
 	bool	userland		: 1;	// Page can be accessed by userland
@@ -37,32 +40,41 @@ struct PageDirectoryEntry {
 	bool	ignore0			: 1;	
 	bool	largerpages		: 1;	// Page points to a page that describes a page
 	bool	ignore1			: 1;	
-	byte	os_available	: 3;	// Undefined OS-specific 1
-	ulong	address			: 52;	// Final address
-};
-
-union PageDirectoryEntryUnion {
-	struct PageDirectoryEntry entry;
-	ulong num;
-};
+	byte_t	os_available	: 3;	// Undefined OS-specific 1
+	ulong_t	address			: 52;	// Final address
+};*/
 
 
 struct PageTable {
-	struct PageDirectoryEntry entries[MEMORY_PAGE_ENTRY_SIZE];
+	ulong_t entries[MEMORY_PAGE_ENTRY_SIZE];
 } __attribute__((aligned(MEMORY_PAGE_SIZE)));
 
 // x86_64 multi-level addressing
 struct PageLevelIndexes {
-	ushort	L4_i;	// Index to the page directory pointer table
-	ushort	L3_i;	// Index to the page directory table
-	ushort	L2_i;	// Index to the page table
-	ushort	L1_i;	// Index to the page
+	ushort_t	L4_i;	// Index to the page directory pointer table
+	ushort_t	L3_i;	// Index to the page directory table
+	ushort_t	L2_i;	// Index to the page table
+	ushort_t	L1_i;	// Index to the page
 };
 
 
 // Global page table level 4 pointer
 extern struct PageTable* g_pagetable_l4;
 
+
+// *** Miscellaneous functions  *** //
+
+// Breaks the virtual [address] into its indexes and puts it in [out]
+void paging_get_indexes(void* address, struct PageLevelIndexes* out);
+
+// Returns the [entry] with the [address] applied to it
+page_directory_entry_t paging_set_entry_address(page_directory_entry_t entry, void* address);
+
+// Returns the address component of [entry]
+void* paging_get_entry_address(page_directory_entry_t entry);
+
+
+// *** Class functions  *** //
 
 // Initializes paging by creating the page table level 4 and sets the 
 // initial mapping between virtual and physical memory.
@@ -76,9 +88,6 @@ void paging_identity_map(void* address, size_t size);
 
 // Loads the paging information into the appropriate control register
 void paging_load();
-
-// Breaks the virtual [address] into its indexes and puts it in [out]
-void paging_get_indexes(void* address, struct PageLevelIndexes* out);
 
 // Maps [virtual_address] to virtual_address using [pagetable_l4]
 void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address);

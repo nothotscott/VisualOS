@@ -22,14 +22,14 @@ void print_cpu() {
 	print("CPU Brand:  ", SHELL_COLOR_FOREGROUND); print(cpu_str + 13, SHELL_COLOR_GREEN); print_newline();
 	free(cpu_str);
 	struct CPUIDFeatures* cpu_features = (struct CPUIDFeatures*)malloc(16);
-	print("CPUIDFeatureSet1:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong)cpu_features->set1 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
-	print("CPUIDFeatureSet2:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong)cpu_features->set2 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
-	print("CPUIDFeatureSet3:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong)cpu_features->set3 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
-	print("CPUIDFeatureSet4:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong)cpu_features->set4 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
-	print("CPUIDFeatureSet5:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong)cpu_features->set5 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
-	print("CPUIDFeatureSet6:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong)cpu_features->set6 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
-	print("CPUIDFeatureSetAMD1: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong)cpu_features->amd1 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
-	print("CPUIDFeatureSetAMD2: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong)cpu_features->amd2 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
+	print("CPUIDFeatureSet1:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong_t)cpu_features->set1 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
+	print("CPUIDFeatureSet2:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong_t)cpu_features->set2 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
+	print("CPUIDFeatureSet3:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong_t)cpu_features->set3 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
+	print("CPUIDFeatureSet4:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong_t)cpu_features->set4 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
+	print("CPUIDFeatureSet5:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong_t)cpu_features->set5 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
+	print("CPUIDFeatureSet6:   ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong_t)cpu_features->set6 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
+	print("CPUIDFeatureSetAMD1: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong_t)cpu_features->amd1 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
+	print("CPUIDFeatureSetAMD2: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_NUMBER); print(string_str_from_ulong((ulong_t)cpu_features->amd2 & 0xffffffff), SHELL_COLOR_NUMBER); print_newline();
 
 	print("CPU Supports MMX:    ", SHELL_COLOR_FOREGROUND); print_bool(cpu_features->set1 & CPUID_MMX); print_newline();
 	print("CPU Supports SSE:    ", SHELL_COLOR_FOREGROUND); print_bool(cpu_features->set1 & CPUID_SSE); print_newline();

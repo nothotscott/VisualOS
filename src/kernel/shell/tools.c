@@ -16,31 +16,31 @@
 
 void print_memory(void* address, size_t size, SHELL_COLOR content_color, SHELL_COLOR fade_color) {
 	size_t mod = size % SHELL_PRINT_MEMORY_COLUMNS;
-	ulong start = (ulong)address - (ulong)address % SHELL_PRINT_MEMORY_COLUMNS;
-	ulong end = (ulong)address + size - mod;
+	ulong_t start = (ulong_t)address - (ulong_t)address % SHELL_PRINT_MEMORY_COLUMNS;
+	ulong_t end = (ulong_t)address + size - mod;
 	if(mod != 0){
 		end += SHELL_PRINT_MEMORY_COLUMNS;
 	}
 	// Print header
 	print("Offset            ", SHELL_COLOR_MEMORY_HEADER);
-	for(byte i = 0; i < SHELL_PRINT_MEMORY_COLUMNS; i++){
+	for(byte_t i = 0; i < SHELL_PRINT_MEMORY_COLUMNS; i++){
 		print(string_str_from_byte(i), SHELL_COLOR_MEMORY_HEADER);
 		print_char(' ', SHELL_COLOR_MEMORY_HEADER);
 	}
 	print(" Decoded text", SHELL_COLOR_MEMORY_HEADER);
 	print_newline();
 	// Print content
-	for(ulong row = (ulong)start; row < end; row += SHELL_PRINT_MEMORY_COLUMNS){
+	for(ulong_t row = (ulong_t)start; row < end; row += SHELL_PRINT_MEMORY_COLUMNS){
 		print(string_str_from_ulong(row), SHELL_COLOR_MEMORY_LOCATION);
 		print("  ", SHELL_COLOR_MEMORY_LOCATION);
-		for(byte* ptr = (byte*)row; ptr < (byte*)(row + SHELL_PRINT_MEMORY_COLUMNS); ptr++){
-			SHELL_COLOR color = ((ulong)ptr < (ulong)address || (ulong)ptr >= (ulong)address + size) ? fade_color : content_color;
+		for(byte_t* ptr = (byte_t*)row; ptr < (byte_t*)(row + SHELL_PRINT_MEMORY_COLUMNS); ptr++){
+			SHELL_COLOR color = ((ulong_t)ptr < (ulong_t)address || (ulong_t)ptr >= (ulong_t)address + size) ? fade_color : content_color;
 			print(string_str_from_byte(*ptr), color);
 			print_char(' ', color);
 		}
 		print_char(' ', content_color);
-		for(byte* ptr = (byte*)row; ptr < (byte*)(row + SHELL_PRINT_MEMORY_COLUMNS); ptr++){
-			SHELL_COLOR color = ((ulong)ptr < (ulong)address || (ulong)ptr >= (ulong)address + size) ? fade_color : content_color;
+		for(byte_t* ptr = (byte_t*)row; ptr < (byte_t*)(row + SHELL_PRINT_MEMORY_COLUMNS); ptr++){
+			SHELL_COLOR color = ((ulong_t)ptr < (ulong_t)address || (ulong_t)ptr >= (ulong_t)address + size) ? fade_color : content_color;
 			char chr = *ptr >= '!' && *ptr <= '~' ? *ptr : SHELL_PRINT_MEMORY_FILLER;
 			print_char(chr, color);
 		}

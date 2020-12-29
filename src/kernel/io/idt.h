@@ -19,17 +19,17 @@
 
 
 struct IDTEntry {
-	ushort	offset_low;
-	ushort	selector;
-	byte	ist;
-	byte	types_attr;
-	ushort	offset_mid;
-	uint	offset_high;
-	uint	zero;
+	ushort_t	offset_low;
+	ushort_t	selector;
+	byte_t	ist;
+	byte_t	types_attr;
+	ushort_t	offset_mid;
+	uint_t	offset_high;
+	uint_t	zero;
 };
 
 struct IDTDescriptor {
-	ushort				limit;	// max size of 64 bit idt
+	ushort_t				limit;	// max size of 64 bit idt
 	struct IDTEntry*	base;	// where the IDT is
 } __attribute__((packed));
 
@@ -47,7 +47,7 @@ extern struct IDTDescriptor g_idt_descriptor;
 void idt_init();
 
 // Sets the global idt entry plus offset to the [isr_ptr]
-void idt_set_isr(size_t offset, ulong isr_ptr);
+void idt_set_isr(size_t offset, ulong_t isr_ptr);
 
 // Loads the global idt descriptor
 extern void idt_load();

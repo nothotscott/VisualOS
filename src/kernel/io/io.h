@@ -10,10 +10,10 @@
 #pragma once
 
 // Sends value out onto the processor bus on port
-extern void outb(ushort port, byte value);
+extern void outb(ushort_t port, byte_t value);
 
 // Returns value on the processor bus on port
-extern byte inb(ushort port);
+extern byte_t inb(ushort_t port);
 
-// Send byte onto port 0x80 to signal a checkpoint
+// Send byte_t onto port 0x80 to signal a checkpoint
 extern void io_wait();

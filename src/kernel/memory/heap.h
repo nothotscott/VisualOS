@@ -19,7 +19,7 @@
 struct HeapEntry {
 	size_t				size;
 	struct HeapEntry*	next;
-	ulong				properties;
+	ulong_t				properties;
 };
 
 // Initalize heap at base location with size

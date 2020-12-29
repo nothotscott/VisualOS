@@ -14,8 +14,8 @@ namespace libvos {
 #endif
 
 struct Point {
-	uint	x;
-	uint	y;
+	uint_t	x;
+	uint_t	y;
 };
 
 #ifdef __cplusplus
