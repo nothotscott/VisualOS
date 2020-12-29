@@ -19,7 +19,7 @@
 
 // gop uses alpha(0x00=transparent), red, green, blue
 struct FrameBuffer {
-	void*				base_ptr;
+	void*				base;
 	unsigned long long	size;		// size of buffer
 	unsigned int		width;
 	unsigned int		height;

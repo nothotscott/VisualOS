@@ -30,7 +30,7 @@ void shell_set_cursor(uint_t x, uint_t y) {
 }
 
 void shell_draw_char(char chr, SHELL_COLOR color, uint_t xoff, uint_t yoff){
-	uint_t* pixel_ptr = (uint_t*)g_frame_buffer->base_ptr;
+	uint_t* pixel_ptr = (uint_t*)g_frame_buffer->base;
 	byte_t charsize = g_font->header_ptr->charsize;
 	byte_t* g_font_ptr = g_font->glyph_buffer + (chr * charsize);	// map character to glyph "array"
 	// Draw; dx is delta x and dy is delta y
@@ -73,7 +73,7 @@ void print_newline(){
 }
 
 void shell_draw_tga(struct TGAImage* img, uint_t xoff, uint_t yoff){
-	uint_t* pixel_ptr = (uint_t*)g_frame_buffer->base_ptr;
+	uint_t* pixel_ptr = (uint_t*)g_frame_buffer->base;
 	uint_t* img_ptr = (uint_t*)img->buffer;
 	uint_t height = img->header_ptr->height;
 	uint_t width = img->header_ptr->width;
@@ -83,11 +83,11 @@ void shell_draw_tga(struct TGAImage* img, uint_t xoff, uint_t yoff){
 			uint_t color = *(img_ptr + offset);
 			size_t x = dx + xoff;
 			size_t y = dy + yoff;
-			*(uint_t*)(pixel_ptr + x + (y * g_frame_buffer->ppsl)) = color;
+			*(pixel_ptr + x + (y * g_frame_buffer->ppsl)) = color;
 		}
 	}
 }
 
 void shell_clear() {
-	memset_byte(g_frame_buffer->base_ptr, 0, g_frame_buffer->size);
+	memset_byte(g_frame_buffer->base, 0, g_frame_buffer->size);
 }

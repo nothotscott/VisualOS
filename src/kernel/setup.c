@@ -42,16 +42,16 @@ void setup_memory() {
 	struct FrameBuffer* frame_buffer = g_interface->frame_buffer;
 	pageframe_init(g_interface->mem_map, g_interface->mem_map_size, g_interface->mem_map_descriptor_size);
 	paging_init();
-	paging_identity_map(frame_buffer->base_ptr, frame_buffer->size);
-	pageframe_reserve(frame_buffer->base_ptr, ROUND_UP(frame_buffer->size, MEMORY_PAGE_SIZE) / MEMORY_PAGE_SIZE);
+	paging_identity_map(frame_buffer->base, frame_buffer->size);
+	pageframe_reserve(frame_buffer->base, ROUND_UP(frame_buffer->size, MEMORY_PAGE_SIZE) / MEMORY_PAGE_SIZE);
 	paging_load();
 	heap_init(g_pageframemap.buffer + g_pageframemap.size, memory_get_free());
 }
 
 void setup_interrupts() {
 	idt_init();
-	print("isr1: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong_t((ulong_t)isr1), SHELL_COLOR_ADDRESS); print_newline();
-	print("start: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong_t((ulong_t)&_kernel_start), SHELL_COLOR_ADDRESS); print_newline();
+	print("isr1: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)isr1), SHELL_COLOR_ADDRESS); print_newline();
+	print("start: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)&_kernel_start), SHELL_COLOR_ADDRESS); print_newline();
 	for(size_t i = 0; i < 256; i++){
 		idt_set_isr(i, (ulong_t)isr1);
 	}
@@ -71,7 +71,7 @@ void setup() {
 	print("Total memory size:      ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong_t)g_memory_total_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
 	print("Reserved memory:        ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong_t)g_memory_reserved_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
 	print("Free memory:            ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong_t)memory_get_free() / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
-	print("Page frame map address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong_t((ulong_t)g_pageframemap.buffer), SHELL_COLOR_ADDRESS); print_newline();
+	print("Page frame map address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_pageframemap.buffer), SHELL_COLOR_ADDRESS); print_newline();
 	print_newline();
 
 	paging_map(g_pagetable_l4, (void*)0x600000000, (void*)0x80000);
@@ -81,8 +81,8 @@ void setup() {
 
 	// TODO make interrupts better
 	/*setup_interrupts();
-	print("Interrupt descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong_t((ulong_t)g_idt), SHELL_COLOR_ADDRESS); print_newline();
-	print("IDT Descriptor address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong_t((ulong_t)&g_idt_descriptor), SHELL_COLOR_ADDRESS); print_newline();
+	print("Interrupt descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_idt), SHELL_COLOR_ADDRESS); print_newline();
+	print("IDT Descriptor address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)&g_idt_descriptor), SHELL_COLOR_ADDRESS); print_newline();
 	print_newline();*/
 }
 

@@ -12,7 +12,7 @@
 
 typedef unsigned long long	size_t;
 
-#define CLEAR_OUTPUT	1
+#define DEBUG_MODE		0
 #define SYSTEM_FONT		L"zap-ext-light18.psf"
 #define SYSTEM_BMP		L"VisualOS.bmp"
 #define SYSTEM_TGA		L"VisualOS.tga"
@@ -30,6 +30,8 @@ struct KernelEntryInterface g_interface;
 // Main code
 void initalize_gop(){
 	EFI_GUID gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+	UINTN info_size, num_modes, native_mode, current_mode;
+	EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* info;
 	EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
 	EFI_STATUS status = uefi_call_wrapper(BS->LocateProtocol, 3, &gop_guid, NULL, (void**)&gop);
 	if(EFI_ERROR(status)){
@@ -37,8 +39,34 @@ void initalize_gop(){
 		return;
 	}
 	Print(L"GOP located\n\r");
-	// Frame buffer
-	g_frame_buffer.base_ptr = (void*)gop->Mode->FrameBufferBase;
+	status = uefi_call_wrapper(gop->QueryMode, 4, gop, gop->Mode == NULL ? 0 : gop->Mode->Mode, &info_size, &info);
+	if(status == EFI_NOT_STARTED) {
+		status = uefi_call_wrapper(gop->SetMode, 2, gop, 0);
+	}
+	if(EFI_ERROR(status)){
+		Print(L"Could not get current GOP mode\n\r");
+		return;
+	}
+	native_mode = gop->Mode->Mode;
+	current_mode = native_mode;
+    num_modes = gop->Mode->MaxMode;
+	for(UINTN i = 0; i < num_modes; i++){
+		// Switch mode if needed here
+		status = uefi_call_wrapper(gop->QueryMode, 4, gop, i, &info_size, &info);
+		if(DEBUG_MODE){
+			Print(L"  GOP mode %03d: Size=%dx%d, Format=%x%s\n\r",
+				i, info->HorizontalResolution, info->VerticalResolution, info->PixelFormat, i == native_mode ? L" (native)" : L"");
+		}
+	}
+	// Set frame buffer for the mode
+	if(current_mode != native_mode) {
+		status = uefi_call_wrapper(gop->SetMode, 2, gop, native_mode);
+		if(EFI_ERROR(status)){
+			Print(L"Could not set GOP mode\n\r");
+			return;
+		}
+	}
+	g_frame_buffer.base = (void*)gop->Mode->FrameBufferBase;
 	g_frame_buffer.size  = gop->Mode->FrameBufferSize;
 	g_frame_buffer.width  = gop->Mode->Info->HorizontalResolution;
 	g_frame_buffer.height  = gop->Mode->Info->VerticalResolution;
@@ -116,7 +144,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		"  Width=%d\n\r"
 		"  Height=%d\n\r"
 		"  Pixels per scanline=%d\n\r", 
-	g_frame_buffer.base_ptr, g_frame_buffer.size, g_frame_buffer.width, g_frame_buffer.height, g_frame_buffer.ppsl);
+	g_frame_buffer.base, g_frame_buffer.size, g_frame_buffer.width, g_frame_buffer.height, g_frame_buffer.ppsl);
 
 	EFI_FILE* extras = load_file(NULL, L"extras", ImageHandle, SystemTable);
 	// Get font
@@ -147,9 +175,10 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
 		Print(L"Memory map descriptor size %d\n\r", map_size);
 	}
+	//SystemTable->RuntimeServices->SetVirtualAddressMap(map_size, descriptor_size, descriptor_version, map);
 
 	// Prepare for kernel space
-	if(CLEAR_OUTPUT){
+	if(!DEBUG_MODE){
 		uefi_call_wrapper(SystemTable->ConOut->ClearScreen, 1, SystemTable->ConOut);
 	}
 
@@ -165,10 +194,19 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 
 	// Exit the UEFI application
 	SystemTable->BootServices->ExitBootServices(ImageHandle, map_key);
-	//SystemTable->RuntimeServices->SetVirtualAddressMap(map_size, descriptor_size, descriptor_version, map);
 	// Enter into the kernel
+	// ?? Test for drawing to the GOP after Boot services have exited
+	/*UINT32 pixel = 0xff80a0f0;
+	UINT32* pixel_ptr = (UINT32*)g_frame_buffer.base;
+	for(UINT32 x = 0; x < 64; x++){
+		for(UINT32 y = 0; y < 64; y++){
+			*(pixel_ptr + x + (y * g_frame_buffer.ppsl)) = pixel;
+		}
+	}*/
 	void (*kernel_start)(struct KernelEntryInterface*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
-	kernel_start(&g_interface);
+	if(!DEBUG_MODE){
+		kernel_start(&g_interface);
+	}
 
 	return EFI_SUCCESS;
 }
