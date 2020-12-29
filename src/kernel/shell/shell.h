@@ -29,8 +29,8 @@ typedef uint_t	SHELL_COLOR;
 #define SHELL_COLOR_ADDRESS		SHELL_COLOR_MAGENTA
 #define SHELL_COLOR_NUMBER		SHELL_COLOR_YELLOW
 
-// Initalize shell with the [_frame_buffer] and [_font]
-void shell_init(struct FrameBuffer* _frame_buffer, struct PSF1Font* _font);
+// Initalize shell with the [frame_buffer] and [font]
+void shell_init(struct FrameBuffer* frame_buffer, struct PSF1Font* font);
 
 
 // Sets the cursor to the [x] and [y]

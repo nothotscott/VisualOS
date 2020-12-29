@@ -15,6 +15,8 @@ size_t g_memory_total_size = 0;
 size_t g_memory_used_size = 0;
 size_t g_memory_reserved_size = 0;
 struct Bitmap g_pageframemap;
+// Holds current bitmap index to help optimize paging
+static size_t g_current_index = 0;
 
 
 void pageframe_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t mem_map_descriptor_size) {
@@ -63,11 +65,11 @@ bool pageframe_manipulate(ulong_t index, bool state) {
 }
 
 void* pageframe_request() {
-	for(ulong_t i = 0; i < bitmap_adjusted_size(&g_pageframemap); i++){
-		if(bitmap_get(&g_pageframemap, i) == true){
+	for(; g_current_index < bitmap_adjusted_size(&g_pageframemap); g_current_index++){
+		if(bitmap_get(&g_pageframemap, g_current_index) == true){
 			continue;	// not free
 		}
-		void* page = (void*)(i * MEMORY_PAGE_SIZE);	// transform the index into the page address
+		void* page = (void*)(g_current_index * MEMORY_PAGE_SIZE);	// transform the index into the page address
 		pageframe_lock(page, 1);
 		return page;
 	}
@@ -78,8 +80,13 @@ void* pageframe_request() {
 void pageframe_free(void* address, size_t pages) {
 	ulong_t start = (ulong_t)address / MEMORY_PAGE_SIZE;
 	for(ulong_t i = start; i < start + pages; i++){
-		if(pageframe_manipulate(i, false) && g_memory_used_size >= MEMORY_PAGE_SIZE){		// prevent overflow
-			g_memory_used_size -= MEMORY_PAGE_SIZE;
+		if(pageframe_manipulate(i, false)){
+			if(g_memory_used_size >= MEMORY_PAGE_SIZE) {		// prevent overflow
+				g_memory_used_size -= MEMORY_PAGE_SIZE;
+			}
+			if(g_current_index > i) {
+				g_current_index = i;
+			}
 		}
 	}
 }
@@ -96,8 +103,13 @@ void pageframe_lock(void* address, size_t pages) {
 void pageframe_unreserve(void* address, size_t pages) {
 	ulong_t start = (ulong_t)address / MEMORY_PAGE_SIZE;
 	for(ulong_t i = start; i < start + pages; i++){
-		if(pageframe_manipulate(i, false) && g_memory_reserved_size >= MEMORY_PAGE_SIZE){	// prevent overflow
-			g_memory_reserved_size -= MEMORY_PAGE_SIZE;
+		if(pageframe_manipulate(i, false)){
+			if(g_memory_reserved_size >= MEMORY_PAGE_SIZE) {	// prevent overflow
+				g_memory_reserved_size -= MEMORY_PAGE_SIZE;
+			}
+			if(g_current_index > i) {
+				g_current_index = i;
+			}
 		}
 	}
 }
