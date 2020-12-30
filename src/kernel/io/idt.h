@@ -11,25 +11,27 @@
 
 #define IDT_SIZE	256
 
-#define IDT_SELECTOR_INGATE		0x8e
-#define IDT_SELECTOR_TRAPGATE	0x08
-#define IDT_SELECTOR_DEFAULT	IDT_SELECTOR_TRAPGATE
+#define IDT_TYPE_PRESENT	0b1
+#define IDT_TYPE_PRIVILEGE	0b00
 
-#define IDT_TYPES_ATTR_DEFAULT	0x8e
-
+enum IDTGateSelector {
+	IDT_TYPE_GATE_INTERRUPT	= 0b1110,
+	IDT_TYPE_GATE_TRAP		= 0b1111,
+	IDT_TYPE_GATE_TASK		= 0b0101
+};
 
 struct IDTEntry {
 	ushort_t	offset_low;
 	ushort_t	selector;
-	byte_t	ist;
-	byte_t	types_attr;
+	byte_t		ist;
+	byte_t		type_attr;
 	ushort_t	offset_mid;
-	uint_t	offset_high;
-	uint_t	zero;
-};
+	uint_t		offset_high;
+	uint_t		zero;
+} __attribute__((packed));
 
 struct IDTDescriptor {
-	ushort_t			limit;	// max size of 64 bit idt
+	ushort_t			limit;	// max size of 64 bit idt, minus 1
 	struct IDTEntry*	base;	// where the IDT is
 } __attribute__((packed));
 
@@ -46,11 +48,11 @@ extern struct IDTDescriptor g_idt_descriptor;
 // Sets the global idt entry pointer and global idt descriptor
 void idt_init();
 
-// Sets the global idt entry plus offset to the [isr_ptr]
-void idt_set_isr(size_t offset, ulong_t isr_ptr);
+// Sets the global idt entry at [index] to the [isr_ptr]
+void idt_set_isr(size_t index, ulong_t isr_ptr, enum IDTGateSelector gate);
 
 // Loads the global idt descriptor
 extern void idt_load();
 
 // Gets the idt and stores it in [location]
-extern void idt_get(void* location);
+//extern void idt_get(void* location);

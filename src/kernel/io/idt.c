@@ -8,8 +8,10 @@
 
 #include <memory.h>
 #include "memory/pageframe.h"
-#include "idt.h"
 #include "memory/paging.h"
+#include "cpu/gdt.h"
+#include "idt.h"
+
 
 struct IDTEntry* g_idt;
 //struct IDTEntry g_idt[IDT_SIZE] = {};
@@ -24,17 +26,16 @@ void idt_init() {
 	size_t pages = MEMORY_PAGE_SIZE / idt_total_size;			// pages needed to accomodate all the idt entries
 	g_idt = (struct IDTEntry*)pageframe_request();
 	memset_byte(g_idt, 0, idt_total_size);
-	
 	g_idt_descriptor.limit = idt_total_size - 1;
 	g_idt_descriptor.base = g_idt;
 }
 
-void idt_set_isr(size_t offset, ulong_t isr_ptr) {
-	g_idt[offset].zero = 0;
-	g_idt[offset].offset_low = (ushort_t)(((ulong_t)isr_ptr & 0x000000000000ffff));
-	g_idt[offset].offset_mid = (ushort_t)(((ulong_t)isr_ptr & 0x00000000ffff0000) >> 16);
-	g_idt[offset].offset_high = (uint_t)(((ulong_t)isr_ptr & 0xffffffff00000000) >> 32);
-	g_idt[offset].ist = 0;
-	g_idt[offset].selector = IDT_SELECTOR_DEFAULT;
-	g_idt[offset].types_attr = IDT_TYPES_ATTR_DEFAULT;
+void idt_set_isr(size_t index, ulong_t isr_ptr, enum IDTGateSelector gate) {
+	g_idt[index].zero = 0;
+	g_idt[index].offset_low = (ushort_t)(((ulong_t)isr_ptr & 0x000000000000ffff));
+	g_idt[index].offset_mid = (ushort_t)(((ulong_t)isr_ptr & 0x00000000ffff0000) >> 16);
+	g_idt[index].offset_high = (uint_t)(((ulong_t)isr_ptr & 0xffffffff00000000) >> 32);
+	g_idt[index].ist = 0;
+	g_idt[index].selector = 1 * sizeof(struct GDTEntry);	// code segment at index 1
+	g_idt[index].type_attr = IDT_TYPE_PRESENT << 7 | IDT_TYPE_PRIVILEGE << 5 | gate;
 }

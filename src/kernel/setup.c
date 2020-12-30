@@ -15,6 +15,7 @@
 #include "memory/pageframe.h"
 #include "memory/paging.h"
 #include "memory/heap.h"
+#include "cpu/gdt.h"
 #include "io/idt.h"
 #include "io/isr.h"
 #include "io/pic.h"
@@ -48,12 +49,19 @@ void setup_memory() {
 	heap_init(g_pageframemap.buffer + g_pageframemap.size, memory_get_free());
 }
 
+void setup_gdt() {
+	gdt_init();
+	gdt_set_entry(1, true);		// code segment
+	gdt_set_entry(2, false);	// data segment
+	gdt_load();
+}
+
 void setup_interrupts() {
 	idt_init();
 	print("isr1: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)isr1), SHELL_COLOR_ADDRESS); print_newline();
 	print("start: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)&_kernel_start), SHELL_COLOR_ADDRESS); print_newline();
 	for(size_t i = 0; i < 256; i++){
-		idt_set_isr(i, (ulong_t)isr1);
+		idt_set_isr(i, (ulong_t)isr_nothing, IDT_TYPE_GATE_INTERRUPT);
 	}
 	//idt_set_isr(33, (ulong_t)isr1);
 	pic_remap();
@@ -78,6 +86,10 @@ void setup() {
 	ulong_t* asd = (ulong_t*)0x600000000;
 	*asd = 26;
 	print(string_str_from_int(*asd), SHELL_COLOR_NUMBER);
+	print_newline();
+
+	setup_gdt();
+	print("Global descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_gdt), SHELL_COLOR_ADDRESS); print_newline();
 
 	// TODO make interrupts better
 	setup_interrupts();

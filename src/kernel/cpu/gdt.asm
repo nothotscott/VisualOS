@@ -1,25 +1,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; File:		idt.asm
-;; Description:	x86_64 Interrupt Descriptor Table functions
+;; File:		gdt.asm
 ;; 
 ;; Copyright 2020 Scott Maday
 ;; You should have received a copy of the GNU General Public License along with this program. 
 ;; If not, see https://www.gnu.org/licenses/gpl-2.0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-EXTERN	g_idt_descriptor
+
+EXTERN	g_gdt_descriptor
 
 
-SECTION .text
+SECTION	.text
 
-GLOBAL	idt_load
-idt_load:
+GLOBAL	gdt_load
+gdt_load:
 	cli
-	lidt	[g_idt_descriptor]
-	sti
+	lgdt	[g_gdt_descriptor]
 	ret
-
-; GLOBAL idt_get
-; idt_get:	; rdi=[location]
-;	sidt	[rdi]
-;	ret
