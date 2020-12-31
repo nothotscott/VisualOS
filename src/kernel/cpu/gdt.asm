@@ -18,7 +18,7 @@ gdt_load:
 	; TODO move TSS segment and load (ltr)
 	pop		rsi					; keep the return address for later
 	mov		rdi, rsp			; we want to keep the old stack pointer
-	push	0x10				; push data segment: g_idt[2]
+	push	QWORD 0x10			; push data segment: g_idt[2]
 	push	rdi					; push old stack pointer
 	pushfq						; push flags
 	push	QWORD 0x08			; push code segment: g_idt[1]

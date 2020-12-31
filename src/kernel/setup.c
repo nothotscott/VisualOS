@@ -51,17 +51,13 @@ void setup_memory() {
 
 void setup_gdt() {
 	gdt_init();
-	gdt_set_entry(1, true);		// code segment
-	gdt_set_entry(2, false);	// data segment
 	gdt_load();
 }
 
 void setup_interrupts() {
 	idt_init();
-	/*for(size_t i = 0; i < 256; i++){
-		idt_set_isr(i, (ulong_t)isr_nothing, IDT_TYPE_GATE_INTERRUPT);
-	}*/
-	idt_set_isr(33, (ulong_t)isr1, IDT_TYPE_GATE_INTERRUPT);
+	idt_set_isr(33, (ulong_t)isr33, IDT_TYPE_GATE_INTERRUPT);
+	isr_register_handler(33, isr33_handler);
 	pic_remap();
 	pic_mask();
 	idt_load();
@@ -93,20 +89,19 @@ void setup() {
 	print("Page frame map address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_pageframemap.buffer), SHELL_COLOR_ADDRESS); print_newline();
 	print_newline();
 
-	paging_map(g_pagetable_l4, (void*)0x600000000, (void*)0x80000);
+	/*paging_map(g_pagetable_l4, (void*)0x600000000, (void*)0x80000);
 	ulong_t* asd = (ulong_t*)0x600000000;
 	*asd = 26;
 	print(string_str_from_int(*asd), SHELL_COLOR_NUMBER);
-	print_newline();
+	print_newline();*/
 
 	setup_gdt();
-	print("Global descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_gdt), SHELL_COLOR_ADDRESS); print_newline();
-
+	print("Global descriptor table setup\n", SHELL_COLOR_FOREGROUND);
+	print_newline();
 
 	// TODO make interrupts better
 	setup_interrupts();
-	print("Interrupt descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_idt), SHELL_COLOR_ADDRESS); print_newline();
-	print_memory((void*)&g_idt_descriptor, 10, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
+	print("Interrupts setup\n", SHELL_COLOR_FOREGROUND);
 	print_newline();
 }
 

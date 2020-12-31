@@ -7,17 +7,21 @@
 ;; If not, see https://www.gnu.org/licenses/gpl-2.0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-EXTERN	isr1_handler
+
+EXTERN	g_isr_handlers
+
 
 SECTION	.text
 
-GLOBAL isr_nothing
-isr_nothing:
-	iretq
+%macro	isr_noerror	1
+	GLOBAL	isr%1
+	isr%1:
+		PUSH_REG
+		mov		rdi, 0
+		call	[g_isr_handlers + 8 * %1]
+		POP_REG
+		iretq
+%endmacro
 
-GLOBAL	isr1
-isr1:
-	PUSH_REG
-	call	isr1_handler
-	POP_REG
-	iretq
+
+isr_noerror	33

@@ -23,6 +23,7 @@ void _start(struct KernelEntryInterface* interface) {
 	g_interface = interface;
 	setup();
 	print_info();
+	print_newline();
 
 	while(true);
 }

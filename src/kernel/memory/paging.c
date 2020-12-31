@@ -53,7 +53,6 @@ void paging_identity_map(void* address, size_t size) {
 	}
 }
 
-int i = 0;
 void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address) {
 	struct PageTable* pagetable_l3;
 	struct PageTable* pagetable_l2;

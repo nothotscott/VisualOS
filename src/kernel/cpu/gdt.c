@@ -21,6 +21,8 @@ void gdt_init() {
 	memset_byte(g_gdt, 0, gdt_total_size);			// implictly define null descriptor
 	g_gdt_descriptor.size = gdt_total_size - 1;
 	g_gdt_descriptor.offset = g_gdt;
+	gdt_set_entry(1, true);							// code segment
+	gdt_set_entry(2, false);						// data segment
 }
 
 void gdt_set_entry(size_t index, bool is_code) {

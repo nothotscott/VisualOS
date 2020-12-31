@@ -9,9 +9,13 @@
 
 #pragma once
 
+#define	IO_ISR_MAX	256
 
-extern void isr_nothing();
+extern void (*g_isr_handlers[IO_ISR_MAX])(ulong_t);
 
-extern void isr1();
+extern void isr33();
 
-void isr1_handler();
+// Adds isr [handler] for interrupt [num]
+void isr_register_handler(size_t num, void (*handler)(ulong_t));
+
+void isr33_handler();
