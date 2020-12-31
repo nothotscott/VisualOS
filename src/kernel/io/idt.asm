@@ -19,7 +19,7 @@ idt_load:
 	sti
 	ret
 
-; GLOBAL idt_get
-; idt_get:	; rdi=[location]
-;	sidt	[rdi]
-;	ret
+GLOBAL idt_get
+idt_get:	; rdi=[location]
+	sidt	[rdi]
+	ret

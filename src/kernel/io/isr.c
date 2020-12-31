@@ -19,7 +19,8 @@
 
 void isr1_handler() {
 	byte_t scancode = inb(0x60);
-	print(string_str_from_ulong((ulong_t)scancode), SHELL_COLOR_FOREGROUND);
-	outb(IO_PIC1_COMMAND, 0x20);
-	outb(IO_PIC2_COMMAND, 0x20);
+	//print(string_str_from_ulong((ulong_t)scancode), SHELL_COLOR_FOREGROUND);
+	print_char('a', SHELL_COLOR_FOREGROUND);
+	outb(IO_PIC1_COMMAND, IO_PIC_EOI);
+	outb(IO_PIC2_COMMAND, IO_PIC_EOI);
 }

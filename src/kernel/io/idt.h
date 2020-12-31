@@ -55,4 +55,4 @@ void idt_set_isr(size_t index, ulong_t isr_ptr, enum IDTGateSelector gate);
 extern void idt_load();
 
 // Gets the idt and stores it in [location]
-//extern void idt_get(void* location);
+extern void idt_get(void* location);
