@@ -56,41 +56,29 @@ void setup_gdt() {
 	gdt_load();
 }
 
-/*void setup_interrupts() {
+void setup_interrupts() {
 	idt_init();
-	print("isr1: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)isr1), SHELL_COLOR_ADDRESS); print_newline();
-	print("start: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)&_kernel_start), SHELL_COLOR_ADDRESS); print_newline();
-	for(size_t i = 0; i < 256; i++){
+	/*for(size_t i = 0; i < 256; i++){
 		idt_set_isr(i, (ulong_t)isr_nothing, IDT_TYPE_GATE_INTERRUPT);
-	}
-	//idt_set_isr(33, (ulong_t)isr1);
+	}*/
+	idt_set_isr(33, (ulong_t)isr1, IDT_TYPE_GATE_INTERRUPT);
 	pic_remap();
 	pic_mask();
 	idt_load();
-}*/
+}
 
-void setup_interrupts() {
+/*void setup_interrupts() {
 	struct IDTDescriptor uefi_idt_descriptor;
 	idt_get(&uefi_idt_descriptor);
-	//asm ("sidt %0" : : "m" (uefi_idt_descriptor));
 	g_idt_descriptor = uefi_idt_descriptor;
 	g_idt = uefi_idt_descriptor.base;
 
-	//idt_set_isr(0x21, (ulong_t)isr1, IDT_TYPE_GATE_INTERRUPT);
-	struct IDTEntry* pagefault = (struct IDTEntry*)(uefi_idt_descriptor.base + 0xe * sizeof(struct IDTEntry));
-	struct IDTEntry* keyboard = (struct IDTEntry*)(uefi_idt_descriptor.base + 0x21 * sizeof(struct IDTEntry));
-	keyboard->offset_low = (ushort_t)((ulong_t)isr1_handler & 0x000000000000ffff);
-    keyboard->offset_mid = (ushort_t)(((ulong_t)isr1_handler & 0x00000000ffff0000) >> 16);
-    keyboard->offset_high = (uint_t)(((ulong_t)isr1_handler & 0xffffffff00000000) >> 32);
-	keyboard->ist = pagefault->ist;
-	keyboard->selector = pagefault->selector;
-	keyboard->type_attr = 0b10001110;
-	//keyboard->selector
+	idt_set_isr(0x21, (ulong_t)isr1, IDT_TYPE_GATE_INTERRUPT);
 
 	pic_remap();
 	pic_mask();
 	asm("sti");
-}
+}*/
 
 void setup() {
 	// Don't do string to numbers until after setup_memory() is called
@@ -111,12 +99,14 @@ void setup() {
 	print(string_str_from_int(*asd), SHELL_COLOR_NUMBER);
 	print_newline();
 
-	//setup_gdt();
-	//print("Global descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_gdt), SHELL_COLOR_ADDRESS); print_newline();
+	setup_gdt();
+	print("Global descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_gdt), SHELL_COLOR_ADDRESS); print_newline();
+
 
 	// TODO make interrupts better
 	setup_interrupts();
 	print("Interrupt descriptor table address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_idt), SHELL_COLOR_ADDRESS); print_newline();
+	print_memory((void*)&g_idt_descriptor, 10, SHELL_COLOR_MEMORY_CONTENT, SHELL_COLOR_MEMORY_FADE);
 	print_newline();
 }
 

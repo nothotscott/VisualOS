@@ -19,3 +19,8 @@ inb:	; rdi=[port], al=return(value)
 	mov	rdx, rdi	; port 
 	in	al, dx
 	ret
+
+GLOBAL io_wait
+io_wait:
+	out	0x80, al
+	ret

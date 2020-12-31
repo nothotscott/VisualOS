@@ -36,6 +36,6 @@ void idt_set_isr(size_t index, ulong_t isr_ptr, enum IDTGateSelector gate) {
 	g_idt[index].offset_mid = (ushort_t)(((ulong_t)isr_ptr & 0x00000000ffff0000) >> 16);
 	g_idt[index].offset_high = (uint_t)(((ulong_t)isr_ptr & 0xffffffff00000000) >> 32);
 	g_idt[index].ist = 0;
-	g_idt[index].selector = 1 * sizeof(struct GDTEntry);	// code segment at index 1
+	g_idt[index].selector = 0x08;//0x38;//1 * sizeof(struct GDTEntry);	// code segment at index 1
 	g_idt[index].type_attr = IDT_TYPE_PRESENT << 7 | IDT_TYPE_PRIVILEGE << 5 | gate;
 }

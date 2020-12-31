@@ -40,9 +40,10 @@ void pic_remap(){
 	outb(IO_PIC2_DATA, IO_ICW4_8086);
 	io_wait();
 	// Restore saved data
-	//outb(IO_PIC1_DATA, d1);
-	//outb(IO_PIC2_DATA, d2);
-	outb(IO_PIC1_DATA, 0x0);
+	outb(IO_PIC1_DATA, d1);
 	io_wait();
-	outb(IO_PIC2_DATA, 0x0);
+	outb(IO_PIC2_DATA, d2);
+	/*outb(IO_PIC1_DATA, 0x0);
+	io_wait();
+	outb(IO_PIC2_DATA, 0x0);*/
 }
