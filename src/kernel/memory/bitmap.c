@@ -6,16 +6,14 @@
  * If not, see https://www.gnu.org/licenses/gpl-2.0
  */
 
+#include <memory.h>
 #include "bitmap.h"
 
 
 void bitmap_initialize(struct Bitmap* bitmap, void* buffer, size_t size) {
 	bitmap->buffer = buffer;
 	bitmap->size = size;
-	// TODO use memset to be more efficient
-	for(ulong_t i = 0; i < size; i++){
-		bitmap->buffer[i] = 0;
-	}
+	memset_byte(bitmap->buffer, 0, size);
 }
 
 size_t bitmap_adjusted_size(struct Bitmap* bitmap) {

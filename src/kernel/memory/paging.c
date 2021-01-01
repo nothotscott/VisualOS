@@ -7,8 +7,10 @@
  */
 
 #include <memory.h>
+#include <string.h>
 #include "pageframe.h"
 #include "paging.h"
+#include "shell/shell.h"
 
 
 struct PageTable* g_pagetable_l4;
@@ -108,4 +110,12 @@ void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* phy
 	entry = SET_BIT(entry, PAGE_PRESENT, true);
 	entry = SET_BIT(entry, PAGE_WRITABLE, true);
 	pagetable_l1->entries[index] = entry;
+}
+
+void paging_fault_handler(struct InterruptStack* stack) {
+	print_newline();
+	print("PAGE FAULT DETECTED, ERROR CODE: 0x", SHELL_COLOR_RED);
+	print(string_str_from_ulong(stack->error_code), SHELL_COLOR_RED);
+	print_newline();
+	while(true);
 }

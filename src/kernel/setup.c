@@ -17,7 +17,7 @@
 #include "memory/heap.h"
 #include "cpu/gdt.h"
 #include "io/idt.h"
-#include "io/isr.h"
+#include "io/keyboard.h"
 #include "io/pic.h"
 
 
@@ -56,25 +56,12 @@ void setup_gdt() {
 
 void setup_interrupts() {
 	idt_init();
-	idt_set_isr(33, (ulong_t)isr33, IDT_TYPE_GATE_INTERRUPT);
-	isr_register_handler(33, isr33_handler);
+	idt_register_isr_handler(14, paging_fault_handler);
+	idt_register_isr_handler(33, keyboard_handler);
 	pic_remap();
 	pic_mask();
 	idt_load();
 }
-
-/*void setup_interrupts() {
-	struct IDTDescriptor uefi_idt_descriptor;
-	idt_get(&uefi_idt_descriptor);
-	g_idt_descriptor = uefi_idt_descriptor;
-	g_idt = uefi_idt_descriptor.base;
-
-	idt_set_isr(0x21, (ulong_t)isr1, IDT_TYPE_GATE_INTERRUPT);
-
-	pic_remap();
-	pic_mask();
-	asm("sti");
-}*/
 
 void setup() {
 	// Don't do string to numbers until after setup_memory() is called
@@ -102,6 +89,10 @@ void setup() {
 	// TODO make interrupts better
 	setup_interrupts();
 	print("Interrupts setup\n", SHELL_COLOR_FOREGROUND);
+	print_newline();
+
+	*(byte_t*)0xfffffffffffff = 120;
+	print("test", SHELL_COLOR_FOREGROUND);
 	print_newline();
 }
 
