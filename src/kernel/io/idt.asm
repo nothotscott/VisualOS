@@ -58,11 +58,7 @@ ISR_DEFINE	10, 1	; Segment Not Present Exception
 ISR_DEFINE	11, 1	; Segment Not Present Exception
 ISR_DEFINE	12, 1	; Stack Fault Exception
 ISR_DEFINE	13, 1	; General Protection Fault Exception
-;ISR_DEFINE	14, 1	; Page Fault Exception
-GLOBAL	isr14
-isr14:
-	jmp	$
-	iretq
+ISR_DEFINE	14, 1	; Page Fault Exception
 ISR_DEFINE	16, 0	; Coprocessor Fault Exception
 ISR_DEFINE	17, 1	; Alignment Check Exception (486+)
 ISR_DEFINE	18, 0	; Machine Check Exception (Pentium/586+)

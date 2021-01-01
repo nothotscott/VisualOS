@@ -63,6 +63,25 @@ void setup_interrupts() {
 	idt_load();
 }
 
+// TODO remove this test
+/*void setup_interrupts() {
+	struct IDTDescriptor uefi_idt_descriptor;
+	asm ("sidt %0" : : "m" (uefi_idt_descriptor));
+	g_idt_descriptor = uefi_idt_descriptor;
+	g_idt = uefi_idt_descriptor.base;
+
+	//idt_set_isr(33, isr33, IDT_TYPE_GATE_INTERRUPT);
+	//idt_register_isr_handler(33, keyboard_handler);
+
+	idt_set_isr(14, isr14, IDT_TYPE_GATE_INTERRUPT);
+	idt_register_isr_handler(14, paging_fault_handler);
+
+
+	pic_remap();
+	pic_mask();
+	asm("sti");
+}*/
+
 void setup() {
 	// Don't do string to numbers until after setup_memory() is called
 	setup_shell();
@@ -91,7 +110,8 @@ void setup() {
 	print("Interrupts setup\n", SHELL_COLOR_FOREGROUND);
 	print_newline();
 
-	*(byte_t*)0xfffffffffffff = 120;
+	byte_t* pageFaulter = (byte_t*)0x8000000000;
+	*pageFaulter = 69;
 	print("test", SHELL_COLOR_FOREGROUND);
 	print_newline();
 }

@@ -114,8 +114,8 @@ void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* phy
 
 void paging_fault_handler(struct InterruptStack* stack) {
 	print_newline();
-	print("PAGE FAULT DETECTED, ERROR CODE: 0x", SHELL_COLOR_RED);
-	print(string_str_from_ulong(stack->error_code), SHELL_COLOR_RED);
-	print_newline();
+	print("PAGE FAULT DETECTED", SHELL_COLOR_RED); print_newline();
+	print("  ERROR CODE:   0x", SHELL_COLOR_RED); print(string_str_from_ulong(stack->error_code), SHELL_COLOR_RED); print_newline();
+	print("  REGISTER RIP: 0x", SHELL_COLOR_RED); print(string_str_from_ulong(stack->rip), SHELL_COLOR_RED); print_newline();
 	while(true);
 }
