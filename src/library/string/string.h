@@ -9,6 +9,7 @@
 
 #pragma once
 
+
 #ifdef __cplusplus
 namespace libvos {
 

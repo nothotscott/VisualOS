@@ -22,6 +22,7 @@ EXTERN	g_isr_handlers
 		cmp		rax, 0					; hopefully, a valid function doesn't point to 0
 		jz		%%.finish
 		mov		rdi, rsp				; we'll create a struct out of the stack pointer
+		mov		rsi, %1
 		call	rax
 		%%.finish:
 			POP_REG

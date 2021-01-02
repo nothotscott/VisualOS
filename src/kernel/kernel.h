@@ -18,7 +18,6 @@ struct InterruptStack
 	ulong_t error_code, rip, cs, rflags, rsp, ss;
 };
 
-
 // From kernel.ld linker script
 extern void** _kernel_start;
 extern void** _kernel_end;

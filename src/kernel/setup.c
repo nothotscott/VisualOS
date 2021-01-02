@@ -110,9 +110,6 @@ void setup() {
 	print("Interrupts setup\n", SHELL_COLOR_FOREGROUND);
 	print_newline();
 
-	byte_t* pageFaulter = (byte_t*)0x8000000000;
-	*pageFaulter = 69;
-	print("test", SHELL_COLOR_FOREGROUND);
 	print_newline();
 }
 

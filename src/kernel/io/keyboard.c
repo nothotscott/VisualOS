@@ -17,7 +17,7 @@
 #include "shell/tools.h"
 //////////////
 
-static const char kb_scan_codes[] ={
+const char g_keyboard_scancodes[] ={
 	0, 0, '1', '2', '3', '4', '5', '6',
 	'7', '8', '9', '0', '-', '=', 0, 0,
 	'q', 'w', 'e', 'r', 't', 'y', 'u', 'i',
@@ -28,10 +28,10 @@ static const char kb_scan_codes[] ={
 };
 
 
-void keyboard_handler(struct InterruptStack* stack) {
+void keyboard_handler(struct InterruptStack* stack, size_t num) {
 	byte_t scancode = inb(0x60);
-	if(scancode < sizeof(kb_scan_codes)) {
-		print_char(kb_scan_codes[scancode], SHELL_COLOR_GREEN);
+	if(scancode < sizeof(g_keyboard_scancodes)) {
+		print_char(g_keyboard_scancodes[scancode], SHELL_COLOR_GREEN);
 	}
 	outb(IO_PIC1_COMMAND, IO_PIC_EOI);
 	outb(IO_PIC2_COMMAND, IO_PIC_EOI);

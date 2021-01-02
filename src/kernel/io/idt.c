@@ -15,7 +15,7 @@
 
 struct IDTEntry* g_idt;
 struct IDTDescriptor g_idt_descriptor;
-void (*g_isr_handlers[ISR_MAX])(struct InterruptStack*);
+void (*g_isr_handlers[ISR_MAX])(struct InterruptStack*, size_t);
 
 
 void idt_init() {
@@ -40,6 +40,6 @@ void idt_set_isr(size_t index, void* isr_ptr, enum IDTGateType gate) {
 	g_idt[index].type_attr = IDT_TYPE_PRESENT << 7 | IDT_TYPE_PRIVILEGE << 5 | gate;
 }
 
-void idt_register_isr_handler(size_t num, void (*handler)(struct InterruptStack*)) {
+void idt_register_isr_handler(size_t num, void (*handler)(struct InterruptStack*, size_t)) {
 	g_isr_handlers[num] = handler;
 }

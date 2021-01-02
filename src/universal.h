@@ -29,3 +29,6 @@ typedef enum {false, true}	bool;
 
 // Returns [n]'s value of [bit]
 #define GET_BIT(n, bit)			((1 << (bit) & (n)) > 0)
+
+// Define a global symbol with [name]
+//#define LABEL_SYMBOL(name)		asm volatile("labelsym_" name "_%=: .global labelsym_" name "_%=":);

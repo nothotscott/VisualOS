@@ -10,4 +10,7 @@
 #pragma once
 
 
-void keyboard_handler();
+extern const char g_keyboard_scancodes[];
+
+
+void keyboard_handler(struct InterruptStack* stack, size_t num);

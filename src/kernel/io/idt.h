@@ -43,7 +43,7 @@ extern struct IDTEntry* g_idt;
 extern struct IDTDescriptor g_idt_descriptor;
 
 // Global isr handler table
-extern void (*g_isr_handlers[ISR_MAX])(struct InterruptStack*);
+extern void (*g_isr_handlers[ISR_MAX])(struct InterruptStack*, size_t);
 
 
 // Sets the global idt entry pointer and global idt descriptor
@@ -57,7 +57,7 @@ void idt_set_isr(size_t index, void* isr_ptr, enum IDTGateType gate);
 extern void idt_load();
 
 // Adds isr [handler] for interrupt [num]
-void idt_register_isr_handler(size_t num, void (*handler)(struct InterruptStack*));
+void idt_register_isr_handler(size_t num, void (*handler)(struct InterruptStack*, size_t));
 
 
 // Interrupt service routines defined in idt.asm

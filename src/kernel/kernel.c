@@ -15,6 +15,8 @@
 extern void setup();
 // From info.c
 extern void print_info();
+// From below
+extern void kernel_loop();
 
 // Global interface
 struct KernelEntryInterface* g_interface;
@@ -23,7 +25,14 @@ void _start(struct KernelEntryInterface* interface) {
 	g_interface = interface;
 	setup();
 	print_info();
-	print_newline();
 
+	byte_t* pageFaulter = (byte_t*)0x8000000000;
+	*pageFaulter = 69;
+
+	kernel_loop();
+}
+
+void kernel_loop() {
+	print("This is normal", SHELL_COLOR_FOREGROUND);
 	while(true);
 }
