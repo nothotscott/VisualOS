@@ -7,14 +7,11 @@
  */
 
 #include <memory.h>
-#include <string.h>
 #include "pageframe.h"
 #include "paging.h"
-#include "shell/shell.h"
 
 
 struct PageTable* g_pagetable_l4;
-extern void kernel_loop();
 
 
 void paging_get_indexes(void* address, struct PageLevelIndexes* out) {
@@ -111,22 +108,4 @@ void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* phy
 	entry = SET_BIT(entry, PAGE_PRESENT, true);
 	entry = SET_BIT(entry, PAGE_WRITABLE, true);
 	pagetable_l1->entries[index] = entry;
-}
-
-#include "io/keyboard.h"
-#include "io/io.h"
-
-void paging_fault_handler(struct InterruptStack* stack, size_t num) {
-	print_newline();
-	print("PAGE FAULT DETECTED", SHELL_COLOR_RED); print_newline();
-	print("  INTERRUPT NUM:", SHELL_COLOR_RED); print(string_str_from_int(num), SHELL_COLOR_RED); print_newline();
-	print("  ERROR CODE:   0x", SHELL_COLOR_RED); print(string_str_from_ulong(stack->error_code), SHELL_COLOR_RED); print_newline();
-	print("  REGISTER RIP: 0x", SHELL_COLOR_RED); print(string_str_from_ulong(stack->rip), SHELL_COLOR_RED); print_newline();
-	while(true) {
-		byte_t scancode = inb(0x60);
-		if(g_keyboard_scancodes[scancode] == 'p'){
-			stack->rip = (ulong_t)kernel_loop;
-			return;
-		}
-	}
 }

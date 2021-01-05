@@ -25,12 +25,28 @@ $WSL = $(Get-ChildItem -Path Env:WSL_DISTRO_NAME -ErrorAction SilentlyContinue |
 $VBOX = Get-Command "VBoxManage.exe" -ErrorAction SilentlyContinue
 [System.Collections.ArrayList]$MAKE_VARS = @("OSNAME=$OSNAME", "BUILD_DIR=$BUILD_DIR")
 
+# Ability to invoke windows if running WSL
+function invoke-host {
+	param (
+		[string] $command
+	)
+	If ($WSL -ne $null) {
+		return powershell.exe $command
+	} else {
+		return Invoke-Expression $command
+	}
+}
+
 # Dependent on WSL or windows
 $ABSOLUTE_WIN = & { If ($WSL -ne $null) { wslpath -w $ABSOLUTE } Else { $ABSOLUTE } }
 $TEMP_DIR = & { If ($WSL -ne $null) { powershell.exe Write-Host '$env:temp' } Else { $env:temp } }
+$NUM_PROCESSORS = [int](invoke-host "(Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors")
+
 
 # Dependent configurations
 $OVMF_DIR_WIN = Join-Path ($TEMP_DIR) (Split-Path $OVMF_URL -leaf)
+
+################################################################################
 
 
 function build {
@@ -38,9 +54,9 @@ function build {
 		[string] $target 
 	)
 	if ($WSL -eq $null) {
-		wsl make $target $MAKE_VARS
+		wsl make "-j$NUM_PROCESSORS" $target $MAKE_VARS
 	} else {
-		make $target $MAKE_VARS
+		make "-j$NUM_PROCESSORS" $target $MAKE_VARS
 	}
 }
 

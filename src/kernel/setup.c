@@ -17,6 +17,7 @@
 #include "memory/heap.h"
 #include "cpu/gdt.h"
 #include "io/idt.h"
+#include "io/pipeline.h"
 #include "io/keyboard.h"
 #include "io/pic.h"
 
@@ -56,6 +57,8 @@ void setup_gdt() {
 
 void setup_interrupts() {
 	idt_init();
+	idt_register_isr_handler(8, double_fault_handler);
+	idt_register_isr_handler(13, general_protection_fault_handler);
 	idt_register_isr_handler(14, paging_fault_handler);
 	idt_register_isr_handler(33, keyboard_handler);
 	pic_remap();

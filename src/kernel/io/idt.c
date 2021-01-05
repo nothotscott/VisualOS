@@ -26,6 +26,8 @@ void idt_init() {
 	g_idt_descriptor.limit = idt_total_size - 1;
 	g_idt_descriptor.base = g_idt;
 	// Sets isrs from assembly
+	idt_set_isr(8, isr8, IDT_TYPE_GATE_TRAP);
+	idt_set_isr(13, isr13, IDT_TYPE_GATE_TRAP);
 	idt_set_isr(14, isr14, IDT_TYPE_GATE_TRAP);
 	idt_set_isr(33, isr33, IDT_TYPE_GATE_INTERRUPT);
 }

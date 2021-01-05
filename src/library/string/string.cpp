@@ -7,7 +7,7 @@
  */
 
 #include "string.h"
-#include "libvos/libvos.h"
+#include "libvos.h"
 
 namespace libvos {
 
@@ -103,6 +103,15 @@ template String* String::from_hex(uint_t);
 template String* String::from_hex(ulong_t);
 
 
+void String::set_str(char* str) {
+	m_str = str;
+	// TODO find size
+}
+void String::set_str(char* str, size_t size) {
+	m_str = str;
+	m_size = size;
+}
+
 char* String::get_str(){
 	return m_str;
 }
@@ -114,11 +123,11 @@ extern "C" {
 
 	// TODO Dynamic memory invokes templated "_from" functions
 	char* string_str_from_int(slong_t value)						{ return String::from_int(value)->get_str(); }
-	char* string_str_from_decimal(double value, byte_t places)	{ return String::from_decimal(value, places)->get_str(); }
+	char* string_str_from_decimal(double value, byte_t places)		{ return String::from_decimal(value, places)->get_str(); }
 	char* string_str_from_byte(byte_t value)						{ return _from_hex(value); }
 	char* string_str_from_ushort(ushort_t value)					{ return _from_hex(value); }
 	char* string_str_from_uint(uint_t value)						{ return _from_hex(value); }
-	char* string_str_from_ulong(ulong_t value)					{ return _from_hex(value); }
+	char* string_str_from_ulong(ulong_t value)						{ return _from_hex(value); }
 }
 
 }

@@ -33,6 +33,9 @@ class String {
 		template<typename T>
 		static String* from_hex(T value);
 
+		// Sets the pointer to [str]
+		void set_str(char* str);
+		void set_str(char* str, size_t size);
 		// Returns the pointer to the string
 		char* get_str();
 };
