@@ -53,10 +53,11 @@ function build {
 	param (
 		[string] $target 
 	)
+	$jobs = $NUM_PROCESSORS - 1
 	if ($WSL -eq $null) {
-		wsl make "-j$NUM_PROCESSORS" $target $MAKE_VARS
+		wsl make "-j$jobs" $target $MAKE_VARS
 	} else {
-		make "-j$NUM_PROCESSORS" $target $MAKE_VARS
+		make "-j$jobs" $target $MAKE_VARS
 	}
 }
 

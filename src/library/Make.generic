@@ -10,11 +10,11 @@ ifdef ASMDUMP
 endif
 
 ifneq ($(notdir $(THIS)), $(LIBRARY))
-	ARADDITIONS	+= $(TARGET_DIR)/$(LIBVOS).a
+	ARLIBS	+= $(TARGET_DIR)/$(LIBVOS).a
 endif
 
-ARADDITIONS	+= $(INTERMEDIATES)
-LDADDITIONS	+= $(INTERMEDIATES)
+ARLIBS	+= $(INTERMEDIATES)
+LDLIBS	+= $(INTERMEDIATES)
 
 
 CXXFLAGS	+= -I$(THIS)
@@ -22,4 +22,6 @@ LDFLAGS		= -shared
 ARFLAGS		= -rcsT
 
 
-all:	$(INTERMEDIATES) $(TARGETS)
+# Parallelization forces us to make the real target recursivley
+all:	$(INTERMEDIATES)
+		$(MAKE) $(TARGETS) -f $(THIS)/Makefile

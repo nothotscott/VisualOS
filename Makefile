@@ -17,7 +17,7 @@ endif
 
 ###############################################################################
 
-MAKE_VOS	= $(MAKE) --no-print-directory -f $(SRC_DIR)/$@/Makefile THIS=$(SRC_DIR)/$@
+MAKE_VOS	= $(MAKE) --no-print-directory -f $(SRC_DIR)/$@/Makefile $(MAKEFLAGS) THIS=$(SRC_DIR)/$@
 
 .PHONY: $(BOOTLOADER)
 $(BOOTLOADER):	setup
