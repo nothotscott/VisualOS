@@ -2,7 +2,7 @@ ifndef TARGET_DIR
 	TARGET_DIR	:= $(BUILD_DIR)
 endif
 
-.INTERMEDIATE:	$(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o $(TARGET_DIR)/%_cpp.o $(TARGET_DIR)/%_asm.o
+.PRECIOUS:	$(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o $(TARGET_DIR)/%_cpp.o $(TARGET_DIR)/%_asm.o
 
 $(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o:		$(THIS)/%.c
 											$(CC) $(CFLAGS) -c $< -o $@
@@ -19,9 +19,11 @@ LDLIBS_FILTERED	= $(filter-out $^, $(LDLIBS))
 $(TARGET_DIR)/%.elf:	$(TARGET_DIR)/%.o
 						$(LD) $(LDFLAGS) $^ $(LDLIBS_FILTERED) -o $@
 
+# May have to be $(CXX)
 $(TARGET_DIR)/%.so:		$(TARGET_DIR)/%.o
 						$(LD) $(LDFLAGS) $^ $(LDLIBS_FILTERED) -o $@
 
+# May have to be $(CXX)
 $(TARGET_DIR)/%.so:		# No prerequisites
 						$(LD) $(LDFLAGS) $(LDLIBS) -o $@
 

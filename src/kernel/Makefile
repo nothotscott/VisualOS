@@ -9,7 +9,6 @@ SOURCES		:= $(filter-out $(PRIMARY).c, $(notdir $(wildcard $(THIS)/*.c $(THIS)/*
 SUBDIRS		:= $(shell find $(THIS)/* -maxdepth 1 -type d)
 PRETARGETS	:= $(addprefix $(KERNEL_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
 TARGETS		:= $(KERNEL_DIR)/$(PRIMARY).elf
-# TARGETS		:= $(addprefix $(KERNEL_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
 INCLUDES	:= $(addprefix -include , $(GIVENS))
 LIBINCLUDES	:= $(addprefix -I, $(addsuffix /, $(shell find $(SRC_DIR)/$(LIBRARY)/* -maxdepth 1 -type d) $(SRC_DIR)/$(LIBRARY)))
 LIBARCHIVES	:= $(addprefix $(LIB_DIR)/, $(notdir $(wildcard $(LIB_DIR)/*.a)))

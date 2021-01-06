@@ -32,12 +32,15 @@ class String {
 		static String* from_decimal(T value, byte_t places);
 		template<typename T>
 		static String* from_hex(T value);
+		// Returns the formatted version of [format]
+		static String* from_format(const char* format, ...);
 
 		// Sets the pointer to [str]
 		void set_str(char* str);
 		void set_str(char* str, size_t size);
 		// Returns the pointer to the string
 		char* get_str();
+		
 };
 
 }
@@ -55,4 +58,5 @@ char* string_str_from_byte(byte_t);
 char* string_str_from_ushort(ushort_t);
 char* string_str_from_uint(uint_t);
 char* string_str_from_ulong(ulong_t);
+char* string_str_from_format(const char* format, ...);
 #endif

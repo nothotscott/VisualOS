@@ -10,3 +10,13 @@
 #pragma once
 
 #define	NULL	0
+
+
+// Puts character [chr] in [buffer] at [position]
+#define __PUTC(chr, buffer, position)								\
+									{								\
+										if(buffer != nullptr) {		\
+											buffer[position] = chr;	\
+										}							\
+										position++;					\
+									}
