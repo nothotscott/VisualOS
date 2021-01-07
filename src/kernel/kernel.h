@@ -8,6 +8,10 @@
  */
 
 #pragma once
+#ifndef KERNEL
+#define KERNEL
+#endif
+
 
 #define NULL	0
 

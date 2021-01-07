@@ -1,5 +1,5 @@
 /*
- * File:		format.hpp
+ * File:		format.h
  * Description:	Formats strings in a printf format
  * *****************************************************************************
  * Copyright 2020-2021 Scott Maday
@@ -17,13 +17,14 @@
 
 #ifdef __cplusplus
 namespace libvos {
+#endif
 
 // Writes the formatted [format] to [buffer]
-__attribute__((always_inline)) inline size_t _format(void* buffer, const char* format, va_list args) {
+__attribute__((always_inline)) inline size_t _format(void* buffer, const char* format, size_t limit, va_list args) {
 	char* str = (char*)buffer;
 	size_t size = 0;	// buffer index
 	size_t i = 0;		// format index
-	while(format[i] != '\0') {
+	while(format[i] != '\0' && (limit == NULL || i < limit)) {
 		if(format[i] != STRING_FORMAT_TOKEN) {
 			__PUTC(format[i], str, size);
 			i++;
@@ -35,10 +36,16 @@ __attribute__((always_inline)) inline size_t _format(void* buffer, const char* f
 		double value_ieee754;
 		size_t l_size;	// local size
 		switch(format[i]) {
-			case 'd':	// signed digits
+			case 'd':	// signed digits (will be unsigned if included from C)
 				svalue64 = (slong_t)va_arg(args, slong_t);
 				l_size = _from_int_size(svalue64);
 				if(buffer != nullptr) { _from_int(str + size, l_size, svalue64); }
+				size += l_size;
+				break;
+			case 'u':	// unsigned digits
+				uvalue64 = (ulong_t)va_arg(args, ulong_t);
+				l_size = _from_int_size(uvalue64);
+				if(buffer != nullptr) { _from_int(str + size, l_size, uvalue64); }
 				size += l_size;
 				break;
 			case 'x':	// hex
@@ -58,22 +65,23 @@ __attribute__((always_inline)) inline size_t _format(void* buffer, const char* f
 }
 
 // Calculates the size of a format in advance
-__attribute__((always_inline)) inline size_t _format_size(const char* format, va_list args) {
+__attribute__((always_inline)) inline size_t _format_size(const char* format, size_t limit, va_list args) {
 	va_list args_preliminary;
 	va_copy(args_preliminary, args);
-	return _format(nullptr, format, args_preliminary);
+	return _format(nullptr, format, limit, args_preliminary);
 }
 
 // Writes the formatted [format] to [buffer]
 __attribute__((always_inline)) inline size_t _format_dynamic(void** out, const char* format, va_list args) {
-	size_t size = _format_size(format, args);
+	size_t size = _format_size(format, NULL, args);
 	void* buffer = malloc(size);
-	_format(buffer, format, args);
+	_format(buffer, format, NULL, args);
 	*out = buffer;
 	return size;
 }
 
 
 
+#ifdef __cplusplus
 }
 #endif

@@ -82,8 +82,8 @@ LDFLAGS		+= --defsym=EFI_SUBSYSTEM=$(SUBSYSTEM)
 
 endif
 
-LDADDITIONS	= $(filter %.o, $(TARGET_APPS))
-TARGETS		= $(LDADDITIONS) $(TARGET_APPS) $(TARGET_BSDRIVERS) $(TARGET_RTDRIVERS)
+LDLIBS	= $(filter %.o, $(TARGET_APPS))
+TARGETS		= $(LDLIBS) $(TARGET_APPS) $(TARGET_BSDRIVERS) $(TARGET_RTDRIVERS)
 
 CFLAGS += $(addprefix -include , $(GIVENS)) -Wno-error=unused-parameter -Wno-error=unused-variable
 

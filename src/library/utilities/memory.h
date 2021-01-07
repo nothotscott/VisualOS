@@ -26,6 +26,11 @@ void memset_ushort(void*, ushort_t, size_t);
 void memset_byte(void*, byte_t, size_t);
 #endif
 
+// Compares content of location [a] against [b] for [size]
+#ifdef __cplusplus
+extern "C"
+#endif
+int memcmp(void* a, void* b, size_t size);
 
 #ifdef __cplusplus
 } // namespace

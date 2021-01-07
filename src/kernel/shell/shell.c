@@ -46,12 +46,15 @@ void shell_draw_char(char chr, SHELL_COLOR color, uint_t xoff, uint_t yoff){
 	}
 }
 
-void print(char* str, SHELL_COLOR color){
+void print_color(char* str, SHELL_COLOR color){
 	char* chr = str;
 	while(*chr != 0){
 		print_char(*chr, color);
 		chr++;
 	}
+}
+void print(char* str, SHELL_COLOR color){
+	print_color(str, color);
 }
 void print_char(char chr, SHELL_COLOR color){
 	if(chr == '\n'){

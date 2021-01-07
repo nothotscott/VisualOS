@@ -29,6 +29,6 @@ all:	$(SUBDIRS) $(PRETARGETS)
 
 .PHONY: $(SUBDIRS)
 $(SUBDIRS):	
-		$(MAKE) -f $@/Makefile $(MAKEFLAGS) SUPER=$(THIS) THIS=$@
+		+ $(MAKE) -f $@/Makefile SUPER=$(THIS) THIS=$@
 
 include Make.rules

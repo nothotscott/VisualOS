@@ -29,7 +29,7 @@ class String {
 		template<typename T>
 		static String* from_int(T value);
 		template<typename T>
-		static String* from_decimal(T value, byte_t places);
+		static String* from_decimal(T value, size_t places);
 		template<typename T>
 		static String* from_hex(T value);
 		// Returns the formatted version of [format]
@@ -53,10 +53,13 @@ char* string_get_str(struct String*);
 
 // Convenience wrappers
 char* string_str_from_int(slong_t);
-char* string_str_from_decimal(double, byte_t);
+char* string_str_from_decimal(double, size_t);
 char* string_str_from_byte(byte_t);
 char* string_str_from_ushort(ushort_t);
 char* string_str_from_uint(uint_t);
 char* string_str_from_ulong(ulong_t);
-char* string_str_from_format(const char* format, ...);
+char* string_str_from_format(const char* format, va_list args);
+// Other wrappers
+
+size_t string_str_format(char* str, const char* format, size_t limit, va_list args);
 #endif

@@ -18,6 +18,6 @@ all:	$(INTERMEDIATES) $(TARGETS) $(SUBDIRS)
 
 .PHONY: $(SUBDIRS)
 $(SUBDIRS):	
-		$(MAKE) --no-print-directory -f $@/Makefile $(MAKEFLAGS) SUPER=$(THIS) THIS=$@ LIBVOS=$(LIBVOS)
+		+ $(MAKE) --no-print-directory -f $@/Makefile SUPER=$(THIS) THIS=$@ LIBVOS=$(LIBVOS)
 
 include Make.rules

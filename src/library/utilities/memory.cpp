@@ -28,10 +28,21 @@ template void memset(void*, ulong_t, size_t);
 template void memset(void*, uint_t, size_t);
 template void memset(void*, ushort_t, size_t);
 template void memset(void*, byte_t, size_t);
-extern "C" void memset_ulong(void* start, ulong_t value, size_t size)		{ memset(start, value, size); }
+extern "C" void memset_ulong(void* start, ulong_t value, size_t size)	{ memset(start, value, size); }
 extern "C" void memset_uint(void* start, uint_t value, size_t size)		{ memset(start, value, size); }
 extern "C" void memset_ushort(void* start, ushort_t value, size_t size)	{ memset(start, value, size); }
 extern "C" void memset_byte(void* start, byte_t value, size_t size)		{ memset(start, value, size); }
 
+
+extern "C" int memcmp(void* a, void* b, size_t size) {
+	for(int i = 0; i < size; i++) {
+		byte_t a_val = ((byte_t*)a)[i];
+		byte_t b_val = ((byte_t*)b)[i];
+		if(a_val != b_val) {
+			return a_val - b_val;
+		}
+	}
+	return 0;
+}
 
 }
