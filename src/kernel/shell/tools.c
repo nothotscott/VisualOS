@@ -91,20 +91,20 @@ void print_memory_color(void* address, size_t size, SHELL_COLOR content_color, S
 		end += SHELL_PRINT_MEMORY_COLUMNS;
 	}
 	// Print header
-	print("Offset            ", SHELL_COLOR_MEMORY_HEADER);
+	print_color("Offset            ", SHELL_COLOR_MEMORY_HEADER);
 	for(byte_t i = 0; i < SHELL_PRINT_MEMORY_COLUMNS; i++){
-		print(string_str_from_byte(i), SHELL_COLOR_MEMORY_HEADER);
+		print_color(string_str_from_byte(i), SHELL_COLOR_MEMORY_HEADER);
 		print_char(' ', SHELL_COLOR_MEMORY_HEADER);
 	}
-	print(" Decoded text", SHELL_COLOR_MEMORY_HEADER);
+	print_color(" Decoded text", SHELL_COLOR_MEMORY_HEADER);
 	print_newline();
 	// Print content
 	for(ulong_t row = (ulong_t)start; row < end; row += SHELL_PRINT_MEMORY_COLUMNS){
-		print(string_str_from_ulong(row), SHELL_COLOR_MEMORY_LOCATION);
-		print("  ", SHELL_COLOR_MEMORY_LOCATION);
+		print_color(string_str_from_ulong(row), SHELL_COLOR_MEMORY_LOCATION);
+		print_color("  ", SHELL_COLOR_MEMORY_LOCATION);
 		for(byte_t* ptr = (byte_t*)row; ptr < (byte_t*)(row + SHELL_PRINT_MEMORY_COLUMNS); ptr++){
 			SHELL_COLOR color = ((ulong_t)ptr < (ulong_t)address || (ulong_t)ptr >= (ulong_t)address + size) ? fade_color : content_color;
-			print(string_str_from_byte(*ptr), color);
+			print_color(string_str_from_byte(*ptr), color);
 			print_char(' ', color);
 		}
 		print_char(' ', content_color);
@@ -122,8 +122,8 @@ void print_memory(void* address, size_t size) {
 
 void print_bool(bool value) {
 	if(value == 0){
-		print("false", SHELL_COLOR_RED);
+		print_color("false", SHELL_COLOR_RED);
 	} else {
-		print("true", SHELL_COLOR_GREEN);
+		print_color("true", SHELL_COLOR_GREEN);
 	}
 }

@@ -53,8 +53,8 @@ void print_color(char* str, SHELL_COLOR color){
 		chr++;
 	}
 }
-void print(char* str, SHELL_COLOR color){
-	print_color(str, color);
+void print(char* str){
+	print_color(str, SHELL_COLOR_FOREGROUND);
 }
 void print_char(char chr, SHELL_COLOR color){
 	if(chr == '\n'){

@@ -88,14 +88,14 @@ void setup_interrupts() {
 void setup() {
 	// Don't do string to numbers until after setup_memory() is called
 	setup_shell();
-	print("Shell setup\n", SHELL_COLOR_FOREGROUND);
+	print("Shell setup\n");
 	print_newline();
 
 	setup_memory();
-	print("Total memory size:      ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong_t)g_memory_total_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
-	print("Reserved memory:        ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong_t)g_memory_reserved_size / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
-	print("Free memory:            ", SHELL_COLOR_FOREGROUND); print(string_str_from_int((ulong_t)memory_get_free() / 1024 / 1024), SHELL_COLOR_NUMBER); print(" MB\n", SHELL_COLOR_NUMBER);
-	print("Page frame map address: ", SHELL_COLOR_FOREGROUND); print("0x", SHELL_COLOR_ADDRESS); print(string_str_from_ulong((ulong_t)g_pageframemap.buffer), SHELL_COLOR_ADDRESS); print_newline();
+	print("Total memory size:      "); print_color(string_str_from_int((ulong_t)g_memory_total_size / 1024 / 1024), SHELL_COLOR_NUMBER); print_color(" MB\n", SHELL_COLOR_NUMBER);
+	print("Reserved memory:        "); print_color(string_str_from_int((ulong_t)g_memory_reserved_size / 1024 / 1024), SHELL_COLOR_NUMBER); print_color(" MB\n", SHELL_COLOR_NUMBER);
+	print("Free memory:            "); print_color(string_str_from_int((ulong_t)memory_get_free() / 1024 / 1024), SHELL_COLOR_NUMBER); print_color(" MB\n", SHELL_COLOR_NUMBER);
+	print("Page frame map address: "); print_color("0x", SHELL_COLOR_ADDRESS); print_color(string_str_from_ulong((ulong_t)g_pageframemap.buffer), SHELL_COLOR_ADDRESS); print_newline();
 	print_newline();
 
 	/*paging_map(g_pagetable_l4, (void*)0x600000000, (void*)0x80000);
@@ -105,12 +105,12 @@ void setup() {
 	print_newline();*/
 
 	setup_gdt();
-	print("Global descriptor table setup\n", SHELL_COLOR_FOREGROUND);
+	print("Global descriptor table setup\n");
 	print_newline();
 
 	// TODO make interrupts better
 	setup_interrupts();
-	print("Interrupts setup\n", SHELL_COLOR_FOREGROUND);
+	print("Interrupts setup\n");
 	print_newline();
 
 	print_newline();

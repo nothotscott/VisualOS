@@ -82,8 +82,14 @@ function get_ovmf {
 }
 
 function launch-qemu {
-	$args = "-drive file=$ABSOLUTE_WIN/$BUILD_DIR/$OSNAME.img -m 256M -no-reboot -cpu qemu64 -net none -drive if=pflash,format=raw,unit=0,file=$OVMF_DIR_WIN/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=$OVMF_DIR_WIN/OVMF_VARS-pure-efi.fd"
-	Start-Process "qemu-system-x86_64.exe" -NoNewWindow -Wait -ArgumentList $args
+	param (
+		[bool] $debug 
+	)
+	$programs_args = "-drive file=$ABSOLUTE_WIN/$BUILD_DIR/$OSNAME.img -m 256M -no-reboot -cpu qemu64 -net none -drive if=pflash,format=raw,unit=0,file=$OVMF_DIR_WIN/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=$OVMF_DIR_WIN/OVMF_VARS-pure-efi.fd"
+	if ($debug -eq $true) {
+		$programs_args = $programs_args + " -s -S"
+	}
+	Start-Process "qemu-system-x86_64.exe" -NoNewWindow -Wait -ArgumentList $programs_args
 }
 
 function vbox-manage {
@@ -146,6 +152,9 @@ foreach ($task in $tasks) {
 	} elseif ($tasks -eq "run") {
 		get_ovmf
 		launch-qemu
+	} elseif ($tasks -eq "run-debug") {
+		get_ovmf
+		launch-qemu $true
 	}
 
 }

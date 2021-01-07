@@ -41,7 +41,7 @@ void shell_draw_char(char chr, SHELL_COLOR color, uint_t xoff, uint_t yoff);
 
 // Prints a string [str] at the current cursor position with [color]
 void print_color(char* str, SHELL_COLOR color);
-void print(char* str, SHELL_COLOR color);
+void print(char* str);
 void print_char(char chr, SHELL_COLOR color);
 void print_newline();
 
