@@ -18,6 +18,7 @@ LDLIBS_FILTERED	= $(filter-out $^, $(LDLIBS))
 
 $(TARGET_DIR)/%.elf:	$(TARGET_DIR)/%.o
 						$(LD) $(LDFLAGS) $^ $(LDLIBS_FILTERED) -o $@
+						$(OBJCOPY) $(OBJCOPYFLAGS) --strip-debug $@ $(addsuffix _release.efi, $(basename $@))
 
 # May have to be $(CXX)
 $(TARGET_DIR)/%.so:		$(TARGET_DIR)/%.o

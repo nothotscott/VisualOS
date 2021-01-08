@@ -9,7 +9,7 @@ INCLUDES	:= $(addprefix -include , $(GIVENS))
 
 
 # TODO Stack protector after dynamic memory (-fstack-protector-all)
-export CXXFLAGS		:= $(INCLUDES) -I$(THIS)/ -m64 -ffreestanding -mno-red-zone -fno-rtti -fno-exceptions -fPIC -O2
+export CXXFLAGS		:= $(INCLUDES) -I$(THIS)/ -m64 -ffreestanding -mno-red-zone -fno-rtti -fno-exceptions -fPIC -O2 -g
 
 LIBNAME	:= $(LIBVOS)
 include $(THIS)/Make.generic

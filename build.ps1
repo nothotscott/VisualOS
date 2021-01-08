@@ -11,7 +11,9 @@
 ################################################################################
 
 
-param($tasks)
+param([string[]] $tasks)
+[System.Collections.ArrayList] $tasks = $tasks
+$tasks = $tasks.Split(",")
 
 # Configurable
 $OSNAME = "VisualOS"
@@ -87,9 +89,10 @@ function launch-qemu {
 	)
 	$programs_args = "-drive file=$ABSOLUTE_WIN/$BUILD_DIR/$OSNAME.img -m 256M -no-reboot -cpu qemu64 -net none -drive if=pflash,format=raw,unit=0,file=$OVMF_DIR_WIN/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=$OVMF_DIR_WIN/OVMF_VARS-pure-efi.fd"
 	if ($debug -eq $true) {
-		$programs_args = $programs_args + " -s -S"
+		powershell.exe "Start-Process qemu-system-x86_64.exe -ArgumentList '$programs_args -s -S'"
+	} else {
+		Start-Process "qemu-system-x86_64.exe" -NoNewWindow -Wait -ArgumentList $programs_args
 	}
-	Start-Process "qemu-system-x86_64.exe" -NoNewWindow -Wait -ArgumentList $programs_args
 }
 
 function vbox-manage {
@@ -111,6 +114,10 @@ if ($tasks -eq $null) {
 if ($WSL -ne $null) {
 	Write-Host "Detected WSL $WSL where $ABSOLUTE is the equivalent windows path $ABSOLUTE_WIN"
 }
+
+#foreach ($task in $tasks.Split(",")) {
+#	$tasks.Add($task)
+#}
 
 foreach ($task in $tasks) {
 	if ($task -eq "setup") {
