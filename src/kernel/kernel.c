@@ -28,11 +28,11 @@ void _start(struct KernelEntryInterface *interface) {
 	setup();
 	print_info();
 
-	printf_color("---------------%x this is a pretty cool string longer than it should %d be", SHELL_COLOR_FOREGROUND, 0xaaaabbbb12345678, -123456789123456789);
+	/*printf_color("---------------%x this is a pretty cool string longer than it should %d be", SHELL_COLOR_FOREGROUND, 0xaaaabbbb12345678, -123456789123456789);
 	print_newline();
 	printf("This number is green: %GREEN %d%DEFAULT while this one is yellow: %YELLOW %x", 123, 123);
 	print_newline();
-	printf("This number is green: %GREEN %d ok %BLUE poop", 123);
+	printf("This number is green: %GREEN %d ok %BLUE poop", 123);*/
 
 	while (true);
 }

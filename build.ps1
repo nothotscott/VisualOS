@@ -13,7 +13,7 @@
 
 param([string[]] $tasks)
 [System.Collections.ArrayList] $tasks = $tasks
-$tasks = $tasks.Split(",")
+$tasks = $tasks -split ","
 
 # Configurable
 $OSNAME = "VisualOS"

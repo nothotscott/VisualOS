@@ -14,7 +14,7 @@ LIBINCLUDES	:= $(addprefix -I, $(addsuffix /, $(shell find $(SRC_DIR)/$(LIBRARY)
 LIBARCHIVES	:= $(addprefix $(LIB_DIR)/, $(notdir $(wildcard $(LIB_DIR)/*.a)))
 
 export CFLAGS	:= $(INCLUDES) $(LIBINCLUDES) -I$(THIS)/ -m64 -ffreestanding -fshort-wchar -O1 -g
-export ASFLAGS	:= -p $(THIS)/kernel.inc -i $(THIS)/ -f elf64
+export ASFLAGS	:= -p $(THIS)/kernel.inc -i $(THIS)/ -f elf64 -F dwarf -g
 LDFLAGS			:= -T $(THIS)/kernel.ld -L$(LIB_DIR) -static -Bsymbolic -nostdlib
 LDLIBS			= $(addprefix $(KERNEL_DIR)/, $(filter-out $(PRIMARY).o, $(notdir $(wildcard $(KERNEL_DIR)/*.o)))) $(LIBARCHIVES)
 
