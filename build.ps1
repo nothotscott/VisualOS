@@ -19,7 +19,7 @@ $tasks = $tasks -split ","
 $OSNAME = "VisualOS"
 $BUILD_DIR = "build"
 $OVMF_URL = "https://github.com/Absurdponcho/OVMFbin"
-$DEFAULT_TASK = @("setup", "build-bootloader", "build-library", "build-kernel", "build-img")
+$DEFAULT_TASK = @("setup", "build-bootloader", "build-libc", "build-library", "build-kernel", "build-vos", "build-img")
 
 # Don't configure
 $ABSOLUTE = Split-Path $script:MyInvocation.MyCommand.Path
@@ -135,16 +135,22 @@ foreach ($task in $tasks) {
 		build clean-img
 	} elseif ($task -eq "clean-bootloader") {
 		build clean-gnuefi
+	} elseif ($task -eq "clean-libc") {
+		build clean-musl
 	} elseif ($task -eq "clean-vos") {
 		build clean-vos
 	}
 	
 	elseif ($task -eq "build-bootloader") {
 		build gnu-efi
+	} elseif ($task -eq "build-libc") {
+		build musl
 	} elseif ($task -eq "build-library") {
 		build library
 	} elseif ($task -eq "build-kernel") {
 		build kernel
+	} elseif ($task -eq "build-vos") {
+		build vos
 	} elseif ($task -eq "build-img") {
 		build img
 	} elseif ($task -eq "build-iso") {

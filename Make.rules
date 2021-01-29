@@ -16,26 +16,29 @@ $(TARGET_DIR)/%.o $(TARGET_DIR)/%_asm.o:	$(THIS)/%.asm
 #######################################
 LDLIBS_FILTERED	= $(filter-out $^, $(LDLIBS))
 
-$(TARGET_DIR)/%.elf:	$(TARGET_DIR)/%.o
-						$(LD) $(LDFLAGS) $^ $(LDLIBS_FILTERED) -o $@
-						$(OBJCOPY) $(OBJCOPYFLAGS) --strip-debug $@ $(addsuffix _release.efi, $(basename $@))
+$(TARGET_DIR)/%.elf:		$(TARGET_DIR)/%.partial.o
+							$(LD) $(LDFLAGS) $^ $(LDLIBS_FILTERED) -o $@
+							$(OBJCOPY) $(OBJCOPYFLAGS) --strip-debug $@ $(addsuffix _release.elf, $(basename $@))
+
+$(TARGET_DIR)/%.partial.o:	# No prerequisites
+							$(LD) $(LDFLAGS) -r $(LDLIBS) -o $@
 
 # May have to be $(CXX)
-$(TARGET_DIR)/%.so:		$(TARGET_DIR)/%.o
-						$(LD) $(LDFLAGS) $^ $(LDLIBS_FILTERED) -o $@
+$(TARGET_DIR)/%.so:			$(TARGET_DIR)/%.o
+							$(LD) $(LDFLAGS) $^ $(LDLIBS_FILTERED) -o $@
 
 # May have to be $(CXX)
-$(TARGET_DIR)/%.so:		# No prerequisites
-						$(LD) $(LDFLAGS) $(LDLIBS) -o $@
+$(TARGET_DIR)/%.so:			# No prerequisites
+							$(LD) $(LDFLAGS) $(LDLIBS) -o $@
 
-$(TARGET_DIR)/%.a:		$(TARGET_DIR)/%.o
-						$(AR) $(ARFLAGS) $@ $^ $(filter-out $^, $(ARLIBS))
+$(TARGET_DIR)/%.a:			$(TARGET_DIR)/%.o
+							$(AR) $(ARFLAGS) $@ $^ $(filter-out $^, $(ARLIBS))
 
-$(TARGET_DIR)/%.a:		# No prerequisites
-						$(AR) $(ARFLAGS) $@ $(ARLIBS)
+$(TARGET_DIR)/%.a:			# No prerequisites
+							$(AR) $(ARFLAGS) $@ $(ARLIBS)
 
-$(TARGET_DIR)/%.efi:	$(TARGET_DIR)/%.so
-						$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc $(OBJCOPYFLAGS) $< $@
+$(TARGET_DIR)/%.efi:		$(TARGET_DIR)/%.so
+							$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc $(OBJCOPYFLAGS) $< $@
 
 # Convert to assembly
 $(ASMDUMP_DIR)/%.s:	$(THIS)/%.c

@@ -24,4 +24,4 @@ ARFLAGS		= -rcsT
 
 # Parallelization forces us to make the real target recursivley
 all:	$(INTERMEDIATES)
-		$(MAKE) $(TARGETS) -f $(THIS)/Makefile
+		$(MAKE) -f $(THIS)/Makefile $(TARGETS)

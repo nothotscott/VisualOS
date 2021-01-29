@@ -15,10 +15,16 @@ export ASFLAGS		:=  -f elf64 -F dwarf -g
 LIBNAME	:= $(LIBVOS)
 include $(THIS)/Make.generic
 
-all:	$(INTERMEDIATES) $(TARGETS) $(SUBDIRS)
+all:	setup
+		$(MAKE) -f $(THIS)/Makefile $(TARGETS)
+		$(MAKE) -f $(THIS)/Makefile $(SUBDIRS)
+
+.PHONY:	setup
+setup:
+		@mkdir -p $(LIB_DIR)
 
 .PHONY: $(SUBDIRS)
 $(SUBDIRS):	
-		+ $(MAKE) --no-print-directory -f $@/Makefile SUPER=$(THIS) THIS=$@ LIBVOS=$(LIBVOS)
+		+ $(MAKE) -f $@/Makefile SUPER=$(THIS) SUPER=$(THIS) THIS=$@ LIBVOS=$(LIBVOS)
 
 include Make.rules

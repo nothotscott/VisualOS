@@ -29,6 +29,13 @@ typedef uint_t	SHELL_COLOR;
 #define SHELL_COLOR_ADDRESS		SHELL_COLOR_MAGENTA
 #define SHELL_COLOR_NUMBER		SHELL_COLOR_YELLOW
 
+
+struct Point {
+	uint_t	x;
+	uint_t	y;
+};
+
+
 // Initalize shell with the [frame_buffer] and [font]
 void shell_init(struct FrameBuffer* frame_buffer, struct PSF1Font* font);
 

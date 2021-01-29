@@ -1,16 +1,23 @@
-include Make.defaults
+THIS		:= $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+include		Make.defaults
+
+TARGET_DIR	= $(BUILD_DIR)
 
 EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
-KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 STARTUP_SCRIPT	:= $(SRC_DIR)/$(BOOTLOADER)/startup.nsh
+KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
+VOS_BIN			:= $(BUILD_DIR)/kernel.elf
 
-all:			$(SUBDIRS) $(BUILD_DIR)/$(OSNAME).img
+LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -Bsymbolic -nostdlib
+LDLIBS	= $(wildcard $(LIBC_DIR)/lib/*.a) $(wildcard $(LIB_DIR)/*.a)
+
+###############################################################################
+
+all:			$(BOOTLOADER) $(LIBC) $(LIBRARY) $(KERNEL) $(BUILD_DIR)/$(OSNAME).img
 
 .PHONY: setup
 setup:	
 				@mkdir -p $(BUILD_DIR)
-				@mkdir -p $(KERNEL_DIR)
-				@mkdir -p $(LIB_DIR)
 ifdef ASMDUMP
 				@mkdir -p $(ASMDUMP_DIR)
 endif
@@ -22,7 +29,12 @@ MAKE_VOS	= + $(MAKE) --no-print-directory -f $(SRC_DIR)/$@/Makefile THIS=$(SRC_D
 .PHONY: $(BOOTLOADER)
 $(BOOTLOADER):	setup
 				$(call echo_build)
-				cd $(SRC_DIR)/$@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS) KERNEL_SRC=$(SRC_DIR)/$(KERNEL)
+				cd $(SRC_DIR)/$@ && $(MAKE) -j1 THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS) KERNEL_SRC=$(SRC_DIR)/$(KERNEL)
+
+.PHONY: $(LIBC)
+$(LIBC):		setup
+				$(call echo_build)
+				cd $(SRC_DIR)/$@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS)
 
 .PHONY: $(LIBRARY)
 $(LIBRARY):		setup
@@ -36,13 +48,17 @@ $(KERNEL):		setup $(LIBRARY)
 
 ###############################################################################
 
+$(VOS_BIN):		$(KERNEL_BIN)
+				mv $(KERNEL_BIN) $(VOS_BIN)
+.PHONY: vos
+vos:			$(VOS_BIN)
 
-$(BUILD_DIR)/$(OSNAME).img:	$(KERNEL_BIN)
+$(BUILD_DIR)/$(OSNAME).img:	$(EFI_BIN) $(VOS_BIN)
 				dd if=/dev/zero of=$@ bs=512 count=93750
 				mformat -i $@ -f 1440 ::
 				mmd -i $@ ::/EFI
 				mmd -i $@ ::/EFI/BOOT
-				mcopy -i $@ $(KERNEL_BIN) :: &
+				mcopy -i $@ $(VOS_BIN) :: &
 				mcopy -i $@ $(EFI_BIN) ::/EFI/BOOT &
 				mcopy -i $@ $(STARTUP_SCRIPT) :: &
 				mcopy -i $@ -s extras/ ::/extras &
@@ -67,8 +83,13 @@ RM_IMG	:= rm -rf *.img *.iso *.vdi
 clean-gnuefi:	clean-img
 				rm -rf $(BUILD_DIR)/gnu-efi/bootloader
 
+.PHONY: clean-musl
+clean-musl:		clean-img
+				rm -rf $(BUILD_DIR)/musl
+
 .PHONY: clean-vos
 clean-vos:		clean-img
+				cd $(BUILD_DIR) && $(RM_OBJ)
 				rm -rf $(LIB_DIR)/
 				rm -rf $(KERNEL_DIR)/
 ifneq "$(wildcard $(ASMDUMP_DIR))" ""
@@ -82,3 +103,6 @@ clean-img:
 .PHONY: clean
 clean:		
 				rm -rf $(BUILD_DIR)
+
+
+include Make.rules

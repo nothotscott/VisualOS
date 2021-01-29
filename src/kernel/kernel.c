@@ -7,6 +7,7 @@
  * If not, see https://www.gnu.org/licenses/gpl-2.0
  */
 
+#include <math.h>
 #include <string.h>
 #include <conversion.h>
 #include "bootloader.h"
@@ -23,6 +24,8 @@ extern void print_info();
 // Global interface
 struct KernelEntryInterface* g_interface;
 
+int answer;
+
 void _start(struct KernelEntryInterface *interface) {
 	g_interface = interface;
 	setup();
@@ -33,6 +36,9 @@ void _start(struct KernelEntryInterface *interface) {
 	printf("This number is green: %GREEN %d%DEFAULT while this one is yellow: %YELLOW %x", 123, 123);
 	print_newline();
 	printf("This number is green: %GREEN %d ok %BLUE poop", 123);*/
+
+    answer = log2(64);
+	printf("log base 2 of 64 %d", answer);
 
 	while (true);
 }

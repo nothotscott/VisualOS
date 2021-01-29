@@ -20,6 +20,11 @@ typedef signed long long	slong_t;
 typedef enum {false, true}	bool;
 #endif
 
+#ifndef NULL
+#define NULL	0
+#endif
+
+
 
 // Rounds up [n] to the nearest [multiple]
 #define ROUND_UP(n, multiple)	((n) % (multiple) == 0 ? (n) : (n) - (n) % (multiple) + (multiple))

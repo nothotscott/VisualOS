@@ -7,7 +7,6 @@
  */
 
 #include <string.h>
-#include <spacial.h>
 #include <memory.h>
 #include "shell.h"
 

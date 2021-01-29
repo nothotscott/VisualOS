@@ -13,6 +13,4 @@
 #define LIBRARY
 #endif
 
-#define	NULL	0
-
 
