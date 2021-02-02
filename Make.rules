@@ -5,22 +5,25 @@ endif
 .PRECIOUS:	$(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o $(TARGET_DIR)/%_cpp.o $(TARGET_DIR)/%_asm.o
 
 $(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o:		$(THIS)/%.c
-											$(CC) $(CFLAGS) -c $< -o $@
+											$(CC) $(CFLAGS) -c -MD $< -o $@
 
 $(TARGET_DIR)/%.o $(TARGET_DIR)/%_cpp.o:	$(THIS)/%.cpp
-											$(CXX) $(CXXFLAGS) -c $< -o $@
+											$(CXX) $(CXXFLAGS) -c -MD $< -o $@
 
 $(TARGET_DIR)/%.o $(TARGET_DIR)/%_asm.o:	$(THIS)/%.asm
-											$(AS) $(ASFLAGS) $< -o $@
+											$(AS) $(ASFLAGS) $< -o $@ -MD $(basename $@).d
+
+.PRECIOUS:	$(TARGET_DIR)/%.d $(TARGET_DIR)/%_c.d $(TARGET_DIR)/%_cpp.d $(TARGET_DIR)/%_asm.d
+include $(wildcard $(TARGET_DIR)/*.d)
 
 #######################################
 LDLIBS_FILTERED	= $(filter-out $^, $(LDLIBS))
 
-$(TARGET_DIR)/%.elf:		$(TARGET_DIR)/%.partial.o
+$(TARGET_DIR)/%.elf:		$(TARGET_DIR)/%_partial.o
 							$(LD) $(LDFLAGS) $^ $(LDLIBS_FILTERED) -o $@
 							$(OBJCOPY) $(OBJCOPYFLAGS) --strip-debug $@ $(addsuffix _release.elf, $(basename $@))
 
-$(TARGET_DIR)/%.partial.o:	# No prerequisites
+$(TARGET_DIR)/%_partial.o:	# No prerequisites
 							$(LD) $(LDFLAGS) -r $(LDLIBS) -o $@
 
 # May have to be $(CXX)

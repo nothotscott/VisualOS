@@ -8,7 +8,7 @@ GIVENS		:= $(SRC_DIR)/$(LIBRARY)/library.h $(SRC_DIR)/universal.h $(THIS)/kernel
 SOURCES		:= $(notdir $(wildcard $(THIS)/*.c $(THIS)/*.cpp $(THIS)/*.asm))
 SUBDIRS		:= $(shell find $(THIS)/* -maxdepth 1 -type d)
 PRETARGETS	:= $(addprefix $(KERNEL_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
-TARGETS		:= $(KERNEL_DIR)/$(PRIMARY).partial.o
+TARGETS		:= $(KERNEL_DIR)/$(PRIMARY)_partial.o
 INCLUDES	:= $(addprefix -include , $(GIVENS))
 LIBINCLUDES	:= $(addprefix -I, $(addsuffix /, $(shell find $(SRC_DIR)/$(LIBRARY)/* -maxdepth 1 -type d) $(SRC_DIR)/$(LIBRARY)) $(SRC_DIR)/$(LIBC)/include $(LIBC_DIR)/obj/include)
 

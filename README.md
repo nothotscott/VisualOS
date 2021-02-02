@@ -10,14 +10,19 @@ Users also frequently have to repeat themselves when combining tasks (i.e `mkdir
 Command lines aren't friendly for computers either, since programs have to parse and sanitize the user's input through a single interface. 
 This OS was a shower thought about the possibilty to evolve pass the archaic constraints command lines impose on computer enthusiasts. 
 As such, I thought it would be a fun project to develop an OS as a proof of concept of my idea. 
-I am not an experience OS developer however, so i've come to learn and I'm sure there's many better ways of implementing my idea. 
+I am not an experience OS developer however, so i've come to learn and I'm sure there's many better ways of implementing my idea.
+
+## Included dependencies
+The following are included and minimally modified to adapt to the build process and the VOS runtime
+- gnu-efi is included under the BSD license
+- musl is included under the [MIT license](src/musl/COPYRIGHT)
 
 # Build
-The kernel is written in C and x86-64 assembly. The library is written in C++. I use gcc, g++, and nasm respectivley. It is best to compile in WSL and run
-the `build.ps1` PowerShell script. Tasks are comma separated. Common build tasks:
+The kernel is written in C and x86-64 assembly. The library is written in C++. I use gcc, g++, and nasm respectivley. It is best to compile in WSL and run the `build.ps1` PowerShell script. Tasks are comma separated. Common build tasks:
 - `.\build.ps1 clean-bootloader,build-bootloader`
-- `.\build.ps1 clean-vos,build-kernel`
-- `.\build.ps1 clean-img,build-img,run`
+- `.\build.ps1 clean-libc,build-libc`
+- `.\build.ps1 build-kernel,build-libvos,build-vos`
+- `.\build.ps1 build-img,run`
 
 Make sure the following tools are installed
 - GCC suite
