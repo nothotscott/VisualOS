@@ -36,8 +36,8 @@ void pageframe_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_
 	// Assign bitmap
 	bitmap_initialize(&g_pageframemap, largest_primary->phys_address, g_memory_total_size / MEMORY_PAGE_SIZE / BITMAP_SCALE);
 	// Reserve the g_pageframemap itself
-	size_t g_pageframemap_pages = g_pageframemap.size % MEMORY_PAGE_SIZE > 0 ? g_pageframemap.size / MEMORY_PAGE_SIZE + 1 : g_pageframemap.size / MEMORY_PAGE_SIZE;
-	pageframe_reserve(g_pageframemap.buffer, g_pageframemap_pages);
+	size_t pageframemap_pages = g_pageframemap.size % MEMORY_PAGE_SIZE > 0 ? g_pageframemap.size / MEMORY_PAGE_SIZE + 1 : g_pageframemap.size / MEMORY_PAGE_SIZE;
+	pageframe_reserve(g_pageframemap.buffer, pageframemap_pages);
 	// Reserve kernel space
 	size_t kernel_size = (size_t)&_kernel_end - (size_t)&_kernel_start;
 	size_t kernel_pages = kernel_size % MEMORY_PAGE_SIZE > 0 ? kernel_size / MEMORY_PAGE_SIZE + 1 : kernel_size / MEMORY_PAGE_SIZE;

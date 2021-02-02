@@ -12,7 +12,10 @@ TARGETS		:= $(KERNEL_DIR)/$(PRIMARY)_partial.o
 INCLUDES	:= $(addprefix -include , $(GIVENS))
 LIBINCLUDES	:= $(addprefix -I, $(addsuffix /, $(shell find $(SRC_DIR)/$(LIBRARY)/* -maxdepth 1 -type d) $(SRC_DIR)/$(LIBRARY)) $(SRC_DIR)/$(LIBC)/include $(LIBC_DIR)/obj/include)
 
-export CFLAGS	:= $(INCLUDES) $(LIBINCLUDES) -I$(THIS)/ -m64 -ffreestanding -nostdinc -fshort-wchar -O1 -g
+export CFLAGS	:= $(INCLUDES) $(LIBINCLUDES) -I$(THIS)/ -m64 -ffreestanding -nostdinc -fshort-wchar -g
+ifndef DEBUG_MODE
+	CFLAGS += -O1
+endif
 export ASFLAGS	:= -p $(THIS)/kernel.inc -i $(THIS)/ -f elf64 -F dwarf -g
 LDFLAGS			:= -nostdlib
 LDLIBS			= $(addprefix $(KERNEL_DIR)/, $(notdir $(wildcard $(KERNEL_DIR)/*.o)))

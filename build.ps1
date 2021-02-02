@@ -18,10 +18,11 @@ $tasks = $tasks -split ","
 # Configurable
 $OSNAME = "VisualOS"
 $BUILD_DIR = "build"
-$OVMF_URL = "https://github.com/Absurdponcho/OVMFbin"
+$OVMF_URL = "https://versaweb.dl.sourceforge.net/project/edk2/OVMF/OVMF-X64-r15214.zip"
 $DEFAULT_TASK = @("setup", "build-bootloader", "build-libc", "build-library", "build-kernel", "build-vos", "build-img")
 
 # Don't configure
+$DEBUG_MODE = $true
 $ABSOLUTE = Split-Path $script:MyInvocation.MyCommand.Path
 $WSL = $(Get-ChildItem -Path Env:WSL_DISTRO_NAME -ErrorAction SilentlyContinue | Select-Object -last 1).Value
 $VBOX = Get-Command "VBoxManage.exe" -ErrorAction SilentlyContinue
@@ -44,9 +45,8 @@ $ABSOLUTE_WIN = & { If ($WSL -ne $null) { wslpath -w $ABSOLUTE } Else { $ABSOLUT
 $TEMP_DIR = & { If ($WSL -ne $null) { powershell.exe Write-Host '$env:temp' } Else { $env:temp } }
 $NUM_PROCESSORS = [int](invoke-host "(Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors")
 
-
 # Dependent configurations
-$OVMF_DIR_WIN = Join-Path ($TEMP_DIR) (Split-Path $OVMF_URL -leaf)
+$OVMF_DIR_WIN = Join-Path $TEMP_DIR ([io.path]::GetFileNameWithoutExtension($OVMF_URL)).ToString()
 
 ################################################################################
 
@@ -66,6 +66,7 @@ function build {
 function get_ovmf {
 	$ovmf_name = Split-Path $OVMF_URL -leaf
 	$ovmf_parent = Split-Path $OVMF_DIR_WIN -Parent
+	$ovmf_file = Join-Path $ovmf_parent $ovmf_name
 	if ($WSL -ne $null) {
 		if ((powershell.exe "Test-Path $OVMF_DIR_WIN") -eq "True") {
 			return;
@@ -75,24 +76,26 @@ function get_ovmf {
 			return;
 		}
 	}
-	git clone $OVMF_URL
-	if ($WSL -ne $null) {
-		powershell.exe "Move-Item $ovmf_name $ovmf_parent"
-	} else {
-		Move-Item $ovmf_name $ovmf_parent
-	}
+	Write-Host "OVMF does not exist. Downloading and installing it..."
+	Write-Information "Downloading OVMF to $ovmf_file"
+	invoke-host "Invoke-WebRequest -Uri $OVMF_URL -OutFile $ovmf_file"
+	Write-Information "Extracting to $OVMF_DIR_WIN"
+	invoke-host "Expand-Archive $ovmf_file -DestinationPath $OVMF_DIR_WIN"
+	Write-Information "Cleaning up"
+	invoke-host "Remove-Item $ovmf_file"
 }
 
 function launch-qemu {
 	param (
 		[bool] $debug 
 	)
-	$programs_args = "-drive file=$ABSOLUTE_WIN/$BUILD_DIR/$OSNAME.img -m 256M -cpu qemu64 -net none -drive if=pflash,format=raw,unit=0,file=$OVMF_DIR_WIN/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=$OVMF_DIR_WIN/OVMF_VARS-pure-efi.fd"
-	$programs_args += " -no-reboot"
+	$program_args = "-drive file=$ABSOLUTE_WIN/$BUILD_DIR/$OSNAME.img "
+	$program_args += "-drive if=pflash,format=raw,unit=0,file=$OVMF_DIR_WIN/OVMF.fd "
+	$program_args += "-cpu qemu64 -m 256M -net none -no-reboot "
 	if ($debug -eq $true) {
-		powershell.exe "Start-Process qemu-system-x86_64.exe -ArgumentList '$programs_args -s -S'"
+		powershell.exe "Start-Process qemu-system-x86_64.exe -ArgumentList '$program_args -s -S'"
 	} else {
-		Start-Process "qemu-system-x86_64.exe" -NoNewWindow -Wait -ArgumentList $programs_args
+		Start-Process "qemu-system-x86_64.exe" -NoNewWindow -Wait -ArgumentList $program_args
 	}
 }
 
@@ -109,16 +112,12 @@ function vbox-manage {
 
 #######################
 
-if ($tasks -eq $null) {
+if ($tasks.Count -eq 0) {
 	$tasks = $DEFAULT_TASK
 }
 if ($WSL -ne $null) {
 	Write-Host "Detected WSL $WSL where $ABSOLUTE is the equivalent windows path $ABSOLUTE_WIN"
 }
-
-#foreach ($task in $tasks.Split(",")) {
-#	$tasks.Add($task)
-#}
 
 foreach ($task in $tasks) {
 	if ($task -eq "setup") {
@@ -126,6 +125,9 @@ foreach ($task in $tasks) {
 		get_ovmf
 	} elseif ($task -eq "asmdump") {
 		$MAKE_VARS.Add("ASMDUMP=true") | Out-Null
+	} elseif ($task -eq "debug") {
+		$DEBUG_MODE = $true
+		$MAKE_VARS.Add("DEBUG_MODE=true") | Out-Null
 	}
 
 	elseif ($task -eq "clean") {
