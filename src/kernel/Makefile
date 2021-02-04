@@ -33,6 +33,7 @@ all:	setup
 .PHONY:	setup
 setup:
 		@mkdir -p $(KERNEL_DIR)
+		rm -f $(KERNEL_DIR)/$(PRIMARY)_partial.o
 
 
 .PHONY: $(SUBDIRS)

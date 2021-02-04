@@ -16,7 +16,7 @@ void bitmap_initialize(struct Bitmap* bitmap, void* buffer, size_t size) {
 	memset_byte(bitmap->buffer, 0, size);
 }
 
-size_t bitmap_adjusted_size(struct Bitmap* bitmap) {
+inline size_t bitmap_adjusted_size(struct Bitmap* bitmap) {
 	return bitmap->size * BITMAP_SCALE;
 }
 

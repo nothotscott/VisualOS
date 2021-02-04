@@ -4,7 +4,6 @@ include		Make.defaults
 TARGET_DIR	= $(BUILD_DIR)
 
 EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
-STARTUP_SCRIPT	:= $(SRC_DIR)/$(BOOTLOADER)/startup.nsh
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 VOS_BIN			:= $(BUILD_DIR)/kernel.elf
 
@@ -60,7 +59,6 @@ $(BUILD_DIR)/$(OSNAME).img:	$(EFI_BIN) $(VOS_BIN)
 				mmd -i $@ ::/EFI/BOOT
 				mcopy -i $@ $(VOS_BIN) :: &
 				mcopy -i $@ $(EFI_BIN) ::/EFI/BOOT &
-				mcopy -i $@ $(STARTUP_SCRIPT) :: &
 				mcopy -i $@ -s extras/ ::/extras &
 .PHONY: img
 img:			$(BUILD_DIR)/$(OSNAME).img

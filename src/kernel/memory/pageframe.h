@@ -12,7 +12,8 @@
 #include "bootloader.h"
 #include "bitmap.h"
 
-#define MEMORY_PAGEABLE_TYPE	BOOTLOADER_CONVENTIONAL_MEMORY
+#define MEMORY_PAGEABLE_TYPE			BOOTLOADER_CONVENTIONAL_MEMORY
+#define MEMORY_INITIAL_RESERVE_PAGES	256
 
 
 // Total size of memory space (bytes), regardless of whether it's usable or not

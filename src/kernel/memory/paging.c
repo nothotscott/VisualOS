@@ -49,6 +49,7 @@ void paging_init() {
 void paging_identity_map(void* address, size_t size) {
 	size = ROUND_UP(size, MEMORY_PAGE_SIZE);
 	for(void* ptr = address; (uintptr_t)ptr < (uintptr_t)address + size; ptr += MEMORY_PAGE_SIZE) {
+		// NOTE a conditional breakpoint of ptr > 0x12400000 for the line below will result in showing the drawing
 		paging_map(g_pagetable_l4, ptr, ptr);	// 1 to 1 mapping
 	}
 }

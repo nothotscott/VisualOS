@@ -51,6 +51,8 @@ void pageframe_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_
 		size_t reserved_size = descriptor->num_pages * BOOTLOADER_MEMORY_PAGE_SIZE;
 		pageframe_reserve(descriptor->phys_address, reserved_size / MEMORY_PAGE_SIZE);
 	}
+	// Reserve first 256 pages
+	pageframe_reserve(0, MEMORY_INITIAL_RESERVE_PAGES);
 }
 
 size_t memory_get_free() {

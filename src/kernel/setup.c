@@ -43,9 +43,9 @@ void setup_shell() {
 void setup_memory() {
 	struct FrameBuffer* frame_buffer = g_interface->frame_buffer;
 	pageframe_init(g_interface->mem_map, g_interface->mem_map_size, g_interface->mem_map_descriptor_size);
+	pageframe_reserve(frame_buffer->base, ROUND_UP(frame_buffer->size, MEMORY_PAGE_SIZE) / MEMORY_PAGE_SIZE);
 	paging_init();
 	paging_identity_map(frame_buffer->base, frame_buffer->size);
-	pageframe_reserve(frame_buffer->base, ROUND_UP(frame_buffer->size, MEMORY_PAGE_SIZE) / MEMORY_PAGE_SIZE);
 	paging_load();
 	heap_init(g_pageframemap.buffer + g_pageframemap.size, memory_get_free());
 }

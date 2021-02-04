@@ -21,7 +21,7 @@ LDLIBS_FILTERED	= $(filter-out $^, $(LDLIBS))
 
 $(TARGET_DIR)/%.elf:		$(TARGET_DIR)/%_partial.o
 							$(LD) $(LDFLAGS) $^ $(LDLIBS_FILTERED) -o $@
-							$(OBJCOPY) $(OBJCOPYFLAGS) --strip-debug $@ $(addsuffix _release.elf, $(basename $@))
+#							$(OBJCOPY) $(OBJCOPYFLAGS) --strip-debug $@ $(addsuffix _release.elf, $(basename $@))
 
 $(TARGET_DIR)/%_partial.o:	# No prerequisites
 							$(LD) $(LDFLAGS) -r $(LDLIBS) -o $@
