@@ -1,16 +1,20 @@
 ifndef TARGET_DIR
 	TARGET_DIR	:= $(BUILD_DIR)
 endif
+ifndef THIS_NODE
+	THIS_NODE		:= $(THIS)
+	THIS_NODE_DECL	:= 1
+endif
 
 .PRECIOUS:	$(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o $(TARGET_DIR)/%_cpp.o $(TARGET_DIR)/%_asm.o
 
-$(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o:		$(THIS)/%.c
+$(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o:		$(THIS_NODE)/%.c
 											$(CC) $(CFLAGS) -c -MD $< -o $@
 
-$(TARGET_DIR)/%.o $(TARGET_DIR)/%_cpp.o:	$(THIS)/%.cpp
+$(TARGET_DIR)/%.o $(TARGET_DIR)/%_cpp.o:	$(THIS_NODE)/%.cpp
 											$(CXX) $(CXXFLAGS) -c -MD $< -o $@
 
-$(TARGET_DIR)/%.o $(TARGET_DIR)/%_asm.o:	$(THIS)/%.asm
+$(TARGET_DIR)/%.o $(TARGET_DIR)/%_asm.o:	$(THIS_NODE)/%.asm
 											$(AS) $(ASFLAGS) $< -o $@ -MD $(basename $@).d
 
 .PRECIOUS:	$(TARGET_DIR)/%.d $(TARGET_DIR)/%_c.d $(TARGET_DIR)/%_cpp.d $(TARGET_DIR)/%_asm.d
@@ -44,8 +48,14 @@ $(TARGET_DIR)/%.efi:		$(TARGET_DIR)/%.so
 							$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc $(OBJCOPYFLAGS) $< $@
 
 # Convert to assembly
-$(ASMDUMP_DIR)/%.s:	$(THIS)/%.c
+$(ASMDUMP_DIR)/%.s:	$(THIS_NODE)/%.c
 					$(CC) $(CFLAGS) -S -masm=intel -fverbose-asm $< -o $@
 
-$(ASMDUMP_DIR)/%.s:	$(THIS)/%.cpp
+$(ASMDUMP_DIR)/%.s:	$(THIS_NODE)/%.cpp
 					$(CXX) $(CXXFLAGS) -S -masm=intel -fverbose-asm $< -o $@
+
+
+ifdef THIS_NODE_DECL
+	undefine THIS_NODE
+	undefine THIS_NODE_DECL
+endif

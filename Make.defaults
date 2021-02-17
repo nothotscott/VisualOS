@@ -5,14 +5,12 @@ BUILD_DIR	:= build
 # Build procedures
 BOOTLOADER	:= gnu-efi
 LIBC		:= musl
-LIBRARY		:= library
 KERNEL		:= kernel
 
 # Directories
 SRC_DIR		:= src
 KERNEL_DIR	:= $(BUILD_DIR)/$(KERNEL)
 LIBC_DIR	:= $(BUILD_DIR)/$(LIBC)
-LIB_DIR		:= $(BUILD_DIR)/$(LIBRARY)
 ASMDUMP_DIR	:= $(BUILD_DIR)/asm
 
 # Programs

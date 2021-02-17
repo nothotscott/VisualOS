@@ -5,7 +5,7 @@ TARGET_DIR	= $(BUILD_DIR)
 
 EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
-VOS_BIN			:= $(BUILD_DIR)/kernel.elf
+VOS_BIN			:= $(BUILD_DIR)/vos.elf
 
 LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -Bsymbolic -nostdlib
 LDLIBS	= $(wildcard $(LIBC_DIR)/lib/*.a) $(wildcard $(LIB_DIR)/*.a)
@@ -34,11 +34,6 @@ $(BOOTLOADER):	setup
 $(LIBC):		setup
 				$(call echo_build)
 				cd $(SRC_DIR)/$@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS)
-
-.PHONY: $(LIBRARY)
-$(LIBRARY):		setup
-				$(call echo_build)
-				$(MAKE_VOS) TARGET_DIR=$(LIB_DIR)
 
 .PHONY: $(KERNEL)
 $(KERNEL):		setup $(LIBRARY)
@@ -88,7 +83,6 @@ clean-musl:		clean-img
 .PHONY: clean-vos
 clean-vos:		clean-img
 				cd $(BUILD_DIR) && $(RM_OBJ)
-				rm -rf $(LIB_DIR)/
 				rm -rf $(KERNEL_DIR)/
 ifneq "$(wildcard $(ASMDUMP_DIR))" ""
 				cd $(ASMDUMP_DIR) && rm -rf *.s

@@ -13,7 +13,7 @@
 #define	MEMORY_PAGE_ENTRY_SIZE	MEMORY_PAGE_SIZE/sizeof(long)
 
 
-typedef ulong_t	page_directory_entry_t;
+typedef uint64_t	page_directory_entry_t;
 
 
 enum PageDirectoryFlagBit {
@@ -31,15 +31,15 @@ enum PageDirectoryFlagBit {
 };
 
 struct PageTable {
-	ulong_t entries[MEMORY_PAGE_ENTRY_SIZE];
+	uint64_t entries[MEMORY_PAGE_ENTRY_SIZE];
 } __attribute__((aligned(MEMORY_PAGE_SIZE)));
 
 // x86_64 multi-level addressing
 struct PageLevelIndexes {
-	ushort_t	L4_i;	// Index to the page directory pointer table
-	ushort_t	L3_i;	// Index to the page directory table
-	ushort_t	L2_i;	// Index to the page table
-	ushort_t	L1_i;	// Index to the page
+	uint16_t	L4_i;	// Index to the page directory pointer table
+	uint16_t	L3_i;	// Index to the page directory table
+	uint16_t	L2_i;	// Index to the page table
+	uint16_t	L1_i;	// Index to the page
 };
 
 

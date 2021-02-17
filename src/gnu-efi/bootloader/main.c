@@ -13,6 +13,7 @@
 typedef unsigned long long	size_t;
 
 #define DEBUG_MODE		0
+#define OS_EXECUTABLE	L"vos.elf"
 #define SYSTEM_FONT		L"zap-ext-light18.psf"
 #define SYSTEM_BMP		L"VisualOS.bmp"
 #define SYSTEM_TGA		L"VisualOS.tga"
@@ -78,7 +79,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);	// UEFI environment to make out lives easier
 	Print(L"Loading VisualOS\n\r");
 
-	EFI_FILE* kernel = load_file(NULL, L"kernel.elf", ImageHandle, SystemTable);
+	EFI_FILE* kernel = load_file(NULL, OS_EXECUTABLE, ImageHandle, SystemTable);
 	if (kernel == NULL){
 		Print(L"Could not load kernel\n\r");
 		return EFI_LOAD_ERROR;

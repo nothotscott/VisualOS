@@ -38,7 +38,7 @@ size_t memory_get_free();
 
 // Checks if a page is in [state] at [index] and sets it to [state]. 
 // Will return true if it's state is already in [state].
-bool pageframe_manipulate(ulong_t index, bool state);
+bool pageframe_manipulate(uint64_t index, bool state);
 
 // Will find, lock, and return a free page for use
 void* pageframe_request();

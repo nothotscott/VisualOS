@@ -1,6 +1,6 @@
 /*
- * File:		pipeline.h
- * Description:	Handles excpeptions and passes signals down the global pipeline
+ * File:		dispatcher.h
+ * Description:	Handles interrupts and dispatches events to userspace
  * *****************************************************************************
  * Copyright 2020-2021 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 
@@ -9,11 +9,12 @@
 
 #pragma once
 
-#include <queue.h>
 
-// TODO the actual pipeline
-extern struct Queue* g_pipeline;
+struct InterruptStack;
 
+
+// ISR 33
+void keyboard_handler(struct InterruptStack* stack, size_t num);
 
 // ISR 8
 void double_fault_handler(struct InterruptStack* stack, size_t num);

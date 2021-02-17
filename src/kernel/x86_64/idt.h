@@ -2,12 +2,14 @@
  * File:		idt.h
  * Description:	Provides functions for the Interrupt Descriptor Table
  * *****************************************************************************
- * Copyright 2020 Scott Maday
+ * Copyright 2020-2021 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 
  * If not, see https://www.gnu.org/licenses/gpl-2.0
  */
 
 #pragma once
+
+#include "interrupt.h"
 
 #define IDT_SIZE	256
 #define	ISR_MAX		256
@@ -22,17 +24,17 @@ enum IDTGateType {
 };
 
 struct IDTEntry {
-	ushort_t	offset_low;
-	ushort_t	selector;
-	byte_t		ist;
-	byte_t		type_attr;
-	ushort_t	offset_mid;
-	uint_t		offset_high;
-	uint_t		zero;
+	uint16_t	offset_low;
+	uint16_t	selector;
+	uint8_t		ist;
+	uint8_t		type_attr;
+	uint16_t	offset_mid;
+	uint32_t	offset_high;
+	uint32_t	zero;
 } __attribute__((packed));
 
 struct IDTDescriptor {
-	ushort_t			limit;	// max size of 64 bit idt, minus 1
+	uint16_t			limit;	// max size of 64 bit idt, minus 1
 	struct IDTEntry*	base;	// where the IDT is
 } __attribute__((packed));
 

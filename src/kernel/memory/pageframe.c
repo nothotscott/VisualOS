@@ -1,13 +1,13 @@
 /*
  * File:		pageframe.c
  * *****************************************************************************
- * Copyright 2020 Scott Maday
+ * Copyright 2020-2021 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 
  * If not, see https://www.gnu.org/licenses/gpl-2.0
  */
 
-#include "paging.h"
 #include "bitmap.h"
+#include "paging.h"
 #include "pageframe.h"
 
 
@@ -23,10 +23,10 @@ void pageframe_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_
 	g_memory_total_size = 0;
 	g_memory_used_size = 0;
 	g_memory_reserved_size = 0;
-	uint_t num_enteries = mem_map_size / mem_map_descriptor_size;
+	uint32_t num_enteries = mem_map_size / mem_map_descriptor_size;
 	struct MemoryDescriptor* largest_primary = NULL;
 	// Find largest primary memory region
-	for(uint_t i = 0; i < num_enteries; i++){
+	for(uint32_t i = 0; i < num_enteries; i++){
 		struct MemoryDescriptor* descriptor = (struct MemoryDescriptor*)((void*)mem_map + (i * mem_map_descriptor_size));
 		if(descriptor->type == MEMORY_PAGEABLE_TYPE && (largest_primary == NULL || descriptor->num_pages > largest_primary->num_pages)){
 			largest_primary = descriptor;
@@ -43,7 +43,7 @@ void pageframe_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_
 	size_t kernel_pages = kernel_size % MEMORY_PAGE_SIZE > 0 ? kernel_size / MEMORY_PAGE_SIZE + 1 : kernel_size / MEMORY_PAGE_SIZE;
 	pageframe_reserve(&_kernel_start, kernel_pages);
 	// Reserve unusable memory segments
-	for(uint_t i = 0; i < num_enteries; i++){
+	for(uint32_t i = 0; i < num_enteries; i++){
 		struct MemoryDescriptor* descriptor = (struct MemoryDescriptor*)((void*)mem_map + (i * mem_map_descriptor_size));
 		if(descriptor->type == MEMORY_PAGEABLE_TYPE){
 			continue;
@@ -59,7 +59,7 @@ size_t memory_get_free() {
 	return g_memory_total_size - g_memory_used_size - g_memory_reserved_size;
 }
 
-bool pageframe_manipulate(ulong_t index, bool state) {
+bool pageframe_manipulate(uint64_t index, bool state) {
 	if(bitmap_get(&g_pageframemap, index) == state){
 		return true;	// already in state
 	}
@@ -80,8 +80,8 @@ void* pageframe_request() {
 }
 
 void pageframe_free(void* address, size_t pages) {
-	ulong_t start = (ulong_t)address / MEMORY_PAGE_SIZE;
-	for(ulong_t i = start; i < start + pages; i++){
+	uint64_t start = (uint64_t)address / MEMORY_PAGE_SIZE;
+	for(uint64_t i = start; i < start + pages; i++){
 		if(pageframe_manipulate(i, false)){
 			if(g_memory_used_size >= MEMORY_PAGE_SIZE) {		// prevent overflow
 				g_memory_used_size -= MEMORY_PAGE_SIZE;
@@ -94,8 +94,8 @@ void pageframe_free(void* address, size_t pages) {
 }
 
 void pageframe_lock(void* address, size_t pages) {
-	ulong_t start = (ulong_t)address / MEMORY_PAGE_SIZE;
-	for(ulong_t i = start; i < start + pages; i++){
+	uint64_t start = (uint64_t)address / MEMORY_PAGE_SIZE;
+	for(uint64_t i = start; i < start + pages; i++){
 		if(pageframe_manipulate(i, true)){
 			g_memory_used_size += MEMORY_PAGE_SIZE;
 		}
@@ -103,8 +103,8 @@ void pageframe_lock(void* address, size_t pages) {
 }
 
 void pageframe_unreserve(void* address, size_t pages) {
-	ulong_t start = (ulong_t)address / MEMORY_PAGE_SIZE;
-	for(ulong_t i = start; i < start + pages; i++){
+	uint64_t start = (uint64_t)address / MEMORY_PAGE_SIZE;
+	for(uint64_t i = start; i < start + pages; i++){
 		if(pageframe_manipulate(i, false)){
 			if(g_memory_reserved_size >= MEMORY_PAGE_SIZE) {	// prevent overflow
 				g_memory_reserved_size -= MEMORY_PAGE_SIZE;
@@ -117,8 +117,8 @@ void pageframe_unreserve(void* address, size_t pages) {
 }
 
 void pageframe_reserve(void* address, size_t pages) {
-	ulong_t start = (ulong_t)address / MEMORY_PAGE_SIZE;
-	for(ulong_t i = start; i < start + pages; i++){
+	uint64_t start = (uint64_t)address / MEMORY_PAGE_SIZE;
+	for(uint64_t i = start; i < start + pages; i++){
 		if(pageframe_manipulate(i, true)){
 			g_memory_reserved_size += MEMORY_PAGE_SIZE;
 		}

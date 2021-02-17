@@ -19,7 +19,7 @@ $tasks = $tasks -split ","
 $OSNAME = "VisualOS"
 $BUILD_DIR = "build"
 $OVMF_URL = "https://versaweb.dl.sourceforge.net/project/edk2/OVMF/OVMF-X64-r15214.zip"
-$DEFAULT_TASK = @("setup", "build-bootloader", "build-libc", "build-library", "build-kernel", "build-vos", "build-img")
+$DEFAULT_TASK = @("setup", "build-bootloader", "build-libc", "build-kernel", "build-vos", "build-img")
 
 # Don't configure
 $DEBUG_MODE = $true
@@ -147,8 +147,6 @@ foreach ($task in $tasks) {
 		build gnu-efi
 	} elseif ($task -eq "build-libc") {
 		build musl
-	} elseif ($task -eq "build-library") {
-		build library
 	} elseif ($task -eq "build-kernel") {
 		build kernel
 	} elseif ($task -eq "build-vos") {
