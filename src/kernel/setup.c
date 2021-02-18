@@ -7,6 +7,7 @@
  * If not, see https://www.gnu.org/licenses/gpl-2.0
  */
 
+#include "shell/debug.h"
 #include "shell/shell.h"
 #include "shell/text.h"
 #include "memory/pageframe.h"
@@ -64,7 +65,11 @@ void setup_interrupts() {
 
 void setup() {
 	setup_shell();
+	debug_output("Setup shell\n");
 	setup_memory();
+	debug_output("Setup memory\n");
 	setup_gdt();
+	debug_output("Setup gdt\n");
 	setup_interrupts();
+	debug_output("Setup interrupts\n");
 }

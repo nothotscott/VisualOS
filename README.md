@@ -1,5 +1,5 @@
 # VisualOS
-VisualOS is a x86-64 operating system that aims to remove the need for command line interfaces. 
+VisualOS is a x86-64 operating system with a "microish-kernel" that aims to remove the need for command line interfaces. 
 This project follows along [Poncho's youtube series](https://www.youtube.com/playlist?list=PLxN4E629pPnJxCQCLy7E0SQY_zuumOVyZ). 
 This operating system is not designed to be POSIX compatible. 
 
