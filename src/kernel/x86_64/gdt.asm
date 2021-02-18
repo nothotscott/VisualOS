@@ -17,7 +17,7 @@ gdt_load:
 	cli
 	lgdt	[g_gdt_descriptor]
 	mov		ax, 0x18
-	ltr		ax	; TODO uncomment
+	ltr		ax
 	; This will exploit iretq's ability to set segments in long mode
 	; The order iretq will pop is: RIP, CS, RFLAGS, RSP, SS
 	; We first need to save data we wish to keep
