@@ -40,12 +40,12 @@ void gdt_init() {
 }
 
 void gdt_set_entry(size_t index, bool is_code) {
-	g_gdt[index].limit_low = 0xffff;
-	g_gdt[index].base_low = 0x0000;
-	g_gdt[index].base_mid = 0x00;
-	g_gdt[index].access = 0b10010010 | (is_code ? 0b00001000 : 0);
-	g_gdt[index].flags = 0b10001111 | (is_code ? 0b00100000 : 0);
-	g_gdt[index].base_high = 0x00;
+	memset(g_gdt + index, 0, sizeof(struct GDTEntry));
+	g_gdt[index].access |= 0b00000010;	// Writable
+	g_gdt[index].access |= 0b00010000;	// Type
+	g_gdt[index].access |= 0b10000000;	// Present
+	g_gdt[index].access |= is_code ? 0b00001000 : 0b0;	// Executable
+	g_gdt[index].flags |= is_code ? 0b00100000 : 0b0;	// Long-mode
 }
 
 void gdt_set_tss(size_t index) {
@@ -75,12 +75,12 @@ void gdt_set_tss(size_t index) {
 	// Set TSS descriptor entry
 	struct TSSDescriptor* tss_descriptor = (struct TSSDescriptor*)(g_gdt + index);
 	memset(tss_descriptor, 0, sizeof(struct TSSDescriptor));
-	tss_descriptor->limit_low &= sizeof(struct TSS);
-	tss_descriptor->base_low &= (uint64_t)g_tss & 0xffff;
-	tss_descriptor->base_mid &= ((uint64_t)g_tss >> 16) & 0xff;
-	tss_descriptor->base_mid2 &= ((uint64_t)g_tss >> 24) & 0xff;
-	tss_descriptor->base_high &= ((uint64_t)g_tss >> 32) & 0xffffffff;
-	tss_descriptor->access &= 0b1;			// Present
-	tss_descriptor->access &= 0b1001 << 4;	// Type (Intel Manual 3.4.5.1) Execute-Only, accessed
-	tss_descriptor->flags &= 0b1 << 4;		// Available
+	tss_descriptor->limit_low |= sizeof(struct TSS);
+	tss_descriptor->base_low |= (uint64_t)g_tss & 0xffff;
+	tss_descriptor->base_mid |= ((uint64_t)g_tss >> 16) & 0xff;
+	tss_descriptor->base_mid2 |= ((uint64_t)g_tss >> 24) & 0xff;
+	tss_descriptor->base_high |= ((uint64_t)g_tss >> 32) & 0xffffffff;
+	tss_descriptor->access |= 0b10000000;	// Present
+	tss_descriptor->access |= 0b00001001;	// Type (Intel Manual 3A 3.4.5.1) Execute-Only, accessed
+	tss_descriptor->flags |= 0b00010000;	// Available
 }

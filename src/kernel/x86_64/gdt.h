@@ -20,8 +20,8 @@ struct GDTEntry {
 	uint16_t	limit_low;	// Limit (lower 16 bits)
 	uint16_t	base_low;	// Base (lower 16 bits)
 	uint8_t		base_mid;	// Base (next 8 bits)
-	uint8_t		access;		// present(1), privilege(3), type(1), executable(1), conforming(1), readable(1), access(0)
-	uint8_t		flags;		// granularity(1), size(1), long-mode(1), limit(5)
+	uint8_t		access;		// present(1), ring(2), type(1), executable(1), conforming(1), writable(1), accessed(1)
+	uint8_t		flags;		// granularity(1), protected-mode(1), long-mode(1), available(1), limit_high(4)
 	uint8_t		base_high;	// Base (highest 8 bits)
 } __attribute__((packed));
 
@@ -52,7 +52,7 @@ struct TSSDescriptor {
 	uint16_t	limit_low;	// Segment limit (lower 16 bits)
 	uint16_t	base_low;	// Base (lower 16 bits)
 	uint8_t		base_mid;	// Base (next 8 bits)
-	uint8_t		access;		// present(1), ring(2), reserved(1) type(4)
+	uint8_t		access;		// present(1), ring(2), reserved(1), type(4)
 	uint8_t		flags;		// granularity(1), reserved(2), available(1), limit_high(4)
 	uint8_t		base_mid2;	// Base (next 8 bits)
 	uint32_t	base_high;	// Base (highest 32 bits)
