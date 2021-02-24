@@ -76,3 +76,6 @@ void paging_load();
 
 // Maps [virtual_address] to virtual_address using [pagetable_l4]
 void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address);
+
+// Donates a page to userspace at [virtual_address]
+void paging_donate_to_userspace(void* virtual_address);

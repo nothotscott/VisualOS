@@ -110,3 +110,25 @@ void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* phy
 	entry = SET_BIT(entry, PAGE_WRITABLE, true);
 	pagetable_l1->entries[index] = entry;
 }
+
+void paging_donate_to_userspace(void* virtual_address) {
+	page_directory_entry_t entry;
+	struct PageLevelIndexes indexes;
+	paging_get_indexes(virtual_address, &indexes);
+	// Go through page tables and set userspace flag
+	entry = g_pagetable_l4->entries[indexes.L4_i];
+	entry = SET_BIT(entry, PAGE_USER, true);
+	g_pagetable_l4->entries[indexes.L4_i] = entry;
+	struct PageTable* pagetable_l3 = (struct PageTable*)((uint64_t)paging_get_entry_address(entry) << 12);
+	entry = pagetable_l3->entries[indexes.L3_i];
+	entry = SET_BIT(entry, PAGE_USER, true);
+	pagetable_l3->entries[indexes.L3_i] = entry;
+	struct PageTable* pagetable_l2 = (struct PageTable*)((uint64_t)paging_get_entry_address(entry) << 12);
+	entry = pagetable_l2->entries[indexes.L2_i];
+	entry = SET_BIT(entry, PAGE_USER, true);
+	pagetable_l2->entries[indexes.L2_i] = entry;
+	struct PageTable* pagetable_l1 = (struct PageTable*)((uint64_t)paging_get_entry_address(entry) << 12);
+	entry = pagetable_l1->entries[indexes.L1_i];
+	entry = SET_BIT(entry, PAGE_USER, true);
+	pagetable_l1->entries[indexes.L1_i] = entry;
+}

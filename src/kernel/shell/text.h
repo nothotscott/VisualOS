@@ -15,11 +15,11 @@ typedef uint32_t	text_color_t;
 
 #define	TEXT_COLOR_WHITE	0xffffffff
 #define	TEXT_COLOR_BLACK	0xff000000
-#define	TEXT_COLOR_GRAY	0xff888888
+#define	TEXT_COLOR_GRAY		0xff888888
 #define	TEXT_COLOR_RED		0xffff0000
 #define	TEXT_COLOR_GREEN	0xff00ff00
-#define	TEXT_COLOR_BLUE	0xff0000ff
-#define	TEXT_COLOR_CYAN	0xff00ffff
+#define	TEXT_COLOR_BLUE		0xff0000ff
+#define	TEXT_COLOR_CYAN		0xff00ffff
 #define	TEXT_COLOR_YELLOW	0xffffff00
 #define	TEXT_COLOR_MAGENTA	0xffff00ff
 

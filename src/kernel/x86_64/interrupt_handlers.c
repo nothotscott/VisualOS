@@ -1,5 +1,5 @@
 /*
- * File:		dispatcher.c
+ * File:		interrupt_handlers.c
  * *****************************************************************************
  * Copyright 2020-2021 Scott Maday
  * You should have received a copy of the GNU General Public License along with this program. 
@@ -8,7 +8,8 @@
 
 #include "x86_64/io.h"
 #include "shell/text.h"
-#include "dispatcher.h"
+#include "interrupt.h"
+#include "interrupt_handlers.h"
 
 static const char s_keyboard_scancodes[] ={
 	0, 0, '1', '2', '3', '4', '5', '6',

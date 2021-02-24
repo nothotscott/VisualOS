@@ -7,7 +7,9 @@
 ;; If not, see https://www.gnu.org/licenses/gpl-2.0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+DEFAULT	rel
 
+; Saves/restores all general purpose registers
 %macro	PUSH_REG	0
 	push	r15
 	push	r14
@@ -25,7 +27,6 @@
 	push	rbx
 	push	rax
 %endmacro
-
 %macro	POP_REG		0
 	pop	rax
 	pop	rbx

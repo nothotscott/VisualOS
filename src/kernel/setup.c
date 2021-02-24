@@ -16,7 +16,8 @@
 #include "x86_64/io.h"
 #include "x86_64/gdt.h"
 #include "x86_64/idt.h"
-#include "interrupts/dispatcher.h"
+#include "x86_64/interrupt_handlers.h"
+#include "x86_64/syscall.h"
 
 
 // From kernel.c
@@ -63,6 +64,12 @@ void setup_interrupts() {
 	idt_load();
 }
 
+void setup_syscall(){
+	syscall_enable_sce();
+}
+
+extern void test_userspace();
+
 void setup() {
 	setup_shell();
 	debug_output("Setup shell\n");
@@ -72,4 +79,13 @@ void setup() {
 	debug_output("Setup gdt\n");
 	setup_interrupts();
 	debug_output("Setup interrupts\n");
+	setup_syscall();
+	debug_output("Setup syscall\n");
+
+	paging_donate_to_userspace(&test_userspace);
+	void* userspace_stack = pageframe_request();
+	paging_donate_to_userspace(userspace_stack);
+	debug_output_info("Entering test_userspace\n", true);
+	syscall_goto_userspace(&test_userspace, userspace_stack + 4096 - 8);
+	debug_output_info("Back to kernel\n", true);
 }

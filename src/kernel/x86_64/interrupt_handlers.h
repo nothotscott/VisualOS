@@ -1,5 +1,5 @@
 /*
- * File:		dispatcher.h
+ * File:		interrupt_handlers.h
  * Description:	Handles interrupts and dispatches events to userspace
  * *****************************************************************************
  * Copyright 2020-2021 Scott Maday
@@ -10,7 +10,7 @@
 #pragma once
 
 
-struct InterruptStack;
+#include "interrupt.h"
 
 
 // ISR 33

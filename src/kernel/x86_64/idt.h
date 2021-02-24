@@ -12,7 +12,7 @@
 #include "interrupt.h"
 
 #define IDT_SIZE	256
-#define	ISR_MAX		256
+#define	ISR_MAX		IDT_SIZE
 
 #define IDT_TYPE_PRESENT	0b1
 #define IDT_TYPE_PRIVILEGE	0b00

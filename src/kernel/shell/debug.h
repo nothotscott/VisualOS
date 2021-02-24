@@ -12,7 +12,10 @@
 #define DEBUG_PORT	0x03f8	// COM 1
 
 
-// Sends debug onto serial port
+// Sends debug [str] onto serial port
 void debug_output(char* str);
-void debug_output_warning(char* str);
-void debug_output_error(char* str);
+
+// Sends debug [str] onto serial port and [to_screen] if specified
+void debug_output_info(char* str, bool to_screen);
+void debug_output_warning(char* str, bool to_screen);
+void debug_output_error(char* str, bool to_screen);

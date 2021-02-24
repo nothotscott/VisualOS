@@ -9,7 +9,7 @@
 
 #pragma once
 
-#define GDT_SIZE	5	// the null segment + code segment + data segment + TSS descriptor is the size of 2 GDT entries
+#define GDT_SIZE	8	// the null segment + 4 code / data segments + TSS descriptor is the size of 2 GDT entries
 
 #define GDT_TSS_STACK_SIZE		4096
 #define GDT_TSS_RING_STACKS_NUM	3
@@ -30,19 +30,32 @@ struct GDTDescriptor {
 	struct GDTEntry*	offset;	// linear address of the table
 } __attribute__((packed));
 
+enum GDTAccess {
+	GDT_ACCESS_WRITABLE		= 0b00000010,
+	GDT_ACCESS_TYPE			= 0b00010000,
+	GDT_ACCESS_PRESENT		= 0b10000000,
+	GDT_ACCESS_EXECUTABLE	= 0b00001000,
+	GDT_ACCESS_DPL			= 0b01100000,	// segment privilege level is ring 3
+};
+
+enum GDTFlags {
+	GDT_FLAG_LONG_MODE			= 0b00100000,
+	GDT_FLAG_PAGE_GRANULARITY	= 0b10000000,
+};
+
 struct TSS {
 	uint32_t	reserved0;
-	uint32_t	rsp0_low, rsp0_high;
-	uint32_t	rsp1_low, rsp1_high;
-	uint32_t	rsp2_low, rsp2_high;
+	uint64_t	rsp0;	// ring stacks
+	uint64_t	rsp1;
+	uint64_t	rsp2;
 	uint64_t	reserved1;
-	uint32_t	ist1_low, ist1_high;
-	uint32_t	ist2_low, ist2_high;
-	uint32_t	ist3_low, ist3_high;
-	uint32_t	ist4_low, ist4_high;
-	uint32_t	ist5_low, ist5_high;
-	uint32_t	ist6_low, ist6_high;
-	uint32_t	ist7_low, ist7_high;
+	uint64_t	ist1;	// interrupt stack tables
+	uint64_t	ist2;
+	uint64_t	ist3;
+	uint64_t	ist4;
+	uint64_t	ist5;
+	uint64_t	ist6;
+	uint64_t	ist7;
 	uint64_t	reserved2;
 	uint16_t	reserved3;
 	uint16_t	io_map_base;
@@ -59,10 +72,6 @@ struct TSSDescriptor {
 	uint32_t	reserved;
 } __attribute__((packed));
 
-struct StackTable {
-	uint8_t		data[GDT_TSS_STACK_SIZE];
-};
-
 
 // Global idt entry pointer
 extern struct GDTEntry* g_gdt;
@@ -70,21 +79,23 @@ extern struct GDTEntry* g_gdt;
 extern struct GDTDescriptor g_gdt_descriptor;
 // Global TSS pointer
 extern struct TSS* g_tss;
-// Global array of pointers to the ring stacks
-extern struct StackTable* g_ring_stacks[];
-// Global array of pointers to the ist stacks
-extern struct StackTable* g_ist_stacks[];
 
 
 
 // Sets the global gdt entry pointer and global gdt descriptor
 void gdt_init();
 
-// Sets the gdt entry at [index] to [is_code]
-void gdt_set_entry(size_t index, bool is_code);
+// Sets the gdt entry at [index] with flags of [access] and [flags]
+void gdt_set_entry(size_t index, enum GDTAccess access, enum GDTFlags flags);
 
 // Sets up the task state segment at [index]
 void gdt_set_tss(size_t index);
 
 // Loads the global gdt, this will also clear interrupts
 void gdt_load();
+
+// Sets the kernel stack to [stack]
+void gdt_set_ring0_stack(void* stack);
+
+// Gets TSS ring0 stack
+void* gdt_get_ring0_stack();

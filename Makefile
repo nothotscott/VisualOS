@@ -72,29 +72,29 @@ iso:			$(BUILD_DIR)/$(OSNAME).iso
 RM_OBJ	:= rm -rf *.o *.a *.so *.elf
 RM_IMG	:= rm -rf *.img *.iso *.vdi
 
-.PHONY: clean-gnuefi
-clean-gnuefi:	clean-img
+.PHONY: clean-bootloader
+clean-bootloader:	clean-img
 				rm -rf $(BUILD_DIR)/gnu-efi/bootloader
 
-.PHONY: clean-musl
-clean-musl:		clean-img
-				rm -rf $(BUILD_DIR)/musl
+.PHONY: clean-libc
+clean-libc:			clean-img
+					rm -rf $(BUILD_DIR)/libc
 
 .PHONY: clean-vos
-clean-vos:		clean-img
-				cd $(BUILD_DIR) && $(RM_OBJ)
-				rm -rf $(KERNEL_DIR)/
+clean-vos:			clean-img
+					cd $(BUILD_DIR) && $(RM_OBJ)
+					rm -rf $(KERNEL_DIR)/
 ifneq "$(wildcard $(ASMDUMP_DIR))" ""
-				cd $(ASMDUMP_DIR) && rm -rf *.s
+					cd $(ASMDUMP_DIR) && rm -rf *.s
 endif
 
 .PHONY: clean-img
 clean-img:		
-				cd $(BUILD_DIR) && $(RM_IMG)
+					cd $(BUILD_DIR) && $(RM_IMG)
 
 .PHONY: clean
 clean:		
-				rm -rf $(BUILD_DIR)
+					rm -rf $(BUILD_DIR)
 
 
 include Make.rules

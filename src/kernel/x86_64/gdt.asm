@@ -1,11 +1,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; File:		gdt.asm
 ;; 
-;; Copyright 2020 Scott Maday
+;; Copyright 2020-2021 Scott Maday
 ;; You should have received a copy of the GNU General Public License along with this program. 
 ;; If not, see https://www.gnu.org/licenses/gpl-2.0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 EXTERN	g_gdt_descriptor
 
@@ -14,9 +13,11 @@ SECTION	.text
 ; Please credit me if you're going to use this for reference :)
 GLOBAL	gdt_load
 gdt_load:
+	; Setup GDT
 	cli
 	lgdt	[g_gdt_descriptor]
-	mov		ax, 0x18
+	; Setup TSS
+	mov		ax, 0x30			; TSS descriptor: idt[5]
 	ltr		ax
 	; This will exploit iretq's ability to set segments in long mode
 	; The order iretq will pop is: RIP, CS, RFLAGS, RSP, SS
