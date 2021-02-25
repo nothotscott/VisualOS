@@ -3,8 +3,7 @@
  * Description:	Kernel entry point
  * *****************************************************************************
  * Copyright 2020-2021 Scott Maday
- * You should have received a copy of the GNU General Public License along with this program. 
- * If not, see https://www.gnu.org/licenses/gpl-2.0
+ * Check the LICENSE file that came with this program for licensing terms
  */
 
 #include <stdio.h>
@@ -21,6 +20,6 @@ void _start(struct KernelEntryInterface *interface) {
 	setup();
 	text_output("Hello, kernel!\n");
 	printf("test");
-
+	
 	while (true);
 }

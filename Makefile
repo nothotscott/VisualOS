@@ -7,12 +7,12 @@ EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 VOS_BIN			:= $(BUILD_DIR)/vos.elf
 
-LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -Bsymbolic -nostdlib
-LDLIBS	= $(wildcard $(LIBC_DIR)/lib/*.a) $(wildcard $(LIB_DIR)/*.a)
+LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -Bsymbolic
+LDLIBS	= $(wildcard $(LIBC_DIR)/*.a) $(wildcard $(LIB_DIR)/*.a)
 
 ###############################################################################
 
-all:			$(BOOTLOADER) $(LIBC) $(LIBRARY) $(KERNEL) $(BUILD_DIR)/$(OSNAME).img
+all:			$(BOOTLOADER) $(LIBC) $(KERNEL) $(BUILD_DIR)/$(OSNAME).img
 
 .PHONY: setup
 setup:	
@@ -25,20 +25,24 @@ endif
 
 MAKE_VOS	= + $(MAKE) --no-print-directory -f $(SRC_DIR)/$@/Makefile THIS=$(SRC_DIR)/$@
 
-.PHONY: $(BOOTLOADER)
+.PHONY: $(BOOTLOADER) bootloader
 $(BOOTLOADER):	setup
 				$(call echo_build)
 				cd $(SRC_DIR)/$@ && $(MAKE) -j1 THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS) KERNEL_SRC=$(SRC_DIR)/$(KERNEL)
+bootloader:		$(BOOTLOADER)
 
-.PHONY: $(LIBC)
+.PHONY: $(LIBC) libc
 $(LIBC):		setup
 				$(call echo_build)
-				cd $(SRC_DIR)/$@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS)
+				$(MAKE_VOS) TARGET_DIR=$(LIBC_DIR)
+#				cd $(SRC_DIR)/$@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS)
+libc:			$(LIBC)
 
-.PHONY: $(KERNEL)
-$(KERNEL):		setup $(LIBRARY)
+.PHONY: $(KERNEL) kernel
+$(KERNEL):		setup
 				$(call echo_build)
 				$(MAKE_VOS) TARGET_DIR=$(KERNEL_DIR)
+kernel:			$(KERNEL)
 
 ###############################################################################
 
@@ -74,11 +78,11 @@ RM_IMG	:= rm -rf *.img *.iso *.vdi
 
 .PHONY: clean-bootloader
 clean-bootloader:	clean-img
-				rm -rf $(BUILD_DIR)/gnu-efi/bootloader
+					rm -rf $(BUILD_DIR)/$(BOOTLOADER)/bootloader
 
 .PHONY: clean-libc
 clean-libc:			clean-img
-					rm -rf $(BUILD_DIR)/libc
+					rm -rf $(LIBC_DIR)
 
 .PHONY: clean-vos
 clean-vos:			clean-img

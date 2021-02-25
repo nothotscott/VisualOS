@@ -4,7 +4,7 @@ BUILD_DIR	:= build
 
 # Build procedures
 BOOTLOADER	:= gnu-efi
-LIBC		:= musl
+LIBC		:= pdclib
 KERNEL		:= kernel
 
 # Directories

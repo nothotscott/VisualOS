@@ -3,8 +3,7 @@
  * Description:	Describes the 4-level page mapping
  * *****************************************************************************
  * Copyright 2020 Scott Maday
- * You should have received a copy of the GNU General Public License along with this program. 
- * If not, see https://www.gnu.org/licenses/gpl-2.0
+ * Check the LICENSE file that came with this program for licensing terms
  */
 
 #pragma once

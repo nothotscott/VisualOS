@@ -2,8 +2,7 @@
  * File:		sys.c
  * *****************************************************************************
  * Copyright 2021 Scott Maday
- * You should have received a copy of the GNU General Public License along with this program. 
- * If not, see https://www.gnu.org/licenses/gpl-2.0
+ * Check the LICENSE file that came with this program for licensing terms
  */
 
 #include "sys.h"
@@ -30,6 +29,7 @@ uint64_t sys_write(uint64_t descriptor, char* buffer, size_t size) {
 	}
 	return 0;
 }
+//const uint64_t (*write)(uint64_t descriptor, char* buffer, size_t size) = sys_write;
 
 uint64_t syshandler_stub(){
 	debug_output_warning("sys stub reached\n", false);

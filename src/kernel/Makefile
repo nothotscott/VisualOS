@@ -6,18 +6,17 @@ ifndef THIS_NODE
 	THIS_NODE	:= $(THIS)
 endif
 
-PRIMARY		:= kernel
 GIVENS		:= $(THIS)/kernel.h $(SRC_DIR)/$(LIBC)/include/stdint.h $(SRC_DIR)/$(LIBC)/include/stddef.h $(SRC_DIR)/$(LIBC)/include/stdbool.h
 SUBDIRS		:= $(shell find $(THIS_NODE)/* -maxdepth 0 -type d)
 
 SOURCES				:= $(notdir $(wildcard $(THIS_NODE)/*.c $(THIS_NODE)/*.cpp $(THIS_NODE)/*.asm))
 PRETARGETS			:= $(addprefix $(KERNEL_DIR)/, $(addsuffix .o, $(subst .,_, $(SOURCES))))
-TARGETS				:= $(KERNEL_DIR)/$(PRIMARY)_partial.o
-INCLUDE_DIRS		:= $(LIBC_DIR)/obj/include $(THIS)/
-INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBC)/include $(SRC_DIR)/$(LIBC)/arch/generic $(SRC_DIR)/$(LIBC)/arch/x86_64
+TARGETS				:= $(KERNEL_DIR)/$(KERNEL)_partial.o
+INCLUDE_DIRS		:= $(THIS)/
+INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBC)/include $(SRC_DIR)/$(LIBC)/vos/include 
 
 export CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I , $(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS))
-CFLAGS +=		-m64 -ffreestanding -nostdinc -fshort-wchar -g -fPIC
+CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -g -fPIC
 ifndef DEBUG_MODE
 	CFLAGS += -O1
 endif
@@ -26,6 +25,7 @@ LDFLAGS			:= -nostdlib
 LDLIBS			= $(addprefix $(KERNEL_DIR)/, $(notdir $(wildcard $(KERNEL_DIR)/*.o)))
 
 all:	setup
+		echo $(PRETARGETS)
 		+ $(MAKE) -f $(THIS)/Makefile subdirs pretargets
 		+ $(MAKE) -f $(THIS)/Makefile $(TARGETS)
 
@@ -33,12 +33,11 @@ all:	setup
 .PHONY:	setup
 setup:
 		@mkdir -p $(KERNEL_DIR)
-		rm -f $(KERNEL_DIR)/$(PRIMARY)_partial.o
+		rm -f $(TARGETS)
 
-.PHONY: $(SUBDIRS)
+.PHONY: $(SUBDIRS) subdirs
 $(SUBDIRS):	
 		+ $(MAKE) -f $(THIS)/Makefile subdirs pretargets THIS=$(THIS) THIS_NODE=$@
-.PHONY:	subdirs
 subdirs:	$(SUBDIRS)
 
 .PHONY:	pretargets
