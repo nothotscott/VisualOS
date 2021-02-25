@@ -15,7 +15,7 @@ I am not an experience OS developer however, so i've come to learn and I'm sure 
 ## Included dependencies
 The following are included and minimally modified to adapt to the build process and the VOS runtime
 - gnu-efi is included under the BSD license
-- musl is included under the [MIT license](src/musl/COPYRIGHT)
+- PDClib is included under the [Public domain](src/pdclib/COPYING.CC0)
 
 # Build
 The kernel is written in C and x86-64 assembly. It uses gcc, g++, and nasm respectivley. It is best to compile in WSL and run the `build.ps1` PowerShell script. Tasks are comma separated. Common build tasks:
