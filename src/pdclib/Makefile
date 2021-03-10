@@ -1,7 +1,7 @@
 ################################################################################
 # This file is not native to PDClib and is a part of VisualOS
 # Copyright 2020 Scott Maday
-# Check the LICENSE file that came with this VisualOS for licensing terms
+# Check the LICENSE file that came with VisualOS for licensing terms
 ################################################################################
 # This file's working directory is the root of the project
 
@@ -16,7 +16,7 @@ SUBDIRS			:= $(shell find $(THIS_NODE)/* -maxdepth 0 -type d)
 
 SOURCES			:= $(notdir $(wildcard $(THIS_NODE)/*.c $(THIS_NODE)/*.cpp $(THIS_NODE)/*.asm))
 PRETARGETS		:= $(addprefix $(LIBC_DIR)/, $(addsuffix .o, $(subst .,_, $(SOURCES))))
-TARGETS			:= $(LIBC_DIR)/$(LIBC).so $(LIBC_DIR)/$(LIBC).a
+TARGETS			:= $(LIBC_DIR)/$(LIBC).a
 INCLUDE_DIRS	:= $(THIS)/include $(THIS)/vos/include
 
 # TODO remove -D__STDC_NO_THREADS__
@@ -41,13 +41,17 @@ setup:
 		@mkdir -p $(LIBC_DIR)
 		rm -f $(TARGETS)
 
-.PHONY: $(SUBDIRS) subdirs
+.PHONY: 	$(SUBDIRS) subdirs
 $(SUBDIRS):	
-		+ $(MAKE) $(if $(wildcard $@/Makefile),-f $@/Makefile,-f $(THIS)/Makefile subdirs pretargets) THIS=$(THIS) THIS_NODE=$@
+		+ $(MAKE) $(if $(wildcard $@/Makefile),\
+			-f $@/Makefile SUPER=$(THIS) THIS=$@ TARGET_DIR=$(TARGET_DIR)/$(notdir $@),\
+			-f $(THIS)/Makefile subdirs pretargets THIS=$(THIS)\
+		) THIS_NODE=$@
 subdirs:	$(SUBDIRS)
+			@:
 
-.PHONY:	pretargets
+.PHONY:		pretargets
 pretargets:	$(PRETARGETS)
-
+			@:
 
 include Make.rules

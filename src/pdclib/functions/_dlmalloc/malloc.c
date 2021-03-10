@@ -637,6 +637,7 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #endif  /* DARWIN */
 
 #ifndef LACKS_SYS_TYPES_H
+// TODO custom types.h?
 #include <sys/types.h>  /* For size_t */
 #endif  /* LACKS_SYS_TYPES_H */
 

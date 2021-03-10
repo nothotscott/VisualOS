@@ -64,12 +64,17 @@ syscall_enable_sce:
 
 GLOBAL	syscall_goto_userspace
 syscall_goto_userspace:	; rdi=[code], rsi=[stack]
-	mov		rcx, rdi			; This will be used to locate the code in userspace later
+	; Save parameters
+	push	rsi
+	push	rdi
 	; Quickly save our stack pointer
-	mov		rdi, rsp
+	mov		rdi, 0
+	mov		rsi, rsp
+	add		rsi, 16				; compensate for our saved parameters
 	call	gdt_set_ring0_stack
 	; Enter into userspace
-	mov		rsp, rsi			; stack
+	pop		rcx					; Former rdi parameter, used to locate the code in userspace
+	pop		rsp					; Former rsi parameter, userspace stack. Must be last popped (obviously)
 	mov		r11, 0x0202			; RFLAGS
 	o64 sysret					; NASM weirdness, equivalent to sysretq
 
@@ -94,7 +99,8 @@ syscall_entry:
 		SYSCALL_RESTORE
 		o64	sysret
 	.kernel_exit:
-		SYSCALL_RESTORE
+		mov		rdi, 0
 		call	gdt_get_ring0_stack
+		SYSCALL_RESTORE
 		mov		rsp, rax
 		ret

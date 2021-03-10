@@ -76,7 +76,7 @@ struct TSSDescriptor {
 extern struct GDTEntry* g_gdt;
 // Global gdt descriptor
 extern struct GDTDescriptor g_gdt_descriptor;
-// Global TSS pointer
+// Global TSS array pointer
 extern struct TSS* g_tss;
 
 
@@ -87,14 +87,14 @@ void gdt_init();
 // Sets the gdt entry at [index] with flags of [access] and [flags]
 void gdt_set_entry(size_t index, enum GDTAccess access, enum GDTFlags flags);
 
-// Sets up the task state segment at [index]
-void gdt_set_tss(size_t index);
+// Sets up a new task state segment at [cpu_index] (and at [gdt_offset] for the descriptor)
+void gdt_set_tss(size_t cpu_index, size_t gdt_offset);
 
-// Loads the global gdt, this will also clear interrupts
+// Loads the global gdt, this will also clear interrupts.
 void gdt_load();
 
-// Sets the kernel stack to [stack]
-void gdt_set_ring0_stack(void* stack);
+// Sets the kernel stack to [stack] for [cpu_index]
+void gdt_set_ring0_stack(size_t cpu_index, void* stack);
 
-// Gets TSS ring0 stack
-void* gdt_get_ring0_stack();
+// Gets TSS ring0 stack for [cpu_index]
+void* gdt_get_ring0_stack(size_t cpu_index);

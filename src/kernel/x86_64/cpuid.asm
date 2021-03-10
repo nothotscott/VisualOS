@@ -6,38 +6,49 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-GLOBAL	cpuid_get_str
-cpuid_get_str:	; rdi=[vendor_str], rsi=[brand_str]
-	; Get vendor
+SECTION	.text
+
+GLOBAL	cpuid_get_vendor
+cpuid_get_vendor:
+	mov		eax, 0x00
+	cpuid
+	mov		rax, 0
+	mov		eax, ecx
+	ret
+
+GLOBAL	cpuid_get_vendor_str
+cpuid_get_vendor_str:	; rdi=[str]
 	mov		eax, 0x00
 	cpuid
 	mov		[rdi + 0], ebx
 	mov		[rdi + 4], edx
 	mov		[rdi + 8], ecx
-	mov		[rdi + 12], BYTE 0
-	; Get brand
+	ret
+
+GLOBAL	cpuid_get_brand_str
+cpuid_get_brand_str:	; rdi=[str]
 	mov		eax, 0x80000000	; check if brand feature is implemented
 	cpuid
 	cmp		eax, 0x80000004
 	jl		.return			; not supported
 	mov		eax, 0x80000002
 	cpuid
-	mov		[rsi + 0], eax
-	mov		[rsi + 4], ebx
-	mov		[rsi + 8], ecx
-	mov		[rsi + 12], edx
+	mov		[rdi + 0], eax
+	mov		[rdi + 4], ebx
+	mov		[rdi + 8], ecx
+	mov		[rdi + 12], edx
 	mov		eax, 0x80000003
 	cpuid
-	mov		[rsi + 16], eax
-	mov		[rsi + 20], ebx
-	mov		[rsi + 24], ecx
-	mov		[rsi + 28], edx
+	mov		[rdi + 16], eax
+	mov		[rdi + 20], ebx
+	mov		[rdi + 24], ecx
+	mov		[rdi + 28], edx
 	mov		eax, 0x80000004
 	cpuid
-	mov		[rsi + 32], eax
-	mov		[rsi + 36], ebx
-	mov		[rsi + 40], ecx
-	mov		[rsi + 44], edx
+	mov		[rdi + 32], eax
+	mov		[rdi + 36], ebx
+	mov		[rdi + 40], ecx
+	mov		[rdi + 44], edx
 	.return:
 		ret
 

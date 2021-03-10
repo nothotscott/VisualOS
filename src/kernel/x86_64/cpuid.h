@@ -8,6 +8,26 @@
 
 #pragma once
 
+enum CPUIDVendorID { // based on ECX
+	CPUID_VENDOR_OLDAMD			= 0x21726574,
+	CPUID_VENDOR_AMD			= 0x444d4163,
+	CPUID_VENDOR_INTEL			= 0x6c65746e,
+	CPUID_VENDOR_OLDTRANSMETA	= 0x55504361,
+	CPUID_VENDOR_TRANSMETA		= 0x3638784d,
+	CPUID_VENDOR_CYRIX			= 0x64616574,
+	CPUID_VENDOR_CENTAUR		= 0x736c7561,
+	CPUID_VENDOR_NEXGEN			= 0x6e657669,
+	CPUID_VENDOR_UMC			= 0x20434d55,
+	CPUID_VENDOR_SIS			= 0x20536953,
+	CPUID_VENDOR_NSC			= 0x43534e20,
+	CPUID_VENDOR_RISE			= 0x65736952,
+	CPUID_VENDOR_VORTEX			= 0x436f5320,
+	CPUID_VENDOR_VIA			= 0x20414956,
+	CPUID_VENDOR_VMWARE			= 0x65726177,
+	CPUID_VENDOR_XENHVM			= 0x4d4d566e,
+	CPUID_VENDOR_MICROSOFT_HV	= 0x76482074,
+	CPUID_VENDOR_PARALLELS		= 0x72762068,
+};
 
 enum CPUIDFeatureSet1 {	// EAX=1, EDX set
 	CPUID_FPU	= 1 << 0,
@@ -212,9 +232,13 @@ struct CPUIDFeatures {
 // TODO
 //extern bool cpuid_supported();
 
-// Write the cpu vendor to [vendor_str] and the cpu brand to [brand_str]
-// [vendor_str] must be 48 bytes and [brand_str] must be 13
-extern void cpuid_get_str(char* vendor_str, char* brand_str);
+// Returns the vendor ID based on the ecx value from cpuid eax=0
+extern enum CPUIDVendorID cpuid_get_vendor();
+
+// Write the cpu vendor to [str], must be 12 bytes. Does not include null terminator
+extern void cpuid_get_vendor_str(char* str);
+// Write the cpu brand to [str], must be 48 bytes. Does not include null terminator
+extern void cpuid_get_brand_str(char* str);
 
 // Write the cpu features supported to [features]
 extern void cpuid_get_features(struct CPUIDFeatures* features);

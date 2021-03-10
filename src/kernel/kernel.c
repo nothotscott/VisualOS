@@ -8,6 +8,9 @@
 
 #include <stdio.h>
 #include "shell/text.h"
+#include "x86_64/cpuid.h"
+#include "stdlib.h"
+#include "string.h"
 
 // From setup.c
 extern void setup();
@@ -19,7 +22,10 @@ void _start(struct KernelEntryInterface *interface) {
 	
 	setup();
 	text_output("Hello, kernel!\n");
-	printf("test");
+	if(cpuid_get_vendor() == CPUID_VENDOR_AMD) {
+		text_output("You're AMD!\n");
+	}
+	//void* test = malloc(4096);
 	
 	while (true);
 }

@@ -8,7 +8,7 @@ KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 VOS_BIN			:= $(BUILD_DIR)/vos.elf
 
 LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -Bsymbolic
-LDLIBS	= $(wildcard $(LIBC_DIR)/*.a) $(wildcard $(LIB_DIR)/*.a)
+LDLIBS	= $(shell find $(LIBC_DIR)/ -name *.a -type f)
 
 ###############################################################################
 
