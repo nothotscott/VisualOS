@@ -48,7 +48,7 @@ struct MCFGHeader {
 	uint32_t	oem_revision;
 	uint32_t	creator_id;
 	uint32_t	creator_revision;
-	uint32_t	reserved[8];
+	uint8_t		reserved[8];
 } __attribute__((packed));
 
 

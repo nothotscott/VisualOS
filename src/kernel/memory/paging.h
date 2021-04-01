@@ -69,6 +69,7 @@ void paging_init();
 // [size] bytes, aligned to the nearest page size
 // Only use for previously established pages in the kernel
 void paging_identity_map(void* address, size_t size);
+void paging_identity_map_page(void* address);
 
 // Loads the paging information into the appropriate control register
 void paging_load();

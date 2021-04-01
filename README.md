@@ -22,7 +22,7 @@ The kernel is written in C and x86-64 assembly. It uses gcc, g++, and nasm respe
 - `.\build.ps1 clean-bootloader,build-bootloader`
 - `.\build.ps1 clean-libc,build-libc`
 - `.\build.ps1 clean-vos,build-kernel`
-- `.\build.ps1 build-vos,build-img,run`
+- `.\build.ps1 build-img,run`
 
 Make sure the following tools are installed
 - GCC suite

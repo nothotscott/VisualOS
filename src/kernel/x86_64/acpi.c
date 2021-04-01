@@ -9,11 +9,8 @@
 
 #include "shell/text.h"
 void acpi_print(struct SDTHeader* xsdt) {
-	for	(uint64_t* table_ptr = (uint64_t*)((uint64_t)xsdt + sizeof(struct SDTHeader));
-		table_ptr < (uint64_t*)((uint64_t)xsdt + xsdt->length);
-		table_ptr++
-	) {
-		struct SDTHeader* header = (struct SDTHeader*)*table_ptr;
+	for(size_t t = 0; t < xsdt->length - sizeof(struct SDTHeader); t += 8){
+		struct SDTHeader* header = (struct SDTHeader*)*(uint64_t*)((uint64_t)xsdt + sizeof(struct SDTHeader) + t);
 		for(int i = 0; i < 4; i++) {
 			text_output_char(header->signature[i], TEXT_COLOR_YELLOW);
 		}
@@ -23,11 +20,8 @@ void acpi_print(struct SDTHeader* xsdt) {
 }
 
 struct SDTHeader* acpi_get_table(struct SDTHeader* xsdt, char* signature) {
-	for	(uint64_t* table_ptr = (uint64_t*)((uint64_t)xsdt + sizeof(struct SDTHeader));
-		table_ptr < (uint64_t*)((uint64_t)xsdt + xsdt->length);
-		table_ptr++
-	) {
-		struct SDTHeader* header = (struct SDTHeader*)*table_ptr;
+	for(size_t t = 0; t < xsdt->length - sizeof(struct SDTHeader); t += 8){
+		struct SDTHeader* header = (struct SDTHeader*)*(uint64_t*)((uint64_t)xsdt + sizeof(struct SDTHeader) + t);
 		for(int i = 0; i < 4; i++) {
 			if(header->signature[i] != signature[i]) {
 				break;
