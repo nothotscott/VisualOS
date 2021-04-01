@@ -26,11 +26,6 @@ extern "C" {
 typedef long ssize_t;
 extern ssize_t write( int fd, const void * buf, size_t count );
 
-// TODO syscall this
-/*ssize_t write( int fd, const void * buf, size_t count ){
-	return 0;
-}*/
-
 #ifdef __cplusplus
 }
 #endif
@@ -51,7 +46,7 @@ int _PDCLIB_flushbuffer( struct _PDCLIB_file_t * stream )
 
     if ( !( stream->status & _PDCLIB_FBIN ) )
     {
-        /* TODO: Text stream conversion here */
+		/* TODO: Text stream conversion here */
     }
 
     /* Keep trying to write data until everything is written, an error

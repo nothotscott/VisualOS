@@ -6,9 +6,9 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
-#include "shell/debug.h"
 #include "shell/shell.h"
 #include "shell/text.h"
+#include "shell/debug.h"
 #include "memory/pageframe.h"
 #include "memory/paging.h"
 #include "memory/paging.h"
@@ -16,6 +16,8 @@
 #include "x86_64/gdt.h"
 #include "x86_64/idt.h"
 #include "x86_64/interrupt_handlers.h"
+#include "x86_64/acpi.h"
+#include "x86_64/pci.h"
 #include "x86_64/syscall.h"
 
 
@@ -63,6 +65,14 @@ void setup_interrupts() {
 	idt_load();
 }
 
+void setup_pci() {
+	struct RSDP2* rsdp = g_interface->rsdp;
+	struct SDTHeader* xsdt = (struct SDTHeader*)rsdp->xsdt_base;
+	struct MCFGHeader* mcfg = (struct MCFGHeader*)acpi_get_table(xsdt, "MCFG");
+	acpi_print(xsdt);
+	pci_init(mcfg);
+}
+
 void setup_syscall(){
 	syscall_enable_sce();
 }
@@ -78,13 +88,15 @@ void setup() {
 	debug_output("Setup gdt\n");
 	setup_interrupts();
 	debug_output("Setup interrupts\n");
+	setup_pci();
+	debug_output("Setup PCI\n");
 	setup_syscall();
 	debug_output("Setup syscall\n");
 
-	paging_donate_to_userspace(&test_userspace);
+	/*paging_donate_to_userspace(&test_userspace);
 	void* userspace_stack = pageframe_request();
 	paging_donate_to_userspace(userspace_stack);
 	debug_output_info("Entering test_userspace\n", true);
 	syscall_goto_userspace(&test_userspace, userspace_stack + 4096 - 8);
-	debug_output_info("Back to kernel\n", true);
+	debug_output_info("Back to kernel\n", true);*/
 }

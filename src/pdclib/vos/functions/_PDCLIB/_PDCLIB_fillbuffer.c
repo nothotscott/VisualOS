@@ -37,7 +37,7 @@ int _PDCLIB_fillbuffer( struct _PDCLIB_file_t * stream )
         /* Reading successful. */
         if ( !( stream->status & _PDCLIB_FBIN ) )
         {
-            /* TODO: Text stream conversion here */
+			/* TODO: Text stream conversion here */
         }
 
         stream->pos.offset += rc;

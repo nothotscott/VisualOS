@@ -17,7 +17,8 @@ $tasks = $tasks -split ","
 # Configurable
 $OSNAME = "VisualOS"
 $BUILD_DIR = "build"
-$OVMF_URL = "https://versaweb.dl.sourceforge.net/project/edk2/OVMF/OVMF-X64-r15214.zip"
+$OVMF_URL = "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd" #"https://versaweb.dl.sourceforge.net/project/edk2/OVMF/OVMF-X64-r15214.zip"
+$OVMF_NAME = "OVMF.fd"
 $DEFAULT_TASK = @("setup", "build-bootloader", "build-libc", "build-kernel", "build-vos", "build-img")
 
 # Don't configure
@@ -63,25 +64,26 @@ function build {
 }
 
 function get_ovmf {
-	$ovmf_name = Split-Path $OVMF_URL -leaf
+	$ovmf_url_name = Split-Path $OVMF_URL -leaf
 	$ovmf_parent = Split-Path $OVMF_DIR_WIN -Parent
-	$ovmf_file = Join-Path $ovmf_parent $ovmf_name
-	if ($WSL -ne $null) {
-		if ((powershell.exe "Test-Path $OVMF_DIR_WIN") -eq "True") {
-			return;
-		}
-	} else {
-		if ((Test-Path $OVMF_DIR_WIN) -eq $true) {
-			return;
-		}
+	$ovmf_file = Join-Path $ovmf_parent $ovmf_url_name
+	$ovmf_ext = $ovmf_url_name.Split(".")[1];
+	if ((invoke-host "Test-Path $OVMF_DIR_WIN") -eq "True") {
+		return;
 	}
 	Write-Host "OVMF does not exist. Downloading and installing it..."
 	Write-Information "Downloading OVMF to $ovmf_file"
 	invoke-host "Invoke-WebRequest -Uri $OVMF_URL -OutFile $ovmf_file"
-	Write-Information "Extracting to $OVMF_DIR_WIN"
-	invoke-host "Expand-Archive $ovmf_file -DestinationPath $OVMF_DIR_WIN"
-	Write-Information "Cleaning up"
-	invoke-host "Remove-Item $ovmf_file"
+	if ($ovmf_ext -eq ".zip") {
+		Write-Information "Extracting to $OVMF_DIR_WIN"
+		invoke-host "Expand-Archive $ovmf_file -DestinationPath $OVMF_DIR_WIN"
+		Write-Information "Cleaning up"
+		invoke-host "Remove-Item $ovmf_file"
+	} else {
+		Write-Information "Organizing files"
+		invoke-host "New-Item $OVMF_DIR_WIN -ItemType 'directory'"
+		invoke-host "Move-Item $ovmf_file $OVMF_DIR_WIN/$OVMF_NAME"
+	}
 }
 
 function launch-qemu {
@@ -89,8 +91,8 @@ function launch-qemu {
 		[bool] $debug 
 	)
 	$program_args = "-drive file=$ABSOLUTE_WIN/$BUILD_DIR/$OSNAME.img "
-	$program_args += "-drive if=pflash,format=raw,unit=0,file=$OVMF_DIR_WIN/OVMF.fd "
-	$program_args += "-serial stdio -cpu qemu64 -m 512M -net none -no-reboot "
+	$program_args += "-drive if=pflash,format=raw,unit=0,readonly=on,file=$OVMF_DIR_WIN/$OVMF_NAME "
+	$program_args += "-machine type=q35 -cpu qemu64 -m 512M -net none -serial stdio -no-reboot "
 	if ($debug -eq $true) {
 		powershell.exe "Start-Process qemu-system-x86_64.exe -ArgumentList '$program_args -s -S'"
 	} else {

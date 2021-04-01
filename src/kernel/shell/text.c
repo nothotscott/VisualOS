@@ -42,6 +42,11 @@ void text_draw_char(char chr, text_color_t color, uint32_t xoff, uint32_t yoff){
 	}
 }
 
+void text_output_color_size(char* str, text_color_t color, size_t size){
+	for(size_t i = 0; i < size; i++) {
+		text_output_char(str[i], color);
+	}
+}
 void text_output_color(char* str, text_color_t color){
 	char* chr = str;
 	while(*chr != 0){

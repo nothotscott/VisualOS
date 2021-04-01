@@ -5,13 +5,16 @@
  */
 
 #include <stdio.h>
-#include "pdclib/_PDCLIB_glue.h"
+#include "_vos_stdio.h"
 
-typedef long ssize_t;
-
-ssize_t write( int, const void *, size_t );
+extern void text_output_color_size(char* str, text_color_t color, size_t size);
 
 
+// I have no idea what I'm doing
 ssize_t write( int fd, const void * buf, size_t count ) {
+	if(fd == 1) {
+		text_output_color_size((char*)buf, TEXT_COLOR_WHITE, count);
+		return count;
+	}
 	return 0;
 }

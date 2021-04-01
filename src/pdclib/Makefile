@@ -20,7 +20,7 @@ TARGETS			:= $(LIBC_DIR)/$(LIBC).a
 INCLUDE_DIRS	:= $(THIS)/include $(THIS)/vos/include
 
 # TODO remove -D__STDC_NO_THREADS__
-export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -nostdlib -fno-builtin -g -fPIC -pedantic -D_STDC_PREDEF_H -D__STDC_NO_THREADS__ -pthread
+export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -nostdlib -fno-builtin -fshort-wchar -ggdb -O0 -fPIC -pedantic -D_STDC_PREDEF_H -D__STDC_NO_THREADS__ -pthread
 CFLAGS			+= -Wall -Wextra -Wno-unused-parameter -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-declarations -Wredundant-decls -Winline -Wno-long-long -Wuninitialized
 CFLAGS			+= -Wmissing-prototypes -Wnested-externs -Wstrict-prototypes -Wdeclaration-after-statement
 ifndef DEBUG_MODE

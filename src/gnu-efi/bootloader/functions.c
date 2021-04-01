@@ -10,7 +10,7 @@
 
 typedef unsigned long long	size_t;
 
-int mem_compare(const void* aptr, const void* bptr, size_t n) {
+int memcmp(const void* aptr, const void* bptr, size_t n) {
 	const unsigned char* a = aptr;
 	const unsigned char* b = bptr;
 	for (size_t i = 0l; i < n; i++){

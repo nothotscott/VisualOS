@@ -86,6 +86,7 @@ struct KernelEntryInterface {
 	struct FrameBuffer*			frame_buffer;
 	struct PSF1Font*			font;
 	struct TGAImage*			img;
+	void*						rsdp;
 	struct MemoryDescriptor*	mem_map;
 	unsigned long int 			mem_map_size;
 	unsigned long int 			mem_map_descriptor_size;

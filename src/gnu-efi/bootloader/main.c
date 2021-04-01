@@ -12,13 +12,14 @@
 typedef unsigned long long	size_t;
 
 #define DEBUG_MODE		0
+#define BOOTLOADER_ONLY	0
 #define OS_EXECUTABLE	L"vos.elf"
 #define SYSTEM_FONT		L"zap-ext-light18.psf"
 #define SYSTEM_BMP		L"VisualOS.bmp"
 #define SYSTEM_TGA		L"VisualOS.tga"
 
 // Headers for functions.c
-int mem_compare(const void*, const void*, unsigned long long);
+int memcmp(const void*, const void*, unsigned long long);
 EFI_FILE* load_file(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
 struct PSF1Font* load_psf1_font(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
 struct TGAImage* load_tga_image(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
@@ -35,16 +36,16 @@ void initalize_gop(){
 	EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
 	EFI_STATUS status = uefi_call_wrapper(BS->LocateProtocol, 3, &gop_guid, NULL, (void**)&gop);
 	if(EFI_ERROR(status)){
-		Print(L"Cannot locate GOP\n\r");
+		Print(L"Cannot locate GOP\r\n");
 		return;
 	}
-	Print(L"GOP located\n\r");
+	Print(L"GOP located\r\n");
 	status = uefi_call_wrapper(gop->QueryMode, 4, gop, gop->Mode == NULL ? 0 : gop->Mode->Mode, &info_size, &info);
 	if(status == EFI_NOT_STARTED) {
 		status = uefi_call_wrapper(gop->SetMode, 2, gop, 0);
 	}
 	if(EFI_ERROR(status)){
-		Print(L"Could not get current GOP mode\n\r");
+		Print(L"Could not get current GOP mode\r\n");
 		return;
 	}
 	native_mode = gop->Mode->Mode;
@@ -54,7 +55,7 @@ void initalize_gop(){
 		// Switch mode if needed here
 		status = uefi_call_wrapper(gop->QueryMode, 4, gop, i, &info_size, &info);
 		if(DEBUG_MODE){
-			Print(L"  GOP mode %03d: Size=%dx%d, Format=%x%s\n\r",
+			Print(L"  GOP mode %03d: Size=%dx%d, Format=%x%s\r\n",
 				i, info->HorizontalResolution, info->VerticalResolution, info->PixelFormat, i == native_mode ? L" (native)" : L"");
 		}
 	}
@@ -62,7 +63,7 @@ void initalize_gop(){
 	if(current_mode != native_mode) {
 		status = uefi_call_wrapper(gop->SetMode, 2, gop, native_mode);
 		if(EFI_ERROR(status)){
-			Print(L"Could not set GOP mode\n\r");
+			Print(L"Could not set GOP mode\r\n");
 			return;
 		}
 	}
@@ -76,15 +77,15 @@ void initalize_gop(){
 EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	// Begin loading the kernel
 	InitializeLib(ImageHandle, SystemTable);	// UEFI environment to make out lives easier
-	Print(L"Loading VisualOS\n\r");
+	Print(L"Loading VisualOS\r\n");
 
 	EFI_FILE* kernel = load_file(NULL, OS_EXECUTABLE, ImageHandle, SystemTable);
 	if (kernel == NULL){
-		Print(L"Could not load kernel\n\r");
+		Print(L"Could not load kernel\r\n");
 		return EFI_LOAD_ERROR;
 	}
-	Print(L"Loaded kernel\n\r");
-
+	Print(L"Loaded kernel\r\n");
+	
 	// Load binary header and check
 	Elf64_Ehdr header;
 	{
@@ -96,17 +97,17 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		UINTN size = sizeof(header);
 		kernel->Read(kernel, &size, &header);
 	}
-	if(	mem_compare(&header.e_ident[EI_MAG0], ELFMAG, SELFMAG) != 0 ||
+	if(	memcmp(&header.e_ident[EI_MAG0], ELFMAG, SELFMAG) != 0 ||
 		header.e_ident[EI_CLASS] != ELFCLASS64 ||
 		header.e_ident[EI_DATA] != ELFDATA2LSB ||
 		header.e_type != ET_EXEC ||
 		header.e_machine != EM_X86_64 ||
 		header.e_version != EV_CURRENT
 	){
-		Print(L"Kernel format is bad\n\r");
+		Print(L"Kernel format is bad\r\n");
 		return EFI_UNSUPPORTED;
 	}
-	Print(L"Kernel verified\n\r");
+	Print(L"Kernel verified\r\n");
 
 	// Load binary program headers
 	Elf64_Phdr* pheaders;
@@ -128,54 +129,89 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 				kernel->SetPosition(kernel, ph_ptr->p_offset);
 				UINTN size = ph_ptr->p_filesz;
 				kernel->Read(kernel, &size, (void*)seg);
-				Print(L"Kernel program header read (PT_LOAD)\n\r");
+				Print(L"Kernel program header read (PT_LOAD)\r\n");
 				break;
 			}
 			default: {
-				Print(L"Kernel program header read (Unknown=%u)\n\r", ph_ptr->p_type);
+				Print(L"Kernel program header read (Unknown=%u)\r\n", ph_ptr->p_type);
 			}
 		}
 	}
 	// Initalize GOP
 	initalize_gop();
-	Print(L"GOP frame buffer data:\n\r"
-		"  Base=0x%x\n\r"
-		"  Size=%x\n\r"
-		"  Width=%d\n\r"
-		"  Height=%d\n\r"
-		"  Pixels per scanline=%d\n\r", 
+	Print(L"GOP frame buffer data:\r\n"
+		"  Base=0x%x\r\n"
+		"  Size=%x\r\n"
+		"  Width=%d\r\n"
+		"  Height=%d\r\n"
+		"  Pixels per scanline=%d\r\n", 
 	g_frame_buffer.base, g_frame_buffer.size, g_frame_buffer.width, g_frame_buffer.height, g_frame_buffer.ppsl);
 
 	EFI_FILE* extras = load_file(NULL, L"extras", ImageHandle, SystemTable);
 	// Get font
 	struct PSF1Font* font = load_psf1_font(extras, SYSTEM_FONT, ImageHandle, SystemTable);
 	if(font == NULL){
-		Print(L"Could not load font\n\r");
+		Print(L"Could not load font\r\n");
 	}else{
-		Print(L"Font found: Charsize=%d\n\r", font->header_ptr->charsize);
+		Print(L"Font found: Charsize=%d\r\n", font->header_ptr->charsize);
 	}
 	// Get TGA image
 	struct TGAImage* image = load_tga_image(extras, SYSTEM_TGA, ImageHandle, SystemTable);
 	if(image == NULL){
-		Print(L"Could not find system TGA image\n\r");
+		Print(L"Could not find system TGA image\r\n");
 	}else{
-		Print(L"System TGA image found: Dimensions=%dx%d, Image type=%d, Bits per pixel=%d\n\r",
+		Print(L"System TGA image found: Dimensions=%dx%d, Image type=%d, Bits per pixel=%d\r\n",
 			image->header_ptr->width, image->header_ptr->height, image->header_ptr->image_type, image->header_ptr->bbp
 		);
 	}
+
+	// Get root system descriptor table
+	void* rsdp = NULL;
+	{
+		EFI_GUID acpi2_table_guid = ACPI_20_TABLE_GUID;
+		for(UINTN i = 0; i < SystemTable->NumberOfTableEntries; i++){
+			EFI_CONFIGURATION_TABLE* table = SystemTable->ConfigurationTable + i;
+			if(CompareGuid(&table->VendorGuid, &acpi2_table_guid) == 0){
+				if(memcmp((CHAR8*)"RSD PTR ", (CHAR8*)table->VendorTable, 8) == 0){
+					rsdp = table->VendorTable;
+					break;
+				}
+			}
+		}
+		Print(L"Found root system descriptor table at 0x%x\r\n", rsdp);
+	}
+
 	// Get memory descriptor
 	EFI_MEMORY_DESCRIPTOR* map;
 	UINTN map_size, map_key, descriptor_size;
 	UINT32 descriptor_version;
 	{
 		SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
-		Print(L"Memory map at 0x%x\n\r", map);
 		SystemTable->BootServices->AllocatePool(EfiLoaderData, map_size, (void**)&map);
-		Print(L"Memory map size %d\n\r", map_size);
-		SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
-		Print(L"Memory map descriptor size %d\n\r", map_size);
+		EFI_STATUS map_status = SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
+		Print(L"Memory map descriptor size %d\r\n", map_size);
+		if(map_status != EFI_SUCCESS) {
+			Print(L"Memory map size failed with code %d. Retrying...\r\n", map_status);
+			if(DEBUG_MODE){
+				Print(L"Attempting to resolve the memory map may fail in an infinite loop if it does not succeed\r\n");
+			}
+		}
+		UINTN attempts = 0;
+		while(map_status != EFI_SUCCESS) {
+			attempts++;
+			// Thanks to borrrdex on github for providing the nifty solution to the problem where
+			// allocating a pool of memory changes the memory map to be bigger than what was originally returned.
+			SystemTable->BootServices->FreePool(map);
+			// Just keep incrementing by the desciptor size
+			map_size += descriptor_size;
+			SystemTable->BootServices->AllocatePool(EfiLoaderData, map_size, (void**)&map);
+			map_status = SystemTable->BootServices->GetMemoryMap(&map_size, map, &map_key, &descriptor_size, &descriptor_version);
+		}
+		if(attempts > 0) {
+			Print(L"Fixed the memory size in %d attempt(s)\r\n", attempts);
+		}
+		Print(L"Memory map size %d\r\n", map_size);
 	}
-	//SystemTable->RuntimeServices->SetVirtualAddressMap(map_size, descriptor_size, descriptor_version, map);
 
 	// Prepare for kernel space
 	if(!DEBUG_MODE){
@@ -187,6 +223,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		.frame_buffer = &g_frame_buffer,
 		.font = font,
 		.img = image,
+		.rsdp = rsdp,
 		.mem_map = (struct MemoryDescriptor*)map,
 		.mem_map_size = map_size,
 		.mem_map_descriptor_size = descriptor_size
@@ -203,10 +240,14 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 			*(pixel_ptr + x + (y * g_frame_buffer.ppsl)) = pixel;
 		}
 	}*/
+	if(DEBUG_MODE){
+		Print(L"Jumping to kernel at 0x%x", header.e_entry);
+	}
 	void (*kernel_start)(struct KernelEntryInterface*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
-	if(!DEBUG_MODE){
+	if(!BOOTLOADER_ONLY){
 		kernel_start(&g_interface);
 	}
+	while(1);
 
 	return EFI_SUCCESS;
 }

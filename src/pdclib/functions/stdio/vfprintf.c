@@ -16,6 +16,7 @@
 #include <threads.h>
 #endif
 
+
 int vfprintf( struct _PDCLIB_file_t * _PDCLIB_restrict stream, const char * _PDCLIB_restrict format, va_list arg )
 {
     /* TODO: This function should interpret format as multibyte characters.  */
@@ -40,6 +41,7 @@ int vfprintf( struct _PDCLIB_file_t * _PDCLIB_restrict stream, const char * _PDC
 
     va_copy( status.arg, arg );
 
+	//text_output("\nHandle: "); text_output(to_string(stream->handle));
     while ( *format != '\0' )
     {
         const char * rc;
@@ -70,10 +72,23 @@ int vfprintf( struct _PDCLIB_file_t * _PDCLIB_restrict stream, const char * _PDC
             format = rc;
         }
     }
-
+	
     va_end( status.arg );
-    _PDCLIB_UNLOCK( stream->mtx );
-    return status.i;
+	// Copied from puts.c
+	if ( ( stream->bufidx == stream->bufsize ) ||
+         ( stream->status & ( _IOLBF | _IONBF ) ) )
+    {
+        int rc = _PDCLIB_flushbuffer( stream );
+        _PDCLIB_UNLOCK( stream->mtx );
+        return rc;
+    }
+    else
+    {
+        _PDCLIB_UNLOCK( stream->mtx );
+        return EOF;
+    }
+    /*_PDCLIB_UNLOCK( stream->mtx );
+    return status.i;*/
 }
 
 #endif

@@ -44,6 +44,7 @@ void text_set_cursor(uint32_t x, uint32_t y);
 void text_draw_char(char chr, text_color_t color, uint32_t xoff, uint32_t yoff);
 
 // Outputs a string [str] at the current cursor position with [color]
+void text_output_color_size(char* str, text_color_t color, size_t size);
 void text_output_color(char* str, text_color_t color);
 void text_output(char* str);
 void text_output_char(char chr, text_color_t color);
