@@ -10,7 +10,8 @@
 #include "paging.h"
 
 
-struct PageTable* g_pagetable_l4;
+// Static global page table level 4 pointer
+static struct PageTable* s_pagetable_l4;
 
 
 void paging_get_indexes(void* address, struct PageLevelIndexes* out) {
@@ -36,27 +37,32 @@ void* paging_get_entry_address(page_directory_entry_t entry) {
 	return (void*)(uint64_t)((entry & 0x000ffffffffff000) >> 12);
 }
 
+struct PageTable* paging_get_pagetable_l4() {
+	return s_pagetable_l4;
+}
+
+// *** Class Functions *** //
 
 void paging_init() {
-	g_pagetable_l4 = (struct PageTable*)pageframe_request();
-	memset(g_pagetable_l4, 0, MEMORY_PAGE_SIZE);
+	s_pagetable_l4 = (struct PageTable*)pageframe_request();
+	memset(s_pagetable_l4, 0, MEMORY_PAGE_SIZE);
 	// Identity map (for now) each page
 	// TODO better page mapping
-	paging_identity_map(0, g_memory_total_size);
+	paging_identity_map(0, pageframe_get_memory_total_size());
 }
 
 void paging_identity_map(void* address, size_t size) {
 	size = ROUND_UP(size, MEMORY_PAGE_SIZE);
 	for(void* ptr = address; (uintptr_t)ptr < (uintptr_t)address + size; ptr += MEMORY_PAGE_SIZE) {
 		// NOTE a conditional breakpoint of ptr > 0x12400000 for the line below will result in showing the drawing
-		paging_map(g_pagetable_l4, ptr, ptr);	// 1 to 1 mapping
+		paging_map(ptr, ptr);	// 1 to 1 mapping
 	}
 }
 void paging_identity_map_page(void* address) {
-	paging_map(g_pagetable_l4, address, address);
+	paging_map(address, address);
 }
 
-void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address) {
+void paging_map(void* virtual_address, void* physical_address) {
 	struct PageTable* pagetable_l3;
 	struct PageTable* pagetable_l2;
 	struct PageTable* pagetable_l1;
@@ -67,14 +73,14 @@ void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* phy
 	paging_get_indexes(virtual_address, &indexes);
 	// Index page table map level 4 to get the page directory pointer table (L3)
 	index = indexes.L4_i;
-	entry = pagetable_l4->entries[index];
+	entry = s_pagetable_l4->entries[index];
 	if(!GET_BIT(entry, PAGE_PRESENT)) {	// create page directory pointer table if it's not present
 		pagetable_l3 = (struct PageTable*)pageframe_request();
 		memset(pagetable_l3, 0, MEMORY_PAGE_SIZE);
 		entry = paging_set_entry_address(entry, (void*)((uint64_t)pagetable_l3 >> 12));
 		entry = SET_BIT(entry, PAGE_PRESENT, true);
 		entry = SET_BIT(entry, PAGE_WRITABLE, true);
-		pagetable_l4->entries[index] = entry;
+		s_pagetable_l4->entries[index] = entry;
 	} else {
 		pagetable_l3 = (struct PageTable*)((uint64_t)paging_get_entry_address(entry) << 12);	// restore the address
 	}
@@ -118,9 +124,9 @@ void paging_donate_to_userspace(void* virtual_address) {
 	struct PageLevelIndexes indexes;
 	paging_get_indexes(virtual_address, &indexes);
 	// Go through page tables and set userspace flag
-	entry = g_pagetable_l4->entries[indexes.L4_i];
+	entry = s_pagetable_l4->entries[indexes.L4_i];
 	entry = SET_BIT(entry, PAGE_USER, true);
-	g_pagetable_l4->entries[indexes.L4_i] = entry;
+	s_pagetable_l4->entries[indexes.L4_i] = entry;
 	struct PageTable* pagetable_l3 = (struct PageTable*)((uint64_t)paging_get_entry_address(entry) << 12);
 	entry = pagetable_l3->entries[indexes.L3_i];
 	entry = SET_BIT(entry, PAGE_USER, true);

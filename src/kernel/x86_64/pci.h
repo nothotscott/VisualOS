@@ -10,6 +10,8 @@
 
 #include "acpi.h"
 
+#define PCI_UNKNOWN_IDENTIFIER	"?"
+
 #define PCI_MAX_LANES	32
 
 #define PCI_MAX_DEVICES		32	// per bus

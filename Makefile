@@ -67,7 +67,6 @@ $(BUILD_DIR)/$(OSNAME).iso:	img
 				cp $(BUILD_DIR)/$(OSNAME).img $(BUILD_DIR)/iso
 				xorriso -as mkisofs -R -f -e $(OSNAME).img -no-emul-boot -o $(BUILD_DIR)/$(OSNAME).iso $(BUILD_DIR_ABS)/iso
 				rm -rf $(BUILD_DIR)/iso
-
 .PHONY: iso
 iso:			$(BUILD_DIR)/$(OSNAME).iso
 

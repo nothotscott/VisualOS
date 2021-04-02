@@ -16,12 +16,12 @@ static size_t s_pci_devices_num = 0;
 
 
 void pci_init(struct MCFGHeader* mcfg) {
+	//printf("MCFG Length %d\n", mcfg->length);
 	for(size_t t = 0; t < mcfg->length - sizeof(struct MCFGHeader); t += sizeof(struct PCIDeviceConfigurationDescriptor)){
 		struct PCIDeviceConfigurationDescriptor* descriptor = (struct PCIDeviceConfigurationDescriptor*)((uint64_t)mcfg + sizeof(struct MCFGHeader) + t);
 		for(uint8_t bus_i = descriptor->bus_start; bus_i < descriptor->bus_end; bus_i++) {
 			void* bus = (void*)descriptor->base + ((uint64_t)bus_i << 20);
 			paging_identity_map_page(bus);
-			//printf("%d:0x%x ", bus_i, bus);
 			struct PCIDeviceHeader* pci_header = (struct PCIDeviceHeader*)bus;
 			if(pci_header->device_id == 0 || pci_header->device_id == 0xffff) {
 				// Invalid device
@@ -43,6 +43,7 @@ void pci_init(struct MCFGHeader* mcfg) {
 					}
 					s_pci_devices[s_pci_devices_num] = pci_header;
 					s_pci_devices_num++;
+					//printf("Detected PCI Device: 0x%x\n", pci_header->device_id);
 				}
 			}
 		}

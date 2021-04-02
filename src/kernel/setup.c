@@ -15,7 +15,7 @@
 #include "x86_64/io.h"
 #include "x86_64/gdt.h"
 #include "x86_64/idt.h"
-#include "x86_64/interrupt_handlers.h"
+#include "x86_64/pit.h"
 #include "x86_64/acpi.h"
 #include "x86_64/pci.h"
 #include "x86_64/syscall.h"
@@ -56,12 +56,10 @@ void setup_gdt() {
 
 void setup_interrupts() {
 	idt_init();
-	idt_register_isr_handler(8, double_fault_handler);
-	idt_register_isr_handler(13, general_protection_fault_handler);
-	idt_register_isr_handler(14, paging_fault_handler);
-	idt_register_isr_handler(33, keyboard_handler);
+	idt_register_handlers();
 	io_pic_remap();
 	io_pic_mask();
+	pit_init();
 	idt_load();
 }
 

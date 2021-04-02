@@ -9,8 +9,8 @@
 
 
 void io_pic_mask(){
-	outb(IO_PIC1_DATA, 0xfd);
-	outb(IO_PIC2_DATA, 0xff);
+	outb(IO_PIC1_DATA, 0b11111000);
+	outb(IO_PIC2_DATA, 0b11101111);
 }
 
 void io_pic_remap(){
@@ -41,7 +41,13 @@ void io_pic_remap(){
 	outb(IO_PIC1_DATA, d1);
 	io_wait();
 	outb(IO_PIC2_DATA, d2);
-	/*outb(IO_PIC1_DATA, 0x0);
-	io_wait();
-	outb(IO_PIC2_DATA, 0x0);*/
+}
+
+void io_pic_end_master() {
+	outb(IO_PIC1_COMMAND, IO_PIC_EOI);
+}
+
+void io_pic_end_slave() {
+	outb(IO_PIC2_COMMAND, IO_PIC_EOI);
+	outb(IO_PIC1_COMMAND, IO_PIC_EOI);
 }

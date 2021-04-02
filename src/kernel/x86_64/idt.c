@@ -10,6 +10,7 @@
 #include "memory/paging.h"
 #include "gdt.h"
 #include "interrupt.h"
+#include "interrupt_handlers.h"
 #include "idt.h"
 
 
@@ -29,6 +30,7 @@ void idt_init() {
 	idt_set_isr(8, isr8, IDT_TYPE_GATE_TRAP);
 	idt_set_isr(13, isr13, IDT_TYPE_GATE_TRAP);
 	idt_set_isr(14, isr14, IDT_TYPE_GATE_TRAP);
+	idt_set_isr(32, isr32, IDT_TYPE_GATE_INTERRUPT);
 	idt_set_isr(33, isr33, IDT_TYPE_GATE_INTERRUPT);
 }
 
@@ -40,6 +42,14 @@ void idt_set_isr(size_t index, void* isr_ptr, enum IDTGateType gate) {
 	g_idt[index].ist = 0;
 	g_idt[index].selector = 1 * sizeof(struct GDTEntry);	// code segment at index 1
 	g_idt[index].type_attr = IDT_TYPE_PRESENT << 7 | IDT_TYPE_PRIVILEGE << 5 | gate;
+}
+
+void idt_register_handlers() {
+	idt_register_isr_handler(8, double_fault_handler);
+	idt_register_isr_handler(13, general_protection_fault_handler);
+	idt_register_isr_handler(14, paging_fault_handler);
+	idt_register_isr_handler(32, pit_handler);
+	idt_register_isr_handler(33, keyboard_handler);
 }
 
 void idt_register_isr_handler(size_t num, void (*handler)(struct InterruptStack*, size_t)) {

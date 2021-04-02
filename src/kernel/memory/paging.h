@@ -42,10 +42,6 @@ struct PageLevelIndexes {
 };
 
 
-// Global page table level 4 pointer
-extern struct PageTable* g_pagetable_l4;
-
-
 // *** Miscellaneous functions  *** //
 
 // Breaks the virtual [address] into its indexes and puts it in [out]
@@ -57,6 +53,8 @@ page_directory_entry_t paging_set_entry_address(page_directory_entry_t entry, vo
 // Returns the address component of [entry]
 void* paging_get_entry_address(page_directory_entry_t entry);
 
+// Gets the global page table level 4 pointer
+struct PageTable* paging_get_pagetable_l4();
 
 // *** Class functions  *** //
 
@@ -74,8 +72,8 @@ void paging_identity_map_page(void* address);
 // Loads the paging information into the appropriate control register
 void paging_load();
 
-// Maps [virtual_address] to virtual_address using [pagetable_l4]
-void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address);
+// Maps [virtual_address] to virtual_address
+void paging_map(void* virtual_address, void* physical_address);
 
 // Donates a page to userspace at [virtual_address]
 void paging_donate_to_userspace(void* virtual_address);

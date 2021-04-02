@@ -13,6 +13,7 @@ EXTERN	g_isr_handlers
 %macro	ISR_DEFINE	2
 	GLOBAL	isr%1
 	isr%1:
+		cli
 		%if	%2 == 0
 			push	QWORD 0				; push for so the stack size is consistent
 		%endif
@@ -28,6 +29,7 @@ EXTERN	g_isr_handlers
 			%if	%2 == 0
 				add		rsp, 8
 			%endif
+			sti
 			iretq
 %endmacro
 
@@ -66,6 +68,7 @@ ISR_DEFINE	19, 0	; SIMD Floating-Point Exception
 ISR_DEFINE	20, 0	; SIMD Floating-Point Exception
 ISR_DEFINE	30, 1	; Security Exception
 ; Interrupt requests
+ISR_DEFINE	32, 0	; PIT
 ISR_DEFINE	33, 0	; Keyboard Interrupt
 ISR_DEFINE	35, 0	; COM2
 ISR_DEFINE	36, 0	; COM1

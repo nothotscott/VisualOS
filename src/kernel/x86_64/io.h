@@ -38,3 +38,7 @@ void io_pic_mask();
 
 // Remap to receive proper interrupt vectors
 void io_pic_remap();
+
+// Ends either the master or slave PIC
+void io_pic_end_master();
+void io_pic_end_slave();

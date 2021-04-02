@@ -15,18 +15,6 @@
 #define MEMORY_INITIAL_RESERVE_PAGES	256
 
 
-// Total size of memory space (bytes), regardless of whether it's usable or not
-extern size_t g_memory_total_size;
-// Size of memory space (bytes) used by paging
-extern size_t g_memory_used_size;
-// Size of memory space (bytes) used by reserved paging
-extern size_t g_memory_reserved_size;
-
-// Bitmap of usable memory space
-// A bit will be 1 if it's in-use, else 0 if it's free
-extern struct Bitmap g_pageframemap;
-
-
 // Initalizes paging by discovering the usable memory segment from [mem_map],
 // [mem_map_size], and [mem_map_descriptor_size] and creates a bitmap
 // of the usable space
@@ -53,3 +41,10 @@ void pageframe_unreserve(void* address, size_t pages);
 
 // Make pages in-use at [address] and therafter [pages] times and track reserved
 void pageframe_reserve(void* address, size_t pages);
+
+// Gets the total size of memory space (bytes), regardless of whether it's usable or not
+size_t pageframe_get_memory_total_size();
+// Gets the size of memory space (bytes) used by paging
+size_t pageframe_get_memory_used_size();
+// Gets the size of memory space (bytes) used by reserved paging
+size_t pageframe_get_memory_reserved_size();

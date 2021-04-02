@@ -60,6 +60,9 @@ extern void idt_load();
 // Adds isr [handler] for interrupt [num]
 void idt_register_isr_handler(size_t num, void (*handler)(struct InterruptStack*, size_t));
 
+// Registers all default isr handlers
+void idt_register_handlers();
+
 
 // Interrupt service routines defined in idt.asm
 extern void isr0();
@@ -83,6 +86,7 @@ extern void isr18();
 extern void isr19();
 extern void isr20();
 extern void isr30();
+extern void isr32();
 extern void isr33();
 extern void isr35();
 extern void isr36();

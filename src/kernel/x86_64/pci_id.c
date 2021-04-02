@@ -261,7 +261,7 @@ const char* pci_get_class_str(struct PCIDeviceHeader* pci_header) {
 			return g_pci_classes[i].name;
 		}
 	}
-	return "?";
+	return PCI_UNKNOWN_IDENTIFIER;
 }
 const char* pci_get_subclass_str(struct PCIDeviceHeader* pci_header) {
 	for(int i = 0; i < sizeof(g_pci_subclasses) / sizeof(struct PCIClassIdentifier); i++) {
@@ -269,7 +269,7 @@ const char* pci_get_subclass_str(struct PCIDeviceHeader* pci_header) {
 			return g_pci_subclasses[i].name;
 		}
 	}
-	return "?";
+	return PCI_UNKNOWN_IDENTIFIER;
 }
 const char* pci_get_progif_str(struct PCIDeviceHeader* pci_header) {
 	for(int i = 0; i < sizeof(g_pci_progifs) / sizeof(struct PCIClassIdentifier); i++) {
@@ -277,7 +277,7 @@ const char* pci_get_progif_str(struct PCIDeviceHeader* pci_header) {
 			return g_pci_progifs[i].name;
 		}
 	}
-	return "?";
+	return PCI_UNKNOWN_IDENTIFIER;
 }
 const char* pci_get_vendor_str(struct PCIDeviceHeader* pci_header) {
 	for(int i = 0; i < sizeof(g_pci_vendors) / sizeof(struct PCIClassIdentifier); i++) {
@@ -285,5 +285,5 @@ const char* pci_get_vendor_str(struct PCIDeviceHeader* pci_header) {
 			return g_pci_vendors[i].name;
 		}
 	}
-	return "?";
+	return PCI_UNKNOWN_IDENTIFIER;
 }
