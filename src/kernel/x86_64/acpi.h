@@ -52,8 +52,5 @@ struct MCFGHeader {
 } __attribute__((packed));
 
 
-// TODO remove
-void acpi_print(struct SDTHeader* xsdt);
-
 // Looks up and returns the ACPI table starting at [xsdt] with the [signature]
 struct SDTHeader* acpi_get_table(struct SDTHeader* xsdt, char* signature);

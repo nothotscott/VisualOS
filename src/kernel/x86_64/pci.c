@@ -11,6 +11,10 @@
 #include "pci.h"
 
 
+static struct PCIDeviceHeader* s_pci_devices[PCI_MAX_LANES];
+static size_t s_pci_devices_num = 0;
+
+
 void pci_init(struct MCFGHeader* mcfg) {
 	for(size_t t = 0; t < mcfg->length - sizeof(struct MCFGHeader); t += sizeof(struct PCIDeviceConfigurationDescriptor)){
 		struct PCIDeviceConfigurationDescriptor* descriptor = (struct PCIDeviceConfigurationDescriptor*)((uint64_t)mcfg + sizeof(struct MCFGHeader) + t);
@@ -37,9 +41,18 @@ void pci_init(struct MCFGHeader* mcfg) {
 					if(pci_header->device_id == 0 || pci_header->device_id == 0xffff) {
 						continue;
 					}
-					printf("[PCI Device] ID: 0x%x, Vendor ID: 0x%x\n", pci_header->device_id, pci_header->vendor_id);
+					s_pci_devices[s_pci_devices_num] = pci_header;
+					s_pci_devices_num++;
 				}
 			}
 		}
+	}
+}
+
+void pci_print() {
+	for(size_t i = 0; i < s_pci_devices_num; i++){
+		struct PCIDeviceHeader* pci_header = s_pci_devices[i];
+		printf("PCI Device: 0x%x, Vendor Name: %s\n", pci_header->device_id, pci_get_vendor_str(pci_header));
+		printf("  [%s]->[%s]->[%s]\n", pci_get_class_str(pci_header), pci_get_subclass_str(pci_header), pci_get_progif_str(pci_header));
 	}
 }

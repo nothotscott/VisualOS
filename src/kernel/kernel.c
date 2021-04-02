@@ -21,7 +21,8 @@ void _start(struct KernelEntryInterface* interface) {
 	g_interface = interface;
 	
 	setup();
-	puts("Welcome to VisualOS!");
+	//puts("Welcome to VisualOS!");
+	//void* test = malloc(4096);
 
 	while (true);
 }

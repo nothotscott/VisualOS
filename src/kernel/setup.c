@@ -69,8 +69,8 @@ void setup_pci() {
 	struct RSDP2* rsdp = g_interface->rsdp;
 	struct SDTHeader* xsdt = (struct SDTHeader*)rsdp->xsdt_base;
 	struct MCFGHeader* mcfg = (struct MCFGHeader*)acpi_get_table(xsdt, "MCFG");
-	acpi_print(xsdt);
 	pci_init(mcfg);
+	pci_print();
 }
 
 void setup_syscall(){

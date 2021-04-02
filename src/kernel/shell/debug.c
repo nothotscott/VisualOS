@@ -9,6 +9,8 @@
 #include "text.h"
 #include "debug.h"
 
+#define DEBUG_FORCE_TO_SCREEN	0
+
 static const char* s_debug_color_reset = "\e[0m";
 static const char* s_debug_color_red = "\e[0;31m";
 static const char* s_debug_color_green = "\e[0;32m";
@@ -24,13 +26,16 @@ void debug_output(char* str) {
 		outb(DEBUG_PORT, *chr);
 		chr++;
 	}
+	if(DEBUG_FORCE_TO_SCREEN){
+		text_output_color(str, TEXT_COLOR_FOREGROUND);
+	}
 }
 
 void debug_output_info(char* str, bool to_screen) {
 	debug_output((char*)s_debug_color_blue);
 	debug_output(str);
 	debug_output((char*)s_debug_color_reset);
-	if(to_screen){
+	if(to_screen || DEBUG_FORCE_TO_SCREEN){
 		text_output_color(str, TEXT_COLOR_BLUE);
 	}
 }
@@ -38,7 +43,7 @@ void debug_output_warning(char* str, bool to_screen) {
 	debug_output((char*)s_debug_color_yellow);
 	debug_output(str);
 	debug_output((char*)s_debug_color_reset);
-	if(to_screen){
+	if(to_screen || DEBUG_FORCE_TO_SCREEN){
 		text_output_color(str, TEXT_COLOR_YELLOW);
 	}
 }
@@ -46,7 +51,7 @@ void debug_output_error(char* str, bool to_screen) {
 	debug_output((char*)s_debug_color_red);
 	debug_output(str);
 	debug_output((char*)s_debug_color_reset);
-	if(to_screen){
+	if(to_screen || DEBUG_FORCE_TO_SCREEN){
 		text_output_color(str, TEXT_COLOR_RED);
 	}
 }
