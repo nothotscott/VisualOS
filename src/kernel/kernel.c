@@ -23,13 +23,13 @@ void _start(struct KernelEntryInterface* interface) {
 	g_interface = interface;
 	
 	setup();
-	//puts("Welcome to VisualOS!");
+	puts("Welcome to VisualOS!");
 	//void* test = malloc(4096);
 
-	for(int i = 0; i < 20; i++){
+	/*for(int i = 0; i < 20; i++){
 		text_output_char('g', TEXT_COLOR_FOREGROUND);
-		sleep(100);
-	}
+		sleep(50);
+	}*/
 
 	while (true);
 }

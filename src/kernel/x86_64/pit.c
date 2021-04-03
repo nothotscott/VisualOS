@@ -13,7 +13,7 @@ static uint16_t s_divisor = PIT_DEFAULT_DIVISOR;
 
 
 void pit_init() {
-	pit_set_divisor(PIT_MAX_DIVISOR / 10);
+	pit_set_divisor(PIT_DEFAULT_DIVISOR);
 }
 
 void pit_set_divisor(uint64_t divisor) {
