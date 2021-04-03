@@ -45,7 +45,6 @@ void paging_fault_handler(struct InterruptStack* stack, size_t num) {
 
 // *** IRQs *** //
 
-#include "shell/text.h"
 void pit_handler(struct InterruptStack* stack, size_t num) {
 	pit_on_interrupt();
 	io_pic_end_master();

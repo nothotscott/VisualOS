@@ -8,14 +8,12 @@
 #include "io.h"
 #include "pit.h"
 
-#define PIT_BASE_FREQUENCY_MILLI	PIT_BASE_FREQUENCY * 10000
-
 volatile static uint64_t s_ticks_since_boot = 0;
-static uint16_t s_divisor = PIT_MAX_DIVISOR;
+static uint16_t s_divisor = PIT_DEFAULT_DIVISOR;
 
 
 void pit_init() {
-	pit_set_divisor(PIT_MAX_DIVISOR);
+	pit_set_divisor(PIT_MAX_DIVISOR / 10);
 }
 
 void pit_set_divisor(uint64_t divisor) {
@@ -44,9 +42,10 @@ uint64_t pit_get_ticks_since_boot() {
 	return s_ticks_since_boot;
 }
 
-void sleep(uint64_t milliseconds) {
+
+__attribute__((noinline)) void sleep(uint64_t milliseconds) {
 	volatile uint64_t start_ticks = s_ticks_since_boot;
-	while((s_ticks_since_boot - start_ticks) / PIT_BASE_FREQUENCY_MILLI < milliseconds) {
+	while((s_ticks_since_boot - start_ticks) * 1000ull / (uint64_t)PIT_BASE_FREQUENCY < milliseconds) {
 		__asm__ volatile("hlt"); // TODO something more useful
 	}
 }

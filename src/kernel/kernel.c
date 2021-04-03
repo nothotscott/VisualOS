@@ -28,7 +28,7 @@ void _start(struct KernelEntryInterface* interface) {
 
 	for(int i = 0; i < 20; i++){
 		text_output_char('g', TEXT_COLOR_FOREGROUND);
-		sleep(1000);
+		sleep(100);
 	}
 
 	while (true);
