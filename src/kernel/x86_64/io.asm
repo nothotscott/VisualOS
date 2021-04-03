@@ -6,6 +6,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+GLOBAL	io_enable_apic
+io_enable_apic:
+	push	rax
+	push	rcx
+	push	rdx
+
+	mov		ecx, 0x1b	; IA32_APIC_BASE_MSR?
+	rdmsr
+	or		eax, 0x800	; IA32_APIC_BASE_MSR_ENABLE?
+	wrmsr
+
+	pop		rdx
+	pop		rcx
+	pop		rax
+	ret
+
+
 GLOBAL	outb
 outb:	; rdi=[port], rsi=[value]
 	mov	rdx, rdi	; port 

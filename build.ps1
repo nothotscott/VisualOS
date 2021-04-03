@@ -92,7 +92,7 @@ function launch-qemu {
 	)
 	$program_args = "-drive file=$ABSOLUTE_WIN/$BUILD_DIR/$OSNAME.img "
 	$program_args += "-drive if=pflash,format=raw,unit=0,readonly=on,file=$OVMF_DIR_WIN/$OVMF_NAME "
-	$program_args += "-machine type=q35 -cpu qemu64 -m 512M -net none -serial stdio -no-reboot "
+	$program_args += "-machine type=q35 -cpu qemu64 -smp 2 -m 512M -net none -serial stdio -no-reboot "
 	if ($debug -eq $true) {
 		powershell.exe "Start-Process qemu-system-x86_64.exe -ArgumentList '$program_args -s -S'"
 	} else {

@@ -39,18 +39,16 @@ struct SDTHeader {
 
 // Memory Mapped Configuration Space Access Header
 struct MCFGHeader {
-	char		signature[4];
-	uint32_t	length;
-	uint8_t		revision;
-	uint8_t		checksum;
-	uint8_t		oem_id[6];
-	uint8_t		oem_table_id[8];
-	uint32_t	oem_revision;
-	uint32_t	creator_id;
-	uint32_t	creator_revision;
-	uint8_t		reserved[8];
+	struct SDTHeader	header;
+	uint8_t				reserved[8];
 } __attribute__((packed));
 
+// Multiple APIC Description Table Header
+struct MADTHeader {
+	struct SDTHeader	header;
+	uint32_t			apic_address;
+	uint32_t			flags;
+} __attribute__((packed));
 
 // Looks up and returns the ACPI table starting at [xsdt] with the [signature]
 struct SDTHeader* acpi_get_table(struct SDTHeader* xsdt, char* signature);

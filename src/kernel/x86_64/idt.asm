@@ -2,7 +2,7 @@
 ;; File:		idt.asm
 ;; Description:	x86_64 Interrupt Descriptor Table functions
 ;; 
-;; Copyright 2020 Scott Maday
+;; Copyright 2020-2021 Scott Maday
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

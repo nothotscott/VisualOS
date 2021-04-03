@@ -18,6 +18,7 @@
 #include "x86_64/pit.h"
 #include "x86_64/acpi.h"
 #include "x86_64/pci.h"
+#include "x86_64/madt.h"
 #include "x86_64/syscall.h"
 
 
@@ -63,12 +64,15 @@ void setup_interrupts() {
 	idt_load();
 }
 
-void setup_pci() {
+void setup_acpi() {
 	struct RSDP2* rsdp = g_interface->rsdp;
 	struct SDTHeader* xsdt = (struct SDTHeader*)rsdp->xsdt_base;
 	struct MCFGHeader* mcfg = (struct MCFGHeader*)acpi_get_table(xsdt, "MCFG");
+	struct MADTHeader* madt = (struct MADTHeader*)acpi_get_table(xsdt, "APIC");
 	pci_init(mcfg);
-	pci_print();
+	io_enable_apic();
+	madt_init(madt);
+	//pci_print();
 }
 
 void setup_syscall(){
@@ -86,8 +90,8 @@ void setup() {
 	debug_output("Setup gdt\n");
 	setup_interrupts();
 	debug_output("Setup interrupts\n");
-	setup_pci();
-	debug_output("Setup PCI\n");
+	setup_acpi();
+	debug_output("Setup ACPI\n");
 	setup_syscall();
 	debug_output("Setup syscall\n");
 

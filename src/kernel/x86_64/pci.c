@@ -11,13 +11,14 @@
 #include "pci.h"
 
 
+// Array of PCI devices
 static struct PCIDeviceHeader* s_pci_devices[PCI_MAX_LANES];
 static size_t s_pci_devices_num = 0;
 
 
 void pci_init(struct MCFGHeader* mcfg) {
 	//printf("MCFG Length %d\n", mcfg->length);
-	for(size_t t = 0; t < mcfg->length - sizeof(struct MCFGHeader); t += sizeof(struct PCIDeviceConfigurationDescriptor)){
+	for(size_t t = 0; t < mcfg->header.length - sizeof(struct MCFGHeader); t += sizeof(struct PCIDeviceConfigurationDescriptor)){
 		struct PCIDeviceConfigurationDescriptor* descriptor = (struct PCIDeviceConfigurationDescriptor*)((uint64_t)mcfg + sizeof(struct MCFGHeader) + t);
 		for(uint8_t bus_i = descriptor->bus_start; bus_i < descriptor->bus_end; bus_i++) {
 			void* bus = (void*)descriptor->base + ((uint64_t)bus_i << 20);

@@ -30,6 +30,11 @@
 										position++;					\
 									}
 
+typedef struct LinkedNode {
+	void*		data;
+	struct LinkedNode*	next;
+} LinkedNode;
+
 
 // From kernel.ld linker script
 extern void** _kernel_start;

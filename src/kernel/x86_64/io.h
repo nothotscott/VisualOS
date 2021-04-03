@@ -19,6 +19,8 @@
 
 #define IO_PIC_EOI		0x20
 
+// Enables APIC
+void io_enable_apic();
 
 // Sends value out onto the processor bus on port
 extern void outb(uint16_t port, uint8_t value);
