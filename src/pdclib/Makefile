@@ -11,12 +11,13 @@ ifndef THIS_NODE
 	THIS_NODE	:= $(THIS)
 endif
 
+VOS_PREFIX		:= _vos_
 ROOT_SUBDIRS	:= functions vos
 SUBDIRS			:= $(shell find $(THIS_NODE)/* -maxdepth 0 -type d)
 
 SOURCES			:= $(notdir $(wildcard $(THIS_NODE)/*.c $(THIS_NODE)/*.cpp $(THIS_NODE)/*.asm))
 PRETARGETS		:= $(addprefix $(LIBC_DIR)/, $(addsuffix .o, $(subst .,_, $(SOURCES))))
-TARGETS			:= $(LIBC_DIR)/$(LIBC).a
+TARGETS			:= $(LIBC_DIR)/$(LIBC)$(KERNEL_SUFFIX).a $(LIBC_DIR)/$(LIBC)$(USERSPACE_SUFFIX).a
 INCLUDE_DIRS	:= $(THIS)/include $(THIS)/vos/include
 
 # TODO remove -D__STDC_NO_THREADS__
@@ -28,8 +29,8 @@ ifndef DEBUG_MODE
 endif
 # export ASFLAGS	:= 
 
-LDFLAGS	:= -shared -nostdlib
-LDLIBS	= $(addprefix $(LIBC_DIR)/, $(notdir $(wildcard $(LIBC_DIR)/*.o)))
+# LDFLAGS	:= -shared -nostdlib
+# LDLIBS	= $(addprefix $(LIBC_DIR)/, $(notdir $(wildcard $(LIBC_DIR)/*.o)))
 ARLIBS	= $(addprefix $(LIBC_DIR)/, $(notdir $(wildcard $(LIBC_DIR)/*.o)))
 
 all:	setup
@@ -53,5 +54,12 @@ subdirs:	$(SUBDIRS)
 .PHONY:		pretargets
 pretargets:	$(PRETARGETS)
 			@:
+
+
+$(TARGET_DIR)/%$(KERNEL_SUFFIX).a:
+			$(AR) $(ARFLAGS) $@ $(filter-out $(addprefix %$(USERSPACE_SUFFIX), _c.o _asm.o _cpp.o), $(ARLIBS))
+
+$(TARGET_DIR)/%$(USERSPACE_SUFFIX).a:
+			$(AR) $(ARFLAGS) $@ $(filter-out $(addprefix %$(KERNEL_SUFFIX), _c.o _asm.o _cpp.o), $(ARLIBS))
 
 include Make.rules

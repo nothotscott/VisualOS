@@ -25,4 +25,4 @@ test_userspace:
 	jmp	$
 
 test_userspace_data:
-	db "Hello, userspace", 10
+	db "Hello, userspace", 10,0

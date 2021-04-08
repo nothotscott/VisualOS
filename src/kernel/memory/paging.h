@@ -72,7 +72,7 @@ void paging_identity_map_page(void* address);
 // Loads the paging information into the appropriate control register
 void paging_load();
 
-// Maps [virtual_address] to virtual_address
+// Maps [virtual_address] to [physical_address]
 void paging_map(void* virtual_address, void* physical_address);
 
 // Donates a page to userspace at [virtual_address]

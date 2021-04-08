@@ -12,6 +12,12 @@
 #define SYS_EXIT	60
 
 
+struct SysHandler {
+	uint64_t	num;
+	void*		handler;
+};
+
+
 // *** Handler functions  *** //
 
 // Gets the sys handler function for [num]

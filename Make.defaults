@@ -7,6 +7,10 @@ BOOTLOADER	:= gnu-efi
 LIBC		:= pdclib
 KERNEL		:= kernel
 
+# Linking directives
+KERNEL_SUFFIX		:= _k
+USERSPACE_SUFFIX	:= _u
+
 # Directories
 SRC_DIR		:= src
 KERNEL_DIR	:= $(BUILD_DIR)/$(KERNEL)
