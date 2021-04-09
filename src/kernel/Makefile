@@ -16,7 +16,7 @@ INCLUDE_DIRS		:= $(THIS)/
 INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBC)/include $(SRC_DIR)/$(LIBC)/vos/include 
 
 export CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I , $(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS))
-CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -g -fPIC -std=c11 -mgeneral-regs-only
+CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -g -fPIC -std=c11 -mgeneral-regs-only -D__STDC_NO_THREADS__
 ifndef DEBUG_MODE
 	CFLAGS += -O1
 endif

@@ -9,11 +9,11 @@
 
 
 #include "shell/text.h"
-#include "shell/debug.h"
+#include "debug/debug.h"
 
 static struct SysHandler s_handlers[] = {
-	{ 1,	sys_write },
-	{ 60,	sys_exit }
+	{ SYS_NUM_WRITE,	sys_write },
+	{ SYS_NUM_EXIT,		sys_exit }
 };
 
 
@@ -29,6 +29,6 @@ __attribute__((no_caller_saved_registers)) uint64_t (*syshandler_get(uint64_t nu
 }
 
 uint64_t syshandler_stub(){
-	debug_output_warning("sys stub reached\n", false);
+	debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, false}, "Sys stub reached\n");
 	return 0;
 }

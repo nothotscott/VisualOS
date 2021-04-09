@@ -8,7 +8,7 @@
 
 #include "shell/shell.h"
 #include "shell/text.h"
-#include "shell/debug.h"
+#include "debug/debug.h"
 #include "memory/pageframe.h"
 #include "memory/paging.h"
 #include "memory/paging.h"
@@ -83,22 +83,22 @@ extern void test_userspace();
 
 void setup() {
 	setup_shell();
-	debug_output("Setup shell\n");
+	debug("Setup shell\n");
 	setup_memory();
-	debug_output("Setup memory\n");
+	debug("Setup memory\n");
 	setup_gdt();
-	debug_output("Setup gdt\n");
+	debug("Setup gdt\n");
 	setup_interrupts();
-	debug_output("Setup interrupts\n");
+	debug("Setup interrupts\n");
 	setup_acpi();
-	debug_output("Setup ACPI\n");
+	debug("Setup ACPI\n");
 	setup_syscall();
-	debug_output("Setup syscall\n");
+	debug("Setup syscall\n");
 
 	paging_donate_to_userspace(&test_userspace);
 	void* userspace_stack = pageframe_request();
 	paging_donate_to_userspace(userspace_stack);
-	debug_output_info("Entering test_userspace\n", true);
+	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Entering test_userspace\n");
 	syscall_goto_userspace(&test_userspace, userspace_stack + 4096 - 8);
-	debug_output_info("Back to kernel\n", true);
+	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Back to kernel\n");
 }

@@ -23,6 +23,7 @@ void _start(struct KernelEntryInterface* interface) {
 	
 	setup();
 	puts("Welcome to VisualOS!");
+	printf("Testing %d", 123);
 	//void* test = malloc(4096);
 
 	/*for(int i = 0; i < 20; i++){

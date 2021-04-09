@@ -6,6 +6,7 @@
  */
 
 #include "shell.h"
+#include "color.h"
 #include "text.h"
 
 
@@ -43,19 +44,33 @@ void text_draw_char(char chr, text_color_t color, uint32_t xoff, uint32_t yoff){
 }
 
 void text_output_color_size(char* str, text_color_t color, size_t size){
-	for(size_t i = 0; i < size; i++) {
+	for(size_t i = 0; i < size && str[i] != '\0'; i++) {
 		text_output_char(str[i], color);
 	}
 }
 void text_output_color(char* str, text_color_t color){
 	char* chr = str;
-	while(*chr != 0){
+	while(*chr != '\0'){
 		text_output_char(*chr, color);
 		chr++;
 	}
 }
-void text_output(char* str){
-	text_output_color(str, TEXT_COLOR_FOREGROUND);
+void text_output(char* str) {
+	text_output_size(str, (size_t)-1);
+}
+void text_output_size(char* str, size_t size){
+	int index;
+	signed long ssize = (signed long)size;
+	struct ColorInterface* color = color_from_ansi(str, &index);
+	if(index != COLOR_MATCH_FAIL) {
+		str += index;
+		if(ssize >= 0) {
+			//size -= index;
+		}
+	}
+	for(size_t i = 0; i < size && str[i] != '\0'; i++) {
+		text_output_char(str[i], color->shell);
+	}
 }
 void text_output_char(char chr, text_color_t color){
 	if(chr == '\n'){

@@ -8,8 +8,13 @@
 
 #pragma once
 
-#define SYS_WRITE	1
-#define SYS_EXIT	60
+#define SYS_FD_STDIN	0
+#define SYS_FD_STDOUT	1
+#define SYS_FD_STDERR	3
+#define SYS_FD_STDDBG	4
+
+#define SYS_NUM_WRITE	1
+#define SYS_NUM_EXIT	60
 
 
 struct SysHandler {
