@@ -14,6 +14,7 @@
 struct ColorInterface g_color_default = {COLOR_WHITE, TEXT_COLOR_FOREGROUND, DEBUG_TYPE_NORMAL};
 
 static struct ColorInterface s_colors[] = {
+	{ COLOR_RESET,	 	TEXT_COLOR_WHITE },
 	{ COLOR_BLACK,		TEXT_COLOR_BLACK },
 	{ COLOR_RED,		TEXT_COLOR_RED,		DEBUG_TYPE_ERROR },
 	{ COLOR_GREEN,		TEXT_COLOR_GREEN },
@@ -30,8 +31,8 @@ int color_ansi_compare(char* str1, char* str2) {
 		if(str1[i] != str2[i]) {
 			return COLOR_MATCH_FAIL;
 		}
-		if(str1[i] == '\0' && str2[i] == '\0') {
-			return i;
+		if(str1[i] == COLOR_MAGIC_CHAR && str2[i] == COLOR_MAGIC_CHAR) {
+			return i + 1;
 		}
 	}
 	return COLOR_MATCH_FAIL;
@@ -43,7 +44,7 @@ struct ColorInterface* color_from_ansi(char* color, int* index) {
 		int compare = color_ansi_compare(s_colors[i].ansi, color);
 		if(compare != COLOR_MATCH_FAIL) {
 			if(index != NULL){
-				*index = i;
+				*index = compare;
 			}
 			return &s_colors[i];
 		}

@@ -19,7 +19,7 @@ uint64_t sys_write(int fd, char* buf, size_t count) {
 			text_output_size(buf, count);
 			return count;
 		case SYS_FD_STDDBG:
-			debug_output(buf, count);
+			debug_output_size(buf, count);
 			return count;
 	}
 	return 0;

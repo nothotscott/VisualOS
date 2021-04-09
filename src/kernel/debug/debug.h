@@ -36,4 +36,4 @@ int debug(char* restrict format, ...);
 int debug_options(struct DebugOptions options, char* restrict format, ...);
 
 // Actually sends buffer [str] onto the serial debug port
-void debug_output(char* str, size_t count);
+void debug_output_size(char* str, size_t size);

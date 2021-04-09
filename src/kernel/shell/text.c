@@ -10,11 +10,16 @@
 #include "text.h"
 
 
+// Returns the index of the buffer [str] and updates the color state
+static inline int text_change_color_state(char* str);
+
 static struct PSF1Font* s_text_font;
 static struct Point s_cursor = {
 	.x = 0,
 	.y = 0
 };
+// TODO make this thread safe
+static text_color_t s_color_state = TEXT_COLOR_FOREGROUND;
 
 
 void text_init(struct PSF1Font* font){
@@ -43,36 +48,55 @@ void text_draw_char(char chr, text_color_t color, uint32_t xoff, uint32_t yoff){
 	}
 }
 
+static inline int text_change_color_state(char* str) {
+	int index;
+	struct ColorInterface* color = color_from_ansi(str, &index);
+	if(index != COLOR_MATCH_FAIL) {
+		s_color_state = color->shell;
+	}
+	return index;
+}
+
+// *** Output functions *** //
+
 void text_output_color_size(char* str, text_color_t color, size_t size){
 	for(size_t i = 0; i < size && str[i] != '\0'; i++) {
-		text_output_char(str[i], color);
+		text_output_char_color(str[i], color);
 	}
 }
 void text_output_color(char* str, text_color_t color){
 	char* chr = str;
 	while(*chr != '\0'){
-		text_output_char(*chr, color);
+		text_output_char_color(*chr, color);
 		chr++;
 	}
 }
 void text_output(char* str) {
-	text_output_size(str, (size_t)-1);
+	int index = text_change_color_state(str);
+	if(index > 0) {
+		str += index;
+	}
+	size_t i = 0;
+	while(str[i] != '\0'){
+		text_output_char(str[i]);
+		i++;
+	}
 }
 void text_output_size(char* str, size_t size){
-	int index;
-	signed long ssize = (signed long)size;
-	struct ColorInterface* color = color_from_ansi(str, &index);
-	if(index != COLOR_MATCH_FAIL) {
+	int index = text_change_color_state(str);
+	if(index > 0) {
 		str += index;
-		if(ssize >= 0) {
-			//size -= index;
-		}
+		size -= index;
 	}
-	for(size_t i = 0; i < size && str[i] != '\0'; i++) {
-		text_output_char(str[i], color->shell);
+	for(size_t i = 0; i < size /*&& str[i] != '\0'*/; i++) {
+		text_output_char(str[i]);
 	}
 }
-void text_output_char(char chr, text_color_t color){
+
+void text_output_char(char chr){
+	text_output_char_color(chr, s_color_state);
+}
+void text_output_char_color(char chr, text_color_t color){
 	if(chr == '\n'){
 		goto newline;
 	}
@@ -87,6 +111,7 @@ void text_output_char(char chr, text_color_t color){
 		s_cursor.x = 0;
 		s_cursor.y += s_text_font->header_ptr->charsize;
 }
+
 void text_output_newline(){
-	text_output_char('\n', 0);
+	text_output_char_color('\n', TEXT_COLOR_FOREGROUND);
 }

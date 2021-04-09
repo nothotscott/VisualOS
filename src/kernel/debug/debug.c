@@ -72,8 +72,8 @@ static inline int vdebug_write(struct DebugOptions options, char* restrict forma
 }
 
 
-void debug_output(char* str, size_t count) {
-	for(size_t i = 0; i < count; i++) {
+void debug_output_size(char* str, size_t size) {
+	for(size_t i = 0; i < size; i++) {
 		outb(DEBUG_PORT, str[i]);
 	}
 }

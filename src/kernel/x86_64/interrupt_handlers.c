@@ -53,7 +53,7 @@ void pit_handler(struct InterruptStack* stack, size_t num) {
 void keyboard_handler(struct InterruptStack* stack, size_t num) {
 	uint8_t scancode = inb(0x60);
 	if(scancode < sizeof(s_keyboard_scancodes)) {
-		text_output_char(s_keyboard_scancodes[scancode], TEXT_COLOR_GREEN);
+		text_output_char_color(s_keyboard_scancodes[scancode], TEXT_COLOR_GREEN);
 	}
 	io_pic_end_slave();
 }

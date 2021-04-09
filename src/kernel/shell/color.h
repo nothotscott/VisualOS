@@ -13,6 +13,7 @@
 
 #define COLOR_MATCH_FAIL	-1
 #define COLOR_ANSI_MAX_SIZE	8
+#define COLOR_MAGIC_CHAR	'm'
 
 #define COLOR_RESET		"\e[0m"
 #define COLOR_BLACK		"\e[0;30m"
@@ -35,7 +36,8 @@ struct ColorInterface {
 
 extern struct ColorInterface g_color_default;
 
-// Returns the index of the beginning of the string if ansi colors [str1] and [str2] match, else -1
+// If ansi colors [str1] and [str2] match, this will return the index at the start
+// of the string after the ansi color, else COLOR_MATCH_FAIL
 int color_ansi_compare(char* str1, char* str2);
 
 // Gets the color interface for the respective [color]
