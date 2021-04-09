@@ -5,8 +5,10 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
+#include <stdio.h>
 #include "x86_64/io.h"
 #include "shell/text.h"
+#include "debug/debug.h"
 #include "pit.h"
 #include "interrupt.h"
 #include "interrupt_handlers.h"
@@ -25,20 +27,17 @@ static const char s_keyboard_scancodes[] ={
 // *** Exceptions *** //
 
 void double_fault_handler(struct InterruptStack* stack, size_t num) {
-	text_output_newline();
-	text_output_color("DOUBLE FAULT DETECTED", TEXT_COLOR_RED); text_output_newline();
+	debug_options((struct DebugOptions){DEBUG_TYPE_ERROR, true}, "\nDOUBLE FAULT DETECTED: %d\n", stack->error_code);
 	while(true);
 }
 
 void general_protection_fault_handler(struct InterruptStack* stack, size_t num) {
-	text_output_newline();
-	text_output_color("GENERAL PROTECTION FAULT DETECTED", TEXT_COLOR_RED); text_output_newline();
+	debug_options((struct DebugOptions){DEBUG_TYPE_ERROR, true}, "\nGENERAL PROTECTION FAULT DETECTED: %d\n", stack->error_code);
 	while(true);
 }
 
 void paging_fault_handler(struct InterruptStack* stack, size_t num) {
-	text_output_newline();
-	text_output_color("PAGE FAULT DETECTED", TEXT_COLOR_RED); text_output_newline();
+	debug_options((struct DebugOptions){DEBUG_TYPE_ERROR, true}, "\nPAGE FAULT DETECTED: %d\n", stack->error_code);
 	while(true);
 }
 

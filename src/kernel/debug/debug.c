@@ -20,7 +20,7 @@ static inline int vdebug_write(struct DebugOptions options, char* restrict forma
 
 static struct DebugOptions s_debug_options_default = {
 	.type = DEBUG_TYPE_NORMAL,
-	.to_screen = true
+	.to_screen = false
 };
 
 static char _stddbg_buffer[BUFSIZ];
@@ -66,7 +66,8 @@ static inline int vdebug(struct DebugOptions options, char* restrict format, va_
 static inline int vdebug_write(struct DebugOptions options, char* restrict format, va_list args) {
 	int ret = vfprintf(stddbg, format, args);
 	if(options.to_screen == true || DEBUG_FORCE_TO_SCREEN) {
-		ret |= vfprintf(stdout, format, args);	// TODO stderr instead
+		// TODO figure out why color won't work on stderr
+		ret |= vfprintf(stdout, format, args);
 	}
 	return ret;
 }

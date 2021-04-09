@@ -31,5 +31,7 @@ void _start(struct KernelEntryInterface* interface) {
 		sleep(50);
 	}*/
 
+	//*(int*)(0x123abc00aa) = 100;
+
 	while (true);
 }

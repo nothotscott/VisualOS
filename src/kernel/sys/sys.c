@@ -12,6 +12,7 @@
 #include "debug/debug.h"
 
 static struct SysHandler s_handlers[] = {
+	{ SYS_NUM_READ,		sys_read },
 	{ SYS_NUM_WRITE,	sys_write },
 	{ SYS_NUM_EXIT,		sys_exit }
 };

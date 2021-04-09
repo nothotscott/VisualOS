@@ -41,7 +41,6 @@ int vfprintf( struct _PDCLIB_file_t * _PDCLIB_restrict stream, const char * _PDC
 
     va_copy( status.arg, arg );
 
-	//text_output("\nHandle: "); text_output(to_string(stream->handle));
     while ( *format != '\0' )
     {
         const char * rc;
