@@ -16,7 +16,10 @@ static struct SysHandler s_handlers[] = {
 	{ 60,	sys_exit }
 };
 
-uint64_t (*syshandler_get(uint64_t num))() {
+
+// Because this function gets called during precarious situations, we need the special attribute
+// so we can save the state of any registers this function uses
+__attribute__((no_caller_saved_registers)) uint64_t (*syshandler_get(uint64_t num))() {
 	for(size_t i = 0; i < sizeof(s_handlers)/sizeof(struct SysHandler); i++) {
 		if(s_handlers[i].num == num) {
 			return s_handlers[i].handler;

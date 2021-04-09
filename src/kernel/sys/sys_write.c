@@ -11,8 +11,11 @@
 #include "sys.h"
 
 
-uint64_t sys_write(int fd, char* buffer, size_t count) {
+uint64_t sys_write(int fd, char* buf, size_t count) {
 	// TODO file descriptor and all that linuxy crap
-	text_output_color_size(buffer, TEXT_COLOR_FOREGROUND, count);
-	return count;
+	if(fd == 1) {
+		text_output_color_size(buf, TEXT_COLOR_FOREGROUND, count);
+		return count;
+	}
+	return 0;
 }

@@ -28,7 +28,9 @@ syscallret_t _vos_syscall(enum SyscallNumber num, size_t argc, ...) {
 	a5 = va_arg(args, syscallarg_t);
 	a6 = va_arg(args, syscallarg_t);
 	va_end(args);
-	switch(argc) {
+	return syshandler(a1, a2, a3, a4, a5, a6);
+	// TODO remove this block
+	/*switch(argc) {
 		case 0:
 			return syshandler();
 		case 1:
@@ -45,4 +47,5 @@ syscallret_t _vos_syscall(enum SyscallNumber num, size_t argc, ...) {
 			return syshandler(a1, a2, a3, a4, a5, a6);
 	}
 	return -1;
+	*/
 }

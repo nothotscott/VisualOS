@@ -88,7 +88,7 @@ syscall_entry:
 	mov		rdi, rax
 	call	syshandler_get
 	mov		rbx, rax		; save the function pointer
-	mov		rcx, r10		; syscall's 4th param and gcc's 4th param are the only misaligned parameters
+	mov		rcx, r10		; syscall's 4th param and sys v abi's 4th param are the only misaligned parameters
 	call	rbx				; call the returned function pointer
 	; Restore state-sensitive information and exit
 	pop		rcx
