@@ -13,6 +13,7 @@
 #ifndef REGTEST
 
 #include "pdclib/_PDCLIB_glue.h"
+#include "_vos_sys.h"
 
 #include "/usr/include/errno.h"
 
@@ -20,8 +21,6 @@
 extern "C" {
 #endif
 
-typedef long ssize_t;
-extern ssize_t read( int fd, void * buf, size_t count );
 
 #ifdef __cplusplus
 }

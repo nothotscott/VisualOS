@@ -20,10 +20,10 @@ PRETARGETS		:= $(addprefix $(LIBC_DIR)/, $(addsuffix .o, $(subst .,_, $(SOURCES)
 TARGETS			:= $(LIBC_DIR)/$(LIBC)$(KERNEL_SUFFIX).a $(LIBC_DIR)/$(LIBC)$(USERSPACE_SUFFIX).a
 INCLUDE_DIRS	:= $(THIS)/include $(THIS)/vos/include
 
-# TODO remove -D__STDC_NO_THREADS__
-export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -nostdlib -fno-builtin -fshort-wchar -ggdb -O0 -fPIC -pedantic -D_STDC_PREDEF_H -D__STDC_NO_THREADS__ -pthread
+# TODO remove -D__STDC_NO_THREADS__ (might have to remove -pedantic for syscalls with 0 args)
+export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -fno-builtin -fshort-wchar -std=c11 -nostdlib -ggdb -O0 -fPIC -pedantic -D_STDC_PREDEF_H -D__STDC_NO_THREADS__ -pthread
 CFLAGS			+= -Wall -Wextra -Wno-unused-parameter -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-declarations -Wredundant-decls -Winline -Wno-long-long -Wuninitialized
-CFLAGS			+= -Wmissing-prototypes -Wnested-externs -Wstrict-prototypes -Wdeclaration-after-statement
+CFLAGS			+= -Wnested-externs -Wdeclaration-after-statement
 ifndef DEBUG_MODE
 #	CFLAGS += -O1
 endif

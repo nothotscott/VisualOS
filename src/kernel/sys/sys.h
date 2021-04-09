@@ -27,5 +27,5 @@ uint64_t syshandler_stub();
 
 
 // *** Implementation functions  *** //
-uint64_t sys_write(uint64_t descriptor, char* buffer, size_t size);
+uint64_t sys_write(int fd, char* buf, size_t count);
 uint64_t sys_exit(uint64_t error_code);

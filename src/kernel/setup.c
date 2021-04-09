@@ -95,10 +95,10 @@ void setup() {
 	setup_syscall();
 	debug_output("Setup syscall\n");
 
-	paging_donate_to_userspace(&test_userspace);
+	/*paging_donate_to_userspace(&test_userspace);
 	void* userspace_stack = pageframe_request();
 	paging_donate_to_userspace(userspace_stack);
 	debug_output_info("Entering test_userspace\n", true);
 	syscall_goto_userspace(&test_userspace, userspace_stack + 4096 - 8);
-	debug_output_info("Back to kernel\n", true);
+	debug_output_info("Back to kernel\n", true);*/
 }

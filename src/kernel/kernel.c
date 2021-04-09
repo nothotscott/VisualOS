@@ -8,8 +8,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "shell/text.h"
-#include "x86_64/cpuid.h"
+#include "sys/sys.h"
 #include "stdlib.h"
 
 // From setup.c

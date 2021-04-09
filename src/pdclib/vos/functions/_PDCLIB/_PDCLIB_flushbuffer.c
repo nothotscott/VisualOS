@@ -14,6 +14,7 @@
 #ifndef REGTEST
 
 #include "pdclib/_PDCLIB_glue.h"
+#include "_vos_sys.h"
 
 // Modified for VOS to remove linux dependence
 // #include "/usr/include/errno.h"
@@ -22,9 +23,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef long ssize_t;
-extern ssize_t write( int fd, const void * buf, size_t count );
 
 #ifdef __cplusplus
 }
