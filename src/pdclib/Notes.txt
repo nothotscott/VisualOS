@@ -2,6 +2,8 @@ Disclaimer
 =======
 PDCLib has been modified for use for VisualOS.
 The original repository can be found here: https://github.com/DevSolar/pdclib
+Fixes to bugs found when implementing Visual OS will be pulled into DevSolar
+repository. The fork can be found here: https://github.com/nothotscott/pdclib
 The original authors of PDCLib can be found below
 
 Credits
