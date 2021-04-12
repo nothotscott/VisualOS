@@ -29,6 +29,12 @@ SECTIONS
 		*(COMMON)
 		*(.bss)
 	}
+	.debug_line : ALIGN(4K)
+	{
+		_debug_start = .;
+		*(.debug_line)
+		_debug_end = .;
+	}
 	_kernel_end = .;
 	/DISCARD/ : { *(.eh_frame) }
 }

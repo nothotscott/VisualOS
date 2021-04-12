@@ -18,6 +18,10 @@ typedef unsigned long long	size_t;
 #define SYSTEM_BMP		L"VisualOS.bmp"
 #define SYSTEM_TGA		L"VisualOS.tga"
 
+#define EXIT_ERROR(ERROR_CODE)						\
+								while(1);			\
+								return ERROR_CODE;	\
+
 // Headers for functions.c
 int memcmp(const void*, const void*, unsigned long long);
 EFI_FILE* load_file(EFI_FILE*, CHAR16*, EFI_HANDLE, EFI_SYSTEM_TABLE*);
@@ -82,7 +86,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	EFI_FILE* kernel = load_file(NULL, OS_EXECUTABLE, ImageHandle, SystemTable);
 	if (kernel == NULL){
 		Print(L"Could not load kernel\r\n");
-		return EFI_LOAD_ERROR;
+		EXIT_ERROR(EFI_LOAD_ERROR);
 	}
 	Print(L"Loaded kernel\r\n");
 	
@@ -100,15 +104,14 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 	if(	memcmp(&header.e_ident[EI_MAG0], ELFMAG, SELFMAG) != 0 ||
 		header.e_ident[EI_CLASS] != ELFCLASS64 ||
 		header.e_ident[EI_DATA] != ELFDATA2LSB ||
-		header.e_type != ET_EXEC ||
+		(header.e_type != ET_EXEC && header.e_type != ET_DYN) ||
 		header.e_machine != EM_X86_64 ||
 		header.e_version != EV_CURRENT
 	){
-		Print(L"Kernel format is bad\r\n");
-		return EFI_UNSUPPORTED;
+		Print(L"Kernel format is bad. Type: 0x%x, Machine: %d\r\n", header.e_type, header.e_machine);
+		EXIT_ERROR(EFI_UNSUPPORTED);
 	}
 	Print(L"Kernel verified\r\n");
-
 	// Load binary program headers
 	Elf64_Phdr* pheaders;
 	{
@@ -133,10 +136,11 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 				break;
 			}
 			default: {
-				Print(L"Kernel program header read (Unknown=%u)\r\n", ph_ptr->p_type);
+				Print(L"Kernel program header read (Unknown=0x%x)\r\n", ph_ptr->p_type);
 			}
 		}
 	}
+
 	// Initalize GOP
 	initalize_gop();
 	Print(L"GOP frame buffer data:\r\n"
@@ -241,7 +245,8 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 		}
 	}*/
 	if(DEBUG_MODE){
-		Print(L"Jumping to kernel at 0x%x", header.e_entry);
+		//Print(L"Kernel starts at 0x%x\r\n", pheaders);
+		Print(L"Jumping to kernel at 0x%x\r\n", header.e_entry);
 	}
 	void (*kernel_start)(struct KernelEntryInterface*) = ((__attribute__((sysv_abi)) void(*)()) header.e_entry);
 	if(!BOOTLOADER_ONLY){

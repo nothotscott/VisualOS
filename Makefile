@@ -7,7 +7,7 @@ EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 VOS_BIN			:= $(BUILD_DIR)/vos.elf
 
-LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -Bsymbolic
+LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -pie
 LDLIBS	= $(filter-out %$(USERSPACE_SUFFIX).a, $(shell find $(LIBC_DIR)/ -name *.a -type f))
 
 ###############################################################################
