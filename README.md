@@ -19,7 +19,7 @@ The following are included and minimally modified to adapt to the build process 
 	- Though PDCLib is public domain, credit to the original authors can be found in [pdclib/Notes.txt](src/pdclib/Notes.txt)
 
 # Build
-The kernel is written in C and x86-64 assembly. It uses gcc and nasm respectivley. It is best to compile in WSL and run the `build.ps1` PowerShell script. Tasks are comma separated. Common build tasks:
+The kernel is written in C, x86-64 assembly and OCaml. It uses gcc, nasm, and OCaml respectivley. It is best to compile in WSL and run the `build.ps1` PowerShell script. Tasks are comma separated. Common build tasks:
 - `.\build.ps1 clean-bootloader,build-bootloader`
 - `.\build.ps1 clean-libc,build-libc`
 - `.\build.ps1 clean-vos,build-kernel`
@@ -28,6 +28,7 @@ The kernel is written in C and x86-64 assembly. It uses gcc and nasm respectivle
 Make sure the following tools are installed
 - GCC suite
 - nasm
+- OCaml
 - mtools
 
 # Features

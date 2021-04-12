@@ -25,7 +25,6 @@ LDFLAGS			:= -nostdlib
 LDLIBS			= $(addprefix $(KERNEL_DIR)/, $(notdir $(wildcard $(KERNEL_DIR)/*.o)))
 
 all:	setup
-		echo $(PRETARGETS)
 		+ $(MAKE) -f $(THIS)/Makefile subdirs pretargets
 		+ $(MAKE) -f $(THIS)/Makefile $(TARGETS)
 

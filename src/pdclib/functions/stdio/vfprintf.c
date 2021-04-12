@@ -77,9 +77,9 @@ int vfprintf( struct _PDCLIB_file_t * _PDCLIB_restrict stream, const char * _PDC
 	if ( ( stream->bufidx == stream->bufsize ) ||
          ( stream->status & ( _IOLBF | _IONBF ) ) )
     {
-        int rc = _PDCLIB_flushbuffer( stream );
+        _PDCLIB_flushbuffer( stream );
         _PDCLIB_UNLOCK( stream->mtx );
-        return rc;
+        return status.i;
     }
     else
     {

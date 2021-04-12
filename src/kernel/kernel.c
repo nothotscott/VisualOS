@@ -18,13 +18,13 @@ struct KernelEntryInterface* g_interface;
 
 void sleep(uint64_t milliseconds);
 
-#include "debug/dwarf.h";
+#include "debug/dwarf.h"
 
 void _start(struct KernelEntryInterface* interface) {
 	g_interface = interface;
 	
 	setup();
-	puts("Welcome to VisualOS!");
+	puts("Welcome to VisualOS!\n");
 	//void* test = malloc(4096);
 
 	/*for(int i = 0; i < 20; i++){
