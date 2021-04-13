@@ -18,7 +18,8 @@
 #include "x86_64/pit.h"
 #include "x86_64/acpi.h"
 #include "x86_64/pci.h"
-#include "x86_64/madt.h"
+#include "x86_64/apic/madt.h"
+#include "x86_64/apic/apic.h"
 #include "x86_64/syscall.h"
 
 
@@ -71,8 +72,12 @@ void setup_acpi() {
 	struct MADTHeader* madt = (struct MADTHeader*)acpi_get_table(xsdt, "APIC");
 	pci_init(mcfg);
 	io_enable_apic();
-	//madt_init(madt);
+	madt_init(madt);
 	//pci_print();
+}
+
+void setup_apic() {
+	apic_init();
 }
 
 void setup_syscall(){
@@ -91,8 +96,10 @@ void setup() {
 	setup_interrupts();
 	debug("Setup interrupts\n");
 	setup_acpi();
-	debug("Setup ACPI\n");
-	setup_syscall();
+	debug("Setup ACPI/PCI\n");
+	setup_apic();
+	debug("Setup APIC/MP\n");
+	/*setup_syscall();
 	debug("Setup syscall\n");
 
 	paging_donate_to_userspace(&test_userspace);
@@ -100,5 +107,5 @@ void setup() {
 	paging_donate_to_userspace(userspace_stack);
 	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Entering test_userspace\n");
 	syscall_goto_userspace(&test_userspace, userspace_stack + 4096 - 8);
-	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Back to kernel\n");
+	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Back to kernel\n");*/
 }

@@ -8,6 +8,8 @@
 
 #pragma once
 
+typedef	uint32_t	cpuid_t;
+
 enum CPUIDVendorID { // based on ECX
 	CPUID_VENDOR_OLDAMD			= 0x21726574,
 	CPUID_VENDOR_AMD			= 0x444d4163,
@@ -60,6 +62,13 @@ enum CPUIDFeatureSet1 {	// EAX=1, EDX set
 	CPUID_TM1	= 1 << 29,
 	CPUID_IA64	= 1 << 30,
 	CPUID_PBE	= 1 << 31
+};
+
+enum CPUIDValueShifts {	// EAX=1 EBX set
+	CPUID_VALUE_BRAND_INDEX				= 0,
+	CPUID_VALUE_CLFLUSH_SIZE			= 8,
+	CPUID_VALUE_MAX_LOGICAL_PROCESSORS	= 16,
+	CPUID_VALUE_LOCAL_APIC_ID			= 24,
 };
 
 enum CPUIDFeatureSet2 {	// EAX=1, ECX set
@@ -218,16 +227,16 @@ enum CPUIDFeatureSetAMD2 {	// EAX=0x80000001, ECX set
 };
 
 struct CPUIDFeatures {
-	enum CPUIDFeatureSet1		set1;
-	enum CPUIDFeatureSet2		set2;
-	enum CPUIDFeatureSet3		set3;
-	enum CPUIDFeatureSet4		set4;
-	enum CPUIDFeatureSet5		set5;
-	enum CPUIDFeatureSet6		set6;
-	enum CPUIDFeatureSetAMD1	amd1;
-	enum CPUIDFeatureSetAMD2	amd2;
-};
-
+	cpuid_t	set1;
+	cpuid_t	values;
+	cpuid_t	set2;
+	cpuid_t	set3;
+	cpuid_t	set4;
+	cpuid_t	set5;
+	cpuid_t	set6;
+	cpuid_t	amd1;
+	cpuid_t	amd2;
+} __attribute__((packed));;
 
 // TODO
 //extern bool cpuid_supported();

@@ -46,7 +46,7 @@ struct MCFGHeader {
 // Multiple APIC Description Table Header
 struct MADTHeader {
 	struct SDTHeader	header;
-	uint32_t			apic_address;
+	uint32_t			local_apic_address;
 	uint32_t			flags;
 } __attribute__((packed));
 

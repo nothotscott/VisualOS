@@ -5,6 +5,7 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
+#include "x86_64/apic/apic.h"
 #include "bitmap.h"
 #include "paging.h"
 #include "pageframe.h"
@@ -59,6 +60,8 @@ void pageframe_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_
 	pageframe_reserve(&_kernel_start, kernel_pages);
 	// Reserve first 256 pages
 	pageframe_reserve(0, MEMORY_INITIAL_RESERVE_PAGES);
+	// Lock the APIC trampoline code
+	pageframe_lock((void*)APIC_TRAMPOLINE_TARGET, APIC_TRAMPOLINE_TARGET_SIZE);
 }
 
 size_t memory_get_free() {
