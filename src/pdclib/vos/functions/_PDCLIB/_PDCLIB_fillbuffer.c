@@ -15,7 +15,9 @@
 #include "pdclib/_PDCLIB_glue.h"
 #include "_vos_sys.h"
 
-#include "/usr/include/errno.h"
+// Modified for VOS to remove linux dependence
+// #include "/usr/include/errno.h"
+#include "errorno.h"
 
 #ifdef __cplusplus
 extern "C" {

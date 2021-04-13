@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 #include "x86_64/io.h"
-#include "shell/text.h"
 #include "debug/debug.h"
 #include "pit.h"
 #include "interrupt.h"
@@ -52,7 +51,12 @@ void pit_handler(struct InterruptStack* stack, size_t num) {
 void keyboard_handler(struct InterruptStack* stack, size_t num) {
 	uint8_t scancode = inb(0x60);
 	if(scancode < sizeof(s_keyboard_scancodes)) {
-		text_output_char_color(s_keyboard_scancodes[scancode], TEXT_COLOR_GREEN);
+		char chr = s_keyboard_scancodes[scancode];
+		ungetc(chr, stdin);
+		// For now, get back the char and output to stdout
+		putchar((char)getchar());
+		fflush(stdout);
+
 	}
 	io_pic_end_slave();
 }
