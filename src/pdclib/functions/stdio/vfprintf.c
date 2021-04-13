@@ -73,21 +73,8 @@ int vfprintf( struct _PDCLIB_file_t * _PDCLIB_restrict stream, const char * _PDC
     }
 	
     va_end( status.arg );
-	// Copied from puts.c
-	if ( ( stream->bufidx == stream->bufsize ) ||
-         ( stream->status & ( _IOLBF | _IONBF ) ) )
-    {
-        _PDCLIB_flushbuffer( stream );
-        _PDCLIB_UNLOCK( stream->mtx );
-        return status.i;
-    }
-    else
-    {
-        _PDCLIB_UNLOCK( stream->mtx );
-        return EOF;
-    }
-    /*_PDCLIB_UNLOCK( stream->mtx );
-    return status.i;*/
+	_PDCLIB_UNLOCK( stream->mtx );
+    return status.i;
 }
 
 #endif

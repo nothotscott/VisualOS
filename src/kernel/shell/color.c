@@ -31,7 +31,7 @@ int color_ansi_compare(char* str1, char* str2) {
 		if(str1[i] != str2[i]) {
 			return COLOR_MATCH_FAIL;
 		}
-		if(str1[i] == COLOR_MAGIC_CHAR && str2[i] == COLOR_MAGIC_CHAR) {
+		if(str1[i] == COLOR_ANSI_MAGIC_CHAR_END && str2[i] == COLOR_ANSI_MAGIC_CHAR_END) {
 			return i + 1;
 		}
 	}

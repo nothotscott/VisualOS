@@ -10,9 +10,6 @@
 #include "text.h"
 
 
-// Returns the index of the buffer [str] and updates the color state
-static inline int text_change_color_state(char* str);
-
 static struct PSF1Font* s_text_font;
 static struct Point s_cursor = {
 	.x = 0,
@@ -48,13 +45,14 @@ void text_draw_char(char chr, text_color_t color, uint32_t xoff, uint32_t yoff){
 	}
 }
 
-static inline int text_change_color_state(char* str) {
-	int index;
-	struct ColorInterface* color = color_from_ansi(str, &index);
-	if(index != COLOR_MATCH_FAIL) {
+// Changes the color's state based on [str] and [i] if it matches with an ansi color
+static inline int text_handle_ansi_color(char* str, size_t i) {
+	int relative_index;
+	struct ColorInterface* color = color_from_ansi(str + i, &relative_index);
+	if(relative_index != COLOR_MATCH_FAIL) {
 		s_color_state = color->shell;
 	}
-	return index;
+	return relative_index;
 }
 
 // *** Output functions *** //
@@ -72,23 +70,23 @@ void text_output_color(char* str, text_color_t color){
 	}
 }
 void text_output(char* str) {
-	int index = text_change_color_state(str);
-	if(index > 0) {
-		str += index;
-	}
 	size_t i = 0;
-	while(str[i] != '\0'){
+	while(str[i] != '\0') {
+		int relative_index = text_handle_ansi_color(str, i);
+		if(relative_index != COLOR_MATCH_FAIL) {
+			i += relative_index - 1;	// subtract 1 since we're going to skip
+			continue;
+		}
 		text_output_char(str[i]);
-		i++;
 	}
 }
 void text_output_size(char* str, size_t size){
-	int index = text_change_color_state(str);
-	if(index > 0) {
-		str += index;
-		size -= index;
-	}
 	for(size_t i = 0; i < size /*&& str[i] != '\0'*/; i++) {
+		int relative_index = text_handle_ansi_color(str, i);
+		if(relative_index != COLOR_MATCH_FAIL) {
+			i += relative_index - 1;
+			continue;
+		}
 		text_output_char(str[i]);
 	}
 }

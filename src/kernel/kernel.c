@@ -18,8 +18,6 @@ struct KernelEntryInterface* g_interface;
 
 void sleep(uint64_t milliseconds);
 
-#include "debug/dwarf.h"
-
 void _start(struct KernelEntryInterface* interface) {
 	g_interface = interface;
 	

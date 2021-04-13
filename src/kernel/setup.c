@@ -99,7 +99,7 @@ void setup() {
 	debug("Setup ACPI/PCI\n");
 	setup_apic();
 	debug("Setup APIC/MP\n");
-	/*setup_syscall();
+	setup_syscall();
 	debug("Setup syscall\n");
 
 	paging_donate_to_userspace(&test_userspace);
@@ -107,5 +107,5 @@ void setup() {
 	paging_donate_to_userspace(userspace_stack);
 	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Entering test_userspace\n");
 	syscall_goto_userspace(&test_userspace, userspace_stack + 4096 - 8);
-	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Back to kernel\n");*/
+	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Back to kernel\n");
 }
