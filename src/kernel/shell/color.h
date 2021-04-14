@@ -14,6 +14,7 @@
 #define COLOR_MATCH_FAIL	-1
 
 #define COLOR_ANSI_MAX_SIZE			8
+#define COLOR_ANSI_MAGIC_CHAR_START	'\e'
 #define COLOR_ANSI_MAGIC_CHAR_END	'm'
 
 #define COLOR_RESET		"\e[0m"

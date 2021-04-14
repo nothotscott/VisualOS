@@ -40,6 +40,9 @@ int color_ansi_compare(char* str1, char* str2) {
 
 
 struct ColorInterface* color_from_ansi(char* color, int* index) {
+	if(color[0] != COLOR_ANSI_MAGIC_CHAR_START){
+		goto match_failed;
+	}
 	for(size_t i = 0; i < COLORS_SIZE; i++) {
 		int compare = color_ansi_compare(s_colors[i].ansi, color);
 		if(compare != COLOR_MATCH_FAIL) {
@@ -49,10 +52,11 @@ struct ColorInterface* color_from_ansi(char* color, int* index) {
 			return &s_colors[i];
 		}
 	}
-	if(index != NULL){
-		*index = COLOR_MATCH_FAIL;
-	}
-	return &g_color_default;
+	match_failed:
+		if(index != NULL){
+			*index = COLOR_MATCH_FAIL;
+		}
+		return &g_color_default;
 }
 
 struct ColorInterface* color_from_shell(text_color_t color) {
