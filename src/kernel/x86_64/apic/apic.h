@@ -14,6 +14,9 @@
 #define APIC_TRAMPOLINE_TARGET		0x8000
 #define APIC_TRAMPOLINE_TARGET_SIZE	4096
 
+#define APIC_SLEEP_DELAY_INIT		10	// miliseconds to sleep after INIT sequence
+#define APIC_SLEEP_DELAY_AP_STARTUP	1	// miliseconds to sleep after each AP STARTUP
+
 enum IOAPICTriggerMode {
 	IOAPIC_TRIGGER_MODE_EDGE,
 	IOAPIC_TRIGGER_MODE_LEVEL
@@ -75,6 +78,9 @@ enum IOAPICRegisterOffset {
 
 // Initializes the bootstrap processor
 void apic_init();
+
+// Launches all application processors to be ready for symmetric multiprocessing
+void apic_start_smp();
 
 // Gets the interprocessor interrupt for at [local_apic_ptr] and stores it at [command_low] and [command_high]
 void apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high);

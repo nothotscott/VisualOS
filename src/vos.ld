@@ -10,7 +10,7 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = SIZEOF_HEADERS;
+	. = MAX(SIZEOF_HEADERS, 1M);
 	_kernel_start = .;
 	.text : ALIGN(4K)
 	{
@@ -28,12 +28,6 @@ SECTIONS
 	{
 		*(COMMON)
 		*(.bss)
-	}
-	.debug_line : ALIGN(4K)
-	{
-		_debug_start = .;
-		*(.debug_line)
-		_debug_end = .;
 	}
 	_kernel_end = .;
 	/DISCARD/ : { *(.eh_frame) }

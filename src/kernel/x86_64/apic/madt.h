@@ -83,6 +83,7 @@ enum MADTType {
 void madt_init(struct MADTHeader* madt);
 
 // Getters
+struct MADTHeader* get_madt();
 struct MADTLocalProcessor** get_processors();
 size_t get_processors_num();
 struct MADTIOAPIC** get_ioapics();

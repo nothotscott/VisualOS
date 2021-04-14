@@ -16,8 +16,10 @@ INCLUDE_DIRS		:= $(THIS)/
 INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBC)/include $(SRC_DIR)/$(LIBC)/vos/include 
 
 export CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I , $(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS))
-CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -gdwarf -fno-pic -fpie -std=c11 -mgeneral-regs-only -D__STDC_NO_THREADS__
-ifndef DEBUG_MODE
+CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -gdwarf -fno-pic -fpie -fvar-tracking -std=c11 -mgeneral-regs-only -D__STDC_NO_THREADS__
+ifdef DEBUG_MODE
+	CFLAGS += -O0
+else
 	CFLAGS += -O1
 endif
 export ASFLAGS	:= -p $(THIS)/kernel.inc -i $(THIS)/ -f elf64 -F dwarf -g

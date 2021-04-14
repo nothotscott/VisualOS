@@ -12,7 +12,8 @@
 #include "madt.h"
 
 
-// Static arrays
+static struct MADTHeader* s_madt;
+
 static struct MADTLocalProcessor* s_processors[MADT_MAX_PROCESSORS];
 static size_t s_processors_num = 0;
 static struct MADTIOAPIC* s_ioapics[MADT_IO_APICS];
@@ -20,6 +21,7 @@ static size_t s_ioapics_num = 0;
 
 
 void madt_init(struct MADTHeader* madt) {
+	s_madt = madt;
 	void* apic_ptr = (void*)(uint64_t)madt->local_apic_address;
 	paging_identity_map_page(apic_ptr);
 	debug("Bootstrap processor APIC Address: 0x%x\n", apic_ptr);
@@ -63,6 +65,10 @@ void madt_init(struct MADTHeader* madt) {
 				break;
 		}
 	}
+}
+
+struct MADTHeader* get_madt() {
+	return s_madt;
 }
 
 struct MADTLocalProcessor** get_processors() {

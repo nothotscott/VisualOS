@@ -11,3 +11,6 @@ BITS	16
 GLOBAL	apic_trampoline
 apic_trampoline:
 	jmp	$
+
+
+TIMES		4096-($-$$)	db	0

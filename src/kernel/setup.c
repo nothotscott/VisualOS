@@ -78,6 +78,7 @@ void setup_acpi() {
 
 void setup_apic() {
 	apic_init();
+	apic_start_smp();
 }
 
 void setup_syscall(){
