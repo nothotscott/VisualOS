@@ -18,17 +18,24 @@
 				__asm__ __volatile__ ("pause" : : : "memory")	\
 
 
+// From trampoline.asm
+// Pretend they're functions to trick the compiler and avoid errors
+extern void trampoline_code();
+extern void trampoline_data();
+
 // Inline functions to get/set APIC registers
 static inline uint32_t apic_get_register(void* local_apic_ptr, size_t reg_offset);
 static inline void apic_set_register(void* local_apic_ptr, size_t reg_offset, uint32_t value);
 // Waits for the APIC to complete its IPI
 static inline void apic_wait(void* local_apic_ptr, uint32_t* command_low);
 
+static void* s_trampoline_code_ptr = &trampoline_code;
+static void* s_trampoline_data_ptr = &trampoline_data;
+
 
 void apic_init() {
 	void* trampoline_target = (void*)APIC_TRAMPOLINE_TARGET;
 	paging_identity_map(trampoline_target, APIC_TRAMPOLINE_TARGET_SIZE);
-	memcpy(trampoline_target, &apic_trampoline, APIC_TRAMPOLINE_TARGET_SIZE);
 }
 
 void apic_start_smp() {
@@ -39,7 +46,7 @@ void apic_start_smp() {
 	void* local_apic_ptr = (void*)(uint64_t)get_madt()->local_apic_address;
 	void* trampoline_target = (void*)APIC_TRAMPOLINE_TARGET;
 	uint8_t trampoline_target_page = (uint8_t)(((uint64_t)trampoline_target >> 12) & 0xff);
-	//uint8_t trampoline_target_segment =
+	struct ApplicationProcessorCommunication* communicator = trampoline_target + (s_trampoline_data_ptr - s_trampoline_code_ptr);
 	// INIT each AP
 	size_t processors_num = get_processors_num();
 	for(size_t i = 0; i < processors_num; i++) {
@@ -48,6 +55,8 @@ void apic_start_smp() {
 		if(processor->local_apic_id == bsp_local_apic_id){
 			continue;
 		}
+		// Store the trampoline code at the target. Will also clear any data from previous AP
+		memcpy(trampoline_target, s_trampoline_code_ptr, APIC_TRAMPOLINE_TARGET_SIZE);
 		// Clear APIC errors
 		apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ERROR_STATUS, 0);
 		// Send INIT to the AP
@@ -76,8 +85,17 @@ void apic_start_smp() {
 			sleep(APIC_SLEEP_DELAY_AP_STARTUP);
 			apic_wait(local_apic_ptr, &command_low);
 		}
-		
-		debug("Proc %d\n", i);
+		// Check on the status of the AP
+		uint8_t ap_status = communicator->ap_status;
+		while(communicator->ap_status == 0) {
+			sleep(APIC_SLEEP_DELAY_AP_STARTUP);
+		}
+		communicator->bsp_status = 1;
+		communicator->pagetable_l4 = (uint32_t)((uint64_t)paging_get_pagetable_l4() & 0xffffffff);
+		do {
+			sleep(APIC_SLEEP_DELAY_AP_STARTUP);
+		} while(communicator->ap_status == 0);
+		debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "Processor %d responded with 0x%x\n", i, communicator->ap_status);
 	}
 
 }

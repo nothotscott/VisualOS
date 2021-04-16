@@ -11,7 +11,7 @@
 #pragma once
 
 
-#define APIC_TRAMPOLINE_TARGET		0x8000
+#define APIC_TRAMPOLINE_TARGET		0x10000
 #define APIC_TRAMPOLINE_TARGET_SIZE	4096
 
 #define APIC_SLEEP_DELAY_INIT		10	// miliseconds to sleep after INIT sequence
@@ -75,6 +75,12 @@ enum IOAPICRegisterOffset {
     IOAPIC_REG_OFFSET_IOREBTBL_BASE	= 0x10,
 };
 
+// VOS specifc data structure to communicate with the AP
+struct ApplicationProcessorCommunication {
+	uint8_t		ap_status;
+	uint8_t		bsp_status;
+	uint32_t	pagetable_l4;
+} __attribute__((packed));
 
 // Initializes the bootstrap processor
 void apic_init();
@@ -86,7 +92,3 @@ void apic_start_smp();
 void apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high);
 // Issues an interprocessor interrupt [command_low] and [command_high] to [local_apic_ptr]
 void apic_ipi_set_command(void* local_apic_ptr, uint32_t command_low, uint32_t command_high);
-
-
-// *** From apic.asm *** //
-void apic_trampoline();

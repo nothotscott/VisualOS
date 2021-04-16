@@ -29,6 +29,15 @@ enum PageDirectoryFlagBit {
 	PAGE_NOEXECUTE		= 63	// Disabe execution, only if supported
 };
 
+enum PagePATMode {
+	PAGE_PAT_UNCACHED			= 0,
+	PAGE_PAT_WRITE_COMBINE		= 1,
+	PAGE_PAT_WRITE_THROUGH		= 4,
+	PAGE_PAT_WRITE_PROTECTED	= 5,
+	PAGE_PAT_WRITE_BACK			= 6,	// default
+	PAGE_PAT_UC_MINUS			= 7,	// UC, but can be overridden by MTRR
+};
+
 struct PageTable {
 	uint64_t entries[MEMORY_PAGE_ENTRY_SIZE];
 } __attribute__((aligned(MEMORY_PAGE_SIZE)));
@@ -56,6 +65,14 @@ void* paging_get_entry_address(page_directory_entry_t entry);
 // Gets the global page table level 4 pointer
 struct PageTable* paging_get_pagetable_l4();
 
+// *** Assembly functions  *** //
+
+// Loads the paging information into the appropriate control register
+void paging_load();
+
+// Creates page attribute table
+void paging_setup_pat();
+
 // *** Class functions  *** //
 
 // Initializes paging by creating the page table level 4 and sets the 
@@ -68,9 +85,6 @@ void paging_init();
 // Only use for previously established pages in the kernel
 void paging_identity_map(void* address, size_t size);
 void paging_identity_map_page(void* address);
-
-// Loads the paging information into the appropriate control register
-void paging_load();
 
 // Maps [virtual_address] to [physical_address]
 void paging_map(void* virtual_address, void* physical_address);

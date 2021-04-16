@@ -6,7 +6,7 @@
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-DEFAULT	rel
+DEFAULT	REL
 
 ; Saves/restores all general purpose registers
 %macro	PUSH_REG	0

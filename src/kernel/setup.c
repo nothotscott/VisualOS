@@ -42,6 +42,7 @@ void setup_shell() {
 	text_set_cursor(0, img_height);
 }
 
+#include <string.h> // remove THIS
 void setup_memory() {
 	struct FrameBuffer* frame_buffer = g_interface->frame_buffer;
 	pageframe_init(g_interface->mem_map, g_interface->mem_map_size, g_interface->mem_map_descriptor_size);
@@ -49,6 +50,7 @@ void setup_memory() {
 	paging_init();
 	paging_identity_map(frame_buffer->base, frame_buffer->size);
 	paging_load();
+	//paging_setup_pat();
 }
 
 void setup_gdt() {
@@ -100,7 +102,7 @@ void setup() {
 	debug("Setup ACPI/PCI\n");
 	setup_apic();
 	debug("Setup APIC/MP\n");
-	setup_syscall();
+	/*setup_syscall();
 	debug("Setup syscall\n");
 
 	paging_donate_to_userspace(&test_userspace);
@@ -108,5 +110,5 @@ void setup() {
 	paging_donate_to_userspace(userspace_stack);
 	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Entering test_userspace\n");
 	syscall_goto_userspace(&test_userspace, userspace_stack + 4096 - 8);
-	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Back to kernel\n");
+	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Back to kernel\n");*/
 }
