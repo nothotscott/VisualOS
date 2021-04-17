@@ -9,7 +9,7 @@
 
 #if defined( __ANDROID__ )
 /* typedef sigset_t */
-#include "bits/signal_types.h"
+//#include "bits/signal_types.h"
 #endif
 
 /* Linux defines its own version of struct timespec (from <time.h>) in

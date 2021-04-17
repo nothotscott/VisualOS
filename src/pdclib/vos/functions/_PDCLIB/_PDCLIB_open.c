@@ -1,12 +1,7 @@
 /* _PDCLIB_open( const char * const, int )
 
-   This file is part of the Public Domain C Library (PDCLib).
-   Permission is granted to use, modify, and / or redistribute at will.
 */
 
-/* This is an example implementation of _PDCLIB_open() fit for use with POSIX
-   kernels.
-*/
 
 #include <stdio.h>
 
@@ -15,61 +10,21 @@
 #include "pdclib/_PDCLIB_glue.h"
 #include "pdclib/_PDCLIB_defguard.h"
 
-#include "sys/stat.h"
-#include "sys/types.h"
-#include "fcntl.h"
-#include "unistd.h"
-
 // Modified for VOS to remove linux dependence
+//#include "sys/stat.h"
+//#include "sys/types.h"
+//#include "fcntl.h"
+//#include "unistd.h"
+#include "vos_file.h"
+#include "_vos_sys.h"
+
 // #include "/usr/include/errno.h"
 #include "errorno.h"
 
 _PDCLIB_fd_t _PDCLIB_open( const char * const filename, unsigned int mode )
 {
-    /* This is an example implementation of _PDCLIB_open() fit for use with
-       POSIX kernels.
-    */
-    int osmode;
-    _PDCLIB_fd_t rc;
-
-    switch ( mode & ( _PDCLIB_FREAD | _PDCLIB_FWRITE | _PDCLIB_FAPPEND | _PDCLIB_FRW ) )
-    {
-        case _PDCLIB_FREAD: /* "r" */
-            osmode = O_RDONLY;
-            break;
-
-        case _PDCLIB_FWRITE: /* "w" */
-            osmode = O_WRONLY | O_CREAT | O_TRUNC;
-            break;
-
-        case _PDCLIB_FAPPEND: /* "a" */
-            osmode = O_WRONLY | O_APPEND | O_CREAT;
-            break;
-
-        case _PDCLIB_FREAD | _PDCLIB_FRW: /* "r+" */
-            osmode = O_RDWR;
-            break;
-
-        case _PDCLIB_FWRITE | _PDCLIB_FRW: /* "w+" */
-            osmode = O_RDWR | O_CREAT | O_TRUNC;
-            break;
-
-        case _PDCLIB_FAPPEND | _PDCLIB_FRW: /* "a+" */
-            osmode = O_RDWR | O_APPEND | O_CREAT;
-            break;
-
-        default: /* Invalid mode */
-            return _PDCLIB_NOHANDLE;
-    }
-
-    if ( osmode & O_CREAT )
-    {
-        rc = open( filename, osmode, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH );
-    }
-    else
-    {
-        rc = open( filename, osmode );
-    }
+	_PDCLIB_fd_t rc;
+    rc = open( filename, mode, 0 ); // TODO add modes
 
     if ( rc == _PDCLIB_NOHANDLE )
     {

@@ -5,7 +5,8 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
-#include <debug/debug.h>
+#include <string.h>
+#include "debug/debug.h"
 #include "memory/paging.h"
 #include "x86_64/acpi.h"
 #include "apic.h"
@@ -14,7 +15,7 @@
 
 static struct MADTHeader* s_madt;
 
-static struct MADTLocalProcessor* s_processors[MADT_MAX_PROCESSORS];
+static struct ApplicationProcessor s_processors[MADT_MAX_PROCESSORS];
 static size_t s_processors_num = 0;
 static struct MADTIOAPIC* s_ioapics[MADT_IO_APICS];
 static size_t s_ioapics_num = 0;
@@ -24,6 +25,7 @@ void madt_init(struct MADTHeader* madt) {
 	s_madt = madt;
 	void* apic_ptr = (void*)(uint64_t)madt->local_apic_address;
 	paging_identity_map_page(apic_ptr);
+	memset(s_processors, 0, MADT_MAX_PROCESSORS * sizeof(struct ApplicationProcessor));
 	debug("Bootstrap processor APIC Address: 0x%x\n", apic_ptr);
 	for(size_t t = 0; t < madt->header.length - sizeof(struct MADTHeader); /* Do not increment here */ ){
 		struct MADTRecord* record = (struct MADTRecord*)((uint64_t)madt + sizeof(struct MADTHeader) + t);
@@ -33,10 +35,12 @@ void madt_init(struct MADTHeader* madt) {
 		switch(record->type) {
 			case MADT_TYPE_LOCAL_PROCESSOR:
 				{
-					struct MADTLocalProcessor* processor = (struct MADTLocalProcessor*)record;
-					s_processors[s_processors_num] = processor;
+					struct MADTLocalProcessor* local_processor = (struct MADTLocalProcessor*)record;
+					s_processors[s_processors_num] = (struct ApplicationProcessor){
+						.local_processor = local_processor
+					};
 					s_processors_num++;
-					debug("  Processor ID: %d APIC-ID: %d Flags: %d\n", processor->processor_id, processor->local_apic_id, processor->flags);
+					debug("  Processor ID: %d APIC-ID: %d Flags: %d\n", local_processor->processor_id, local_processor->local_apic_id, local_processor->flags);
 				}
 				break;
 			case MADT_TYPE_IOAPIC:
@@ -71,8 +75,8 @@ struct MADTHeader* get_madt() {
 	return s_madt;
 }
 
-struct MADTLocalProcessor** get_processors() {
-	return s_processors;
+struct ApplicationProcessor* get_processor(size_t index) {
+	return s_processors + index;
 }
 size_t get_processors_num() {
 	return s_processors_num;

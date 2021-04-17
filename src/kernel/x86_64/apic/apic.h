@@ -11,7 +11,7 @@
 #pragma once
 
 
-#define APIC_TRAMPOLINE_TARGET		0x10000
+#define APIC_TRAMPOLINE_TARGET		0x8000
 #define APIC_TRAMPOLINE_TARGET_SIZE	4096
 
 #define APIC_SLEEP_DELAY_INIT		10	// miliseconds to sleep after INIT sequence
@@ -80,6 +80,8 @@ struct ApplicationProcessorCommunication {
 	uint8_t		ap_status;
 	uint8_t		bsp_status;
 	uint32_t	pagetable_l4;
+	uint64_t	stack_ptr;
+	uint32_t	stack_size;
 } __attribute__((packed));
 
 // Initializes the bootstrap processor

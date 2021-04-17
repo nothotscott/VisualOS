@@ -8,7 +8,9 @@
 
 #ifndef REGTEST
 
-#include "sys/times.h"
+//#include "sys/times.h"
+#include "_vos_sys.h"
+#include "vos_time.h"
 
 clock_t clock( void )
 {

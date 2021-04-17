@@ -4,21 +4,20 @@
    Permission is granted to use, modify, and / or redistribute at will.
 */
 
-/* This is an example implementation of _PDCLIB_Exit() fit for use with POSIX
-   kernels.
-*/
-
 #include <stdlib.h>
 
 #ifndef REGTEST
 
 #include "pdclib/_PDCLIB_glue.h"
 
+#include "_vos_sys.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern void _exit( int status ) _PDCLIB_NORETURN;
+// The kernel module should *not* link against this
+extern void vos_exit( int status ) _PDCLIB_NORETURN;
 
 #ifdef __cplusplus
 }
@@ -26,7 +25,7 @@ extern void _exit( int status ) _PDCLIB_NORETURN;
 
 void _PDCLIB_Exit( int status )
 {
-    _exit( status );
+    vos_exit( status );
 }
 
 #endif

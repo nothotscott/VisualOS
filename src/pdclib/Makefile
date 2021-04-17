@@ -21,7 +21,7 @@ TARGETS			:= $(LIBC_DIR)/$(LIBC)$(KERNEL_SUFFIX).a $(LIBC_DIR)/$(LIBC)$(USERSPAC
 INCLUDE_DIRS	:= $(THIS)/include $(THIS)/vos/include
 
 # TODO remove -D__STDC_NO_THREADS__ (might have to remove -pedantic for syscalls with 0 args)
-export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -fno-builtin -fshort-wchar -std=c11 -nostdlib -gdwarf -fvar-tracking -O0 -fno-pic -fpie -pedantic -D_STDC_PREDEF_H -D__STDC_NO_THREADS__ -pthread
+export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -fno-builtin -fshort-wchar -std=c11 -nostdlib -gdwarf -fvar-tracking -O0 -fno-pic -fpie -nostdinc -pedantic -D_STDC_PREDEF_H -D__STDC_NO_THREADS__
 CFLAGS			+= -Wall -Wextra -Wno-unused-parameter -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-declarations -Wredundant-decls -Winline -Wno-long-long -Wuninitialized
 CFLAGS			+= -Wnested-externs -Wdeclaration-after-statement
 ifndef DEBUG_MODE

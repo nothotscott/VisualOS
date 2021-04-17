@@ -19,10 +19,13 @@ extern mtx_t _PDCLIB_filelist_mtx;
 #include <stdlib.h>
 #include <string.h>
 
-#include "sys/types.h"
-#include "sys/stat.h"
-#include "fcntl.h"
-#include "unistd.h"
+//#include "sys/types.h"
+//#include "sys/stat.h"
+//#include "fcntl.h"
+//#include "unistd.h"
+#include "vos_file.h"
+
+#include "_vos_sys.h"
 
 extern struct _PDCLIB_file_t * _PDCLIB_filelist;
 
@@ -35,7 +38,7 @@ struct _PDCLIB_file_t * tmpfile( void )
     /* This is the chosen way to get high-quality randomness. Replace as
        appropriate.
     */
-    int randomsource = open( "/dev/urandom", O_RDONLY );
+    int randomsource = open( "$RANDOM", _PDCLIB_FREAD, 0 );
     /* Working under the assumption that the tempfile location is canonical
        (absolute), and does not require going through _PDCLIB_realpath().
     */
@@ -64,7 +67,7 @@ struct _PDCLIB_file_t * tmpfile( void )
            (file might exist but not readable). Replace with something more
            appropriate.
         */
-        fd = open( filename, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR );
+        fd = open( filename, 0, 0 ); //O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR );
 
         if ( fd != -1 )
         {

@@ -10,7 +10,9 @@
 
 #include "pdclib/_PDCLIB_defguard.h"
 
-#include "sys/time.h"
+//#include "sys/time.h"
+#include "vos_time.h"
+#include "_vos_sys.h"
 
 /* See comments in _PDCLIB_config.h on the semantics of time_t. */
 

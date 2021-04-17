@@ -79,7 +79,7 @@ trampoline_protected:
 	; Enable paging
 	mov		eax, cr0
 	or		eax, 0x80010000	; paging, write protect
-	mov		cr0, eax	
+	mov		cr0, eax
 	; Jump into long mode, reusing the old spring
 	lea		eax, [ebx + OFFSET_REL(trampoline_longmode)]
 	mov		DWORD [ebx + OFFSET_REL(trampoline_spring)], eax
@@ -94,7 +94,6 @@ trampoline_longmode:
 	mov		es, ax
 	mov		fs, ax
 	mov		gs, ax
-	wrmsr
 	; Enable SSE
 	mov		rax, cr0
 	and		rax, 0xfffffffffffffffb	; disable FPU emulation
@@ -103,8 +102,12 @@ trampoline_longmode:
 	mov		rax, cr4
 	or		rax, 0x600				; enable OSFXSR, OSXMMEXCPT
 	mov		cr4, rax
+	; Get our stack
+	mov		rsp, QWORD [ebx + OFFSET_REL(trampoline_data.stack_ptr)]
+	mov		rbp, rsp
+	sub		ebp, DWORD [ebx + OFFSET_REL(trampoline_data.stack_size)]
 	; Finish up
-	mov		BYTE [ebx + OFFSET_REL(trampoline_data.ap_status)], 2
+	mov		BYTE [ebx + OFFSET_REL(trampoline_data.ap_status)], al
 	hlt
 
 ;;; Data ;;;
@@ -118,7 +121,8 @@ trampoline_data:
 	.ap_status:		db	0
 	.bsp_status:	db	0
 	.pagetable_l4:	dd	0
-	.test:			dq	0
+	.stack_ptr:		dq	0
+	.stack_size:	dd	0
 
 
 ALIGN	16

@@ -78,13 +78,19 @@ enum MADTType {
 	MADT_TYPE_MULTIPROCESSOR_WAKEUP			= 16,
 };
 
+struct ApplicationProcessor {
+	struct MADTLocalProcessor*	local_processor;
+	void*						stack_ptr;
+	size_t						stack_size;
+};
 
 // Initializes ACPI from [madt]
 void madt_init(struct MADTHeader* madt);
 
+// Gets the AP at [index]
+struct ApplicationProcessor* get_processor(size_t index);
 // Getters
 struct MADTHeader* get_madt();
-struct MADTLocalProcessor** get_processors();
 size_t get_processors_num();
 struct MADTIOAPIC** get_ioapics();
 size_t get_ioapics_num();
