@@ -13,6 +13,7 @@
 #include "memory/paging.h"
 #include "memory/paging.h"
 #include "x86_64/io.h"
+#include "x86_64/cpu.h"
 #include "x86_64/gdt.h"
 #include "x86_64/idt.h"
 #include "x86_64/pit.h"
@@ -53,9 +54,10 @@ void setup_memory() {
 	//paging_setup_pat();
 }
 
-void setup_gdt() {
+void setup_cpu() {
 	gdt_init();
 	gdt_load();
+	cpu_init_bsp();
 }
 
 void setup_interrupts() {
@@ -94,8 +96,8 @@ void setup() {
 	debug("Setup shell\n");
 	setup_memory();
 	debug("Setup memory\n");
-	setup_gdt();
-	debug("Setup gdt\n");
+	setup_cpu();
+	debug("Setup CPU/GDT\n");
 	setup_interrupts();
 	debug("Setup interrupts\n");
 	setup_acpi();

@@ -106,8 +106,11 @@ trampoline_longmode:
 	mov		rsp, QWORD [ebx + OFFSET_REL(trampoline_data.stack_ptr)]
 	mov		rbp, rsp
 	sub		ebp, DWORD [ebx + OFFSET_REL(trampoline_data.stack_size)]
+	; Continue BSP initialization
+	;mov	rdi, idk
+	call	QWORD [ebx + OFFSET_REL(trampoline_data.cpu_init_ap)]
 	; Finish up
-	mov		BYTE [ebx + OFFSET_REL(trampoline_data.ap_status)], al
+	mov		BYTE [ebx + OFFSET_REL(trampoline_data.ap_status)], 2
 	hlt
 
 ;;; Data ;;;
@@ -123,6 +126,7 @@ trampoline_data:
 	.pagetable_l4:	dd	0
 	.stack_ptr:		dq	0
 	.stack_size:	dd	0
+	.cpu_init_ap:	dq	0
 
 
 ALIGN	16

@@ -11,6 +11,7 @@
 #include "memory/paging.h"
 #include "x86_64/cpuid.h"
 #include "x86_64/pit.h"
+#include "x86_64/cpu.h"
 #include "madt.h"
 #include "apic.h"
 
@@ -101,6 +102,7 @@ void apic_start_smp() {
 		// Give the AP the tools it needs to successfully start
 		communicator->stack_ptr = (uint64_t)ap_stack;
 		communicator->stack_size = (uint32_t)ap_stack_size;
+		communicator->cpu_init_ap = (uint64_t)&cpu_init_ap;
 		//paging_identity_map_page
 		communicator->pagetable_l4 = (uint32_t)((uint64_t)paging_get_pagetable_l4() & 0xffffffff);
 		// Give the AP the ok signal
