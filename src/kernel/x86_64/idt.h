@@ -37,32 +37,32 @@ struct IDTDescriptor {
 	struct IDTEntry*	base;	// where the IDT is
 } __attribute__((packed));
 
-// Global idt entry pointer
-extern struct IDTEntry* g_idt;
-
-// Global idt descriptor
-extern struct IDTDescriptor g_idt_descriptor;
+struct IDTBlock {
+	struct IDTDescriptor	idt_descriptor;
+	struct IDTEntry			idt;
+};
 
 // Global isr handler table
 extern void (*g_isr_handlers[ISR_MAX])(struct InterruptStack*, size_t);
 
+// Initializes the idt and idt descriptors in [idt_block]
+void idt_init(struct IDTBlock* idt_block);
 
-// Sets the global idt entry pointer and global idt descriptor
-void idt_init();
-
-// Sets the global idt entry at [index] to the [isr_ptr]
+// Sets the [idt_block] idt entry at [index] to the [isr_ptr]
 // This should be done during idt_load
-void idt_set_isr(size_t index, void* isr_ptr, enum IDTGateType gate);
+void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum IDTGateType gate);
 
-// Loads the global idt descriptor
-extern void idt_load();
-
-// Adds isr [handler] for interrupt [num]
+// Adds isr [handler] for interrupt [num] in g_isr_handlers
 void idt_register_isr_handler(size_t num, void (*handler)(struct InterruptStack*, size_t));
 
-// Registers all default isr handlers
+// Registers all default isr handlers in g_isr_handlers
 void idt_register_handlers();
 
+
+// *** From idt.asm *** //
+
+// Loads the [idt_descriptor]
+void idt_load(struct IDTDescriptor* idt_descriptor);
 
 // Interrupt service routines defined in idt.asm
 extern void isr0();

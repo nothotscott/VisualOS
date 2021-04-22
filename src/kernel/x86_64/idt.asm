@@ -7,7 +7,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-EXTERN	g_idt_descriptor
 EXTERN	g_isr_handlers
 
 %macro	ISR_DEFINE	2
@@ -38,9 +37,9 @@ EXTERN	g_isr_handlers
 SECTION .text
 
 GLOBAL	idt_load
-idt_load:
+idt_load:	; rdi = [idt_descriptor]
 	cli
-	lidt	[g_idt_descriptor]
+	lidt	[rdi]
 	sti
 	ret
 

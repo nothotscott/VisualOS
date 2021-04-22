@@ -8,29 +8,22 @@
 
 #include <string.h>
 #include <stdio.h>
+//#include <stdlib.h>
+#include "x86_64/cpu.h"
 #include "sys/sys.h"
-#include "stdlib.h"
 
 // From setup.c
-extern void setup();
+extern void setup_pre();
+extern void setup_post();
 
 struct KernelEntryInterface* g_interface;
-
-void sleep(uint64_t milliseconds);
 
 void _start(struct KernelEntryInterface* interface) {
 	g_interface = interface;
 	
-	setup();
-	puts("Welcome to VisualOS!\n");
-	//void* test = malloc(4096);
-	//abort();
-
-	/*for(int i = 0; i < 20; i++){
-		text_output_char('g', TEXT_COLOR_FOREGROUND);
-		sleep(50);
-	}*/
-	//*(int*)(0x123abc00aa) = 100;
+	setup_pre();
+	cpu_init_bsp();
+	setup_post();
 
 	while (true);
 }

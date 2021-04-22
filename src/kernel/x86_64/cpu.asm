@@ -7,8 +7,8 @@
 
 EXTERN	gdt_init
 EXTERN	gdt_load
-EXTERN	cpu_create_gdt_block
 EXTERN	cpu_get_bsp
+EXTERN	cpu_init
 
 %include	"cpu.inc"
 
@@ -55,15 +55,7 @@ cpu_init_common:
 	; Set MSRs
 	mov					rdi, r12
 	SET_KERNEL_CONTEXT
-	; Create the gdt block
+	; Finish initialization in C
 	mov					rdi, r12
-	call				cpu_create_gdt_block
-	; Allocate kernel stacks
-	;  TODO
-	; Initialize and load GDT
-	mov					rdi, QWORD [r12 + CPUContext.gdt_block]
-	call				gdt_init
-	mov					rdi, QWORD [r12 + CPUContext.gdt_block]		; gdt_descriptor should be the first entry
-	call				gdt_load
-	; Finish up
+	call				cpu_init
 	ret

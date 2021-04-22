@@ -12,10 +12,6 @@
 #include "memory/pageframe.h"
 #include "memory/paging.h"
 #include "memory/paging.h"
-#include "x86_64/io.h"
-#include "x86_64/cpu.h"
-//#include "x86_64/gdt.h"	// TODO remove
-#include "x86_64/idt.h"
 #include "x86_64/pit.h"
 #include "x86_64/acpi.h"
 #include "x86_64/pci.h"
@@ -27,7 +23,7 @@
 // From kernel.c
 extern struct KernelEntryInterface* g_interface;
 
-
+// *** PRE BSP INIT *** //
 void setup_shell() {
 	struct FrameBuffer* frame_buffer = g_interface->frame_buffer;
 	struct PSF1Font* font = g_interface->font;
@@ -53,18 +49,11 @@ void setup_memory() {
 	//paging_setup_pat();
 }
 
-void setup_cpu() {
-	cpu_init_bsp();
+void setup_pit() {
+	pit_init();
 }
 
-void setup_interrupts() {
-	idt_init();
-	idt_register_handlers();
-	io_pic_remap();
-	io_pic_mask();
-	pit_init();
-	idt_load();
-}
+// *** POST BSP INIT *** //
 
 void setup_acpi() {
 	struct RSDP2* rsdp = g_interface->rsdp;
@@ -86,17 +75,18 @@ void setup_syscall(){
 	syscall_enable_sce();
 }
 
-extern void test_userspace();
-
-void setup() {
+void setup_pre() {
 	setup_shell();
 	debug("Setup shell\n");
 	setup_memory();
 	debug("Setup memory\n");
-	setup_cpu();
-	debug("Setup CPU/GDT\n");
-	setup_interrupts();
-	debug("Setup interrupts\n");
+	setup_pit();
+	debug("Setup PIT\n");
+}
+
+extern void test_userspace();
+
+void setup_post() {
 	setup_acpi();
 	debug("Setup ACPI/PCI\n");
 	setup_apic();

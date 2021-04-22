@@ -77,7 +77,7 @@ struct GDTBlock {
 	struct GDTDescriptor	gdt_descriptor;
 	struct GDTEntry			gdt[GDT_SIZE];
 	struct TSS				tss[GDT_TSS_SIZE];
-} __attribute__((packed));
+};
 
 
 // Sets the [gdt_block] gdt entry pointer and [gdt_block] gdt descriptor
