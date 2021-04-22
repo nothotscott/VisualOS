@@ -1,5 +1,5 @@
 # VisualOS
-VisualOS is a x86-64 operating system with a "microish-kernel" that aims to remove the need for command line interfaces. 
+VisualOS is a x86-64 operating system with a "microish kernel" that aims to remove the need for command line interfaces. 
 This project loosely follows along [Poncho's youtube series](https://www.youtube.com/playlist?list=PLxN4E629pPnJxCQCLy7E0SQY_zuumOVyZ). 
 This operating system is designed to be somewhat POSIX compatible. 
 
@@ -11,6 +11,9 @@ Command lines aren't friendly for computers either, since programs have to parse
 This OS was a shower thought about the possibilty to evolve pass the archaic constraints command lines impose on computer enthusiasts. 
 As such, I thought it would be a fun project to develop an OS as a proof of concept of my idea. 
 I am not an experience OS developer however, so I've come to learn and I'm sure there's many better ways of implementing my idea.
+
+## What's a "microish kernel"
+I coined the term "microish-kernel" to mean: a hybrid kernel who, on a spectrum ranging from monolithic-like to microkernel-like, lies at the microkernel extreme but isn't truly a microkernel. The difference with VisualOS is, the scheduler, memory management, and file system reside in kernelspace. These services in a traditional microkernel reside in userspace. Besides those, VisualOS's drivers, applications, and servers execute in userspace like a normal microkernel.
 
 ## Included dependencies
 The following are included and minimally modified to adapt to the build process and the VOS runtime
@@ -35,8 +38,10 @@ Make sure the following tools are installed
 - UEFI bootloader
 - [PDCLib](https://github.com/nothotscott/pdclib) libc for both kernel and userspace
 
-## Upcoming Features
+## Features in progress
 - Symmetric Multiprocessing
+## Upcoming Features
+- First userspace programs and drivers
 - Scripting ([Lua](#Lua) or perhaps my own language)
 ### Planned Visual Features
 - Programs will use a built-in GUI framework. Standard IO will redirect to GUI. User input will strictly through GUI fields.
