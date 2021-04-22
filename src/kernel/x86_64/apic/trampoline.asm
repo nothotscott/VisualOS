@@ -2,7 +2,7 @@
 ;; File:		apic.asm
 ;; Description:	Assembly code and data for when the application processor first
 ;;				receives the STARTUP IPI
-;; NOTE:		The beginning of this file ($$) should be the reference point
+;; Note:		The beginning of this file ($$) should be the reference point
 ;;				for when this code gets memcpy'ed into low memory
 ;; Copyright 2021 Scott Maday
 ;; Check the LICENSE file that came with this program for licensing terms
@@ -107,7 +107,7 @@ trampoline_longmode:
 	mov		rbp, rsp
 	sub		ebp, DWORD [ebx + OFFSET_REL(trampoline_data.stack_size)]
 	; Continue BSP initialization
-	;mov	rdi, idk
+	mov		rdi, QWORD [ebx + OFFSET_REL(trampoline_data.ap_context)]
 	call	QWORD [ebx + OFFSET_REL(trampoline_data.cpu_init_ap)]
 	; Finish up
 	mov		BYTE [ebx + OFFSET_REL(trampoline_data.ap_status)], 2
@@ -126,6 +126,7 @@ trampoline_data:
 	.pagetable_l4:	dd	0
 	.stack_ptr:		dq	0
 	.stack_size:	dd	0
+	.ap_context:	dq	0
 	.cpu_init_ap:	dq	0
 
 

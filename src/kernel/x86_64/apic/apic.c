@@ -9,7 +9,6 @@
 #include "debug/debug.h"
 #include "memory/pageframe.h"
 #include "memory/paging.h"
-#include "x86_64/cpuid.h"
 #include "x86_64/pit.h"
 #include "x86_64/cpu.h"
 #include "madt.h"
@@ -41,9 +40,9 @@ void apic_init() {
 
 void apic_start_smp() {
 	uint32_t command_low, command_high;
-	struct CPUIDFeatures features;
-	cpuid_get_features(&features);
-	uint8_t bsp_local_apic_id = (uint8_t)((features.values >> CPUID_VALUE_LOCAL_APIC_ID) & 0xff);
+	struct CPUContext* ap_context;
+	size_t ap_contexts_filled = MEMORY_PAGE_SIZE;
+	uint8_t bsp_local_apic_id = cpu_get_bsp()->local_apic_id;
 	void* local_apic_ptr = (void*)(uint64_t)get_madt()->local_apic_address;
 	void* trampoline_target = (void*)APIC_TRAMPOLINE_TARGET;
 	uint8_t trampoline_target_page = (uint8_t)(((uint64_t)trampoline_target >> 12) & 0xff);
@@ -58,6 +57,15 @@ void apic_start_smp() {
 		if(local_apic_id == bsp_local_apic_id){
 			continue;
 		}
+		// Setup memory for this processor's context
+		if(ap_contexts_filled >= MEMORY_PAGE_SIZE) {
+			ap_context = pageframe_request();
+			ap_contexts_filled = 0;
+			memset(ap_context, 0, MEMORY_PAGE_SIZE);
+		} else {
+			ap_context++;
+			ap_contexts_filled += sizeof(struct CPUContext);
+		}
 		//debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "Signaling processor %d\n", local_apic_id);
 		// Store the trampoline code at the target. Will also clear any data from previous AP
 		memcpy(trampoline_target, s_trampoline_code_ptr, APIC_TRAMPOLINE_TARGET_SIZE);
@@ -66,14 +74,14 @@ void apic_start_smp() {
 		// Send INIT to the AP
 		apic_ipi_get_command(local_apic_ptr, &command_low, &command_high);
 		apic_ipi_set_command(local_apic_ptr,
-			(command_low & 0xfff32000) | 0xc500,							// trigger INIT
+			(command_low & 0xfff32000) | 0xc500,				// trigger INIT
 			(command_high & 0x00ffffff) | (local_apic_id << 24)	// select AP in DES bits
 		);
 		apic_wait(local_apic_ptr, &command_low);
 		// Deassert
 		apic_ipi_get_command(local_apic_ptr, &command_low, &command_high);
 		apic_ipi_set_command(local_apic_ptr,
-			(command_low & 0xfff00000) | 0x08500,							// deassert (clear Level bit)
+			(command_low & 0xfff00000) | 0x08500,				// deassert (clear Level bit)
 			(command_high & 0x00ffffff) | (local_apic_id << 24)	// select AP
 		);
 		apic_wait(local_apic_ptr, &command_low);
@@ -83,8 +91,8 @@ void apic_start_smp() {
 			// Clear APIC errors
 			apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ERROR_STATUS, 0);
 			apic_ipi_set_command(local_apic_ptr,
-				(command_low & 0xfff0f800) | 0x600 | (trampoline_target_page),	// STARTUP page in Vector
-				(command_high & 0x00ffffff) | (local_apic_id << 24)	// select AP
+				(command_low & 0xfff0f800) | 0x600 | trampoline_target_page,	// STARTUP page in Vector
+				(command_high & 0x00ffffff) | (local_apic_id << 24)				// select AP
 			);
 			sleep(APIC_SLEEP_DELAY_AP_STARTUP);
 			apic_wait(local_apic_ptr, &command_low);
@@ -102,6 +110,7 @@ void apic_start_smp() {
 		// Give the AP the tools it needs to successfully start
 		communicator->stack_ptr = (uint64_t)ap_stack;
 		communicator->stack_size = (uint32_t)ap_stack_size;
+		communicator->ap_context = (uint64_t)ap_context;
 		communicator->cpu_init_ap = (uint64_t)&cpu_init_ap;
 		//paging_identity_map_page
 		communicator->pagetable_l4 = (uint32_t)((uint64_t)paging_get_pagetable_l4() & 0xffffffff);
@@ -111,7 +120,9 @@ void apic_start_smp() {
 		do {
 			sleep(APIC_SLEEP_DELAY_AP_STARTUP);
 		} while(communicator->ap_status == 0);
-		debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "Processor %d responded with 0x%x\n", i, communicator->ap_status);
+		debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "Processor %d (context at 0x%x) responded with %d\n",
+			ap_context->local_apic_id, communicator->ap_context, communicator->ap_status
+		);
 	}
 
 }

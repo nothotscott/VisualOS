@@ -22,7 +22,7 @@ ifdef DEBUG_MODE
 else
 	CFLAGS += -O1
 endif
-export ASFLAGS	:= -p $(THIS)/kernel.inc -i $(THIS)/ -f elf64 -F dwarf -g
+export ASFLAGS	:= -p $(THIS)/kernel.inc -i $(THIS)/ -i $(THIS_NODE)/ -f elf64 -F dwarf -g
 LDFLAGS			:= -nostdlib
 LDLIBS			= $(addprefix $(KERNEL_DIR)/, $(notdir $(wildcard $(KERNEL_DIR)/*.o)))
 

@@ -82,6 +82,7 @@ struct ApplicationProcessorCommunication {
 	uint32_t	pagetable_l4;
 	uint64_t	stack_ptr;
 	uint32_t	stack_size;
+	uint64_t	ap_context;
 	uint64_t	cpu_init_ap;
 } __attribute__((packed));
 
