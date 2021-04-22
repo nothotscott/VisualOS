@@ -14,7 +14,7 @@
 #include "memory/paging.h"
 #include "x86_64/io.h"
 #include "x86_64/cpu.h"
-#include "x86_64/gdt.h"
+//#include "x86_64/gdt.h"	// TODO remove
 #include "x86_64/idt.h"
 #include "x86_64/pit.h"
 #include "x86_64/acpi.h"
@@ -43,11 +43,10 @@ void setup_shell() {
 	text_set_cursor(0, img_height);
 }
 
-#include <string.h> // remove THIS
 void setup_memory() {
 	struct FrameBuffer* frame_buffer = g_interface->frame_buffer;
 	pageframe_init(g_interface->mem_map, g_interface->mem_map_size, g_interface->mem_map_descriptor_size);
-	pageframe_reserve(frame_buffer->base, ROUND_UP(frame_buffer->size, MEMORY_PAGE_SIZE) / MEMORY_PAGE_SIZE);
+	pageframe_reserve(frame_buffer->base, NEAREST_PAGE(frame_buffer->size));
 	paging_init();
 	paging_identity_map(frame_buffer->base, frame_buffer->size);
 	paging_load();
@@ -55,8 +54,6 @@ void setup_memory() {
 }
 
 void setup_cpu() {
-	gdt_init();
-	gdt_load();
 	cpu_init_bsp();
 }
 

@@ -5,16 +5,14 @@
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-EXTERN	g_gdt_descriptor
-
 SECTION	.text
 
 ; Please credit me if you're going to use this for reference :)
 GLOBAL	gdt_load
-gdt_load:
+gdt_load:	; rdi=[gdt_descriptor]
 	; Setup GDT
 	cli
-	lgdt	[g_gdt_descriptor]
+	lgdt	[rdi]
 	; Setup TSS
 	mov		ax, 0x30			; TSS descriptor: idt[5]
 	ltr		ax

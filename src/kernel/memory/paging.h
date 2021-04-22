@@ -11,6 +11,8 @@
 #define MEMORY_PAGE_SIZE		4096
 #define	MEMORY_PAGE_ENTRY_SIZE	MEMORY_PAGE_SIZE/sizeof(long)
 
+#define	ROUND_UP_PAGE_SIZE(n)	ROUND_UP(n, MEMORY_PAGE_SIZE)
+#define	NEAREST_PAGE(n)			ROUND_UP_PAGE_SIZE(n) / MEMORY_PAGE_SIZE
 
 typedef uint64_t	page_directory_entry_t;
 

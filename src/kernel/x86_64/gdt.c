@@ -11,56 +11,49 @@
 #include "gdt.h"
 
 
-struct GDTEntry* g_gdt;
-struct GDTDescriptor g_gdt_descriptor;
-struct TSS* g_tss;
-
-
-void gdt_init() {
+void gdt_init(struct GDTBlock* gdt_block) {
 	uint16_t gdt_total_size = GDT_SIZE * sizeof(struct GDTEntry);
-	g_gdt = (struct GDTEntry*)pageframe_request();
-	g_tss = (struct TSS*)pageframe_request();	// TODO dynamically allocate based on n cpus
-	memset(g_tss, 0, sizeof(struct TSS) * 1);
+	memset(gdt_block->tss, 0, sizeof(struct TSS) * 1);
 	// Set entries
-	memset(g_gdt, 0, gdt_total_size);								// implictly define null descriptor
-	gdt_set_entry(1, GDT_ACCESS_EXECUTABLE, 0);						// kernel code segment
-	gdt_set_entry(2, 0, 0);											// kernel data segment
-	memset(g_gdt + 3, 0, gdt_total_size);
-	gdt_set_entry(4, GDT_ACCESS_DPL, 0);							// user data segment
-	gdt_set_entry(5, GDT_ACCESS_DPL | GDT_ACCESS_EXECUTABLE, 0);	// user code segment
-	gdt_set_tss(0, 6);												// task state segment
+	memset(gdt_block->gdt, 0, gdt_total_size);									// implictly define null descriptor
+	gdt_set_entry(gdt_block, 1, GDT_ACCESS_EXECUTABLE, 0);						// kernel code segment
+	gdt_set_entry(gdt_block, 2, 0, 0);											// kernel data segment
+	gdt_set_entry(gdt_block, 4, GDT_ACCESS_DPL, 0);								// user data segment
+	gdt_set_entry(gdt_block, 5, GDT_ACCESS_DPL | GDT_ACCESS_EXECUTABLE, 0);		// user code segment
+	gdt_set_tss(gdt_block, 6);													// task state segment
 	// Set descriptor
-	g_gdt_descriptor.size = gdt_total_size - 1;
-	g_gdt_descriptor.offset = g_gdt;
+	gdt_block->gdt_descriptor.size = gdt_total_size - 1;
+	gdt_block->gdt_descriptor.offset = gdt_block->gdt;
 }
 
-void gdt_set_entry(size_t index, enum GDTAccess access, enum GDTFlags flags) {
-	memset(g_gdt + index, 0, sizeof(struct GDTEntry));
-	g_gdt[index].limit_low = 0xffff;
-	g_gdt[index].access = GDT_ACCESS_WRITABLE | GDT_ACCESS_TYPE | GDT_ACCESS_PRESENT | access;
-	g_gdt[index].flags = GDT_FLAG_LONG_MODE | GDT_FLAG_PAGE_GRANULARITY | flags;
+void gdt_set_entry(struct GDTBlock* gdt_block, size_t gdt_index, enum GDTAccess access, enum GDTFlags flags) {
+	gdt_block->gdt[gdt_index].limit_low = 0xffff;
+	gdt_block->gdt[gdt_index].access = GDT_ACCESS_WRITABLE | GDT_ACCESS_TYPE | GDT_ACCESS_PRESENT | access;
+	gdt_block->gdt[gdt_index].flags = GDT_FLAG_LONG_MODE | GDT_FLAG_PAGE_GRANULARITY | flags;
 }
 
-void gdt_set_tss(size_t cpu_index, size_t gdt_offset) {
-	struct TSS* tss = g_tss + cpu_index;
+void gdt_set_tss(struct GDTBlock* gdt_block, size_t gdt_index) {
+	size_t tss_index = 0;
+	struct TSS* tss = (struct TSS*)(gdt_block->gdt + tss_index);
 	tss->io_map_base = 0xffff;
 	// Set TSS descriptor entry
-	struct TSSDescriptor* tss_descriptor = (struct TSSDescriptor*)(g_gdt + gdt_offset);
+	struct TSSDescriptor* tss_descriptor = (struct TSSDescriptor*)(gdt_block->gdt + gdt_index);
 	memset(tss_descriptor, 0, sizeof(struct TSSDescriptor));
 	tss_descriptor->limit_low |= sizeof(struct TSS);
 	tss_descriptor->base_low |= (uint64_t)tss & 0xffff;
 	tss_descriptor->base_mid |= ((uint64_t)tss >> 16) & 0xff;
 	tss_descriptor->base_mid2 |= ((uint64_t)tss >> 24) & 0xff;
 	tss_descriptor->base_high |= ((uint64_t)tss >> 32) & 0xffffffff;
-	tss_descriptor->access |= 0b10000000;	// Present
-	tss_descriptor->access |= 0b00001001;	// Type (Intel Manual 3A 3.4.5.1) Execute-Only, accessed
-	tss_descriptor->flags |= 0b00010000;	// Available
+	tss_descriptor->access |= 0b10000000 | 0b00001001;	// Present, Type (Intel Manual 3A 3.4.5.1) Execute-Only, accessed
+	tss_descriptor->flags |= 0b00010000;				// Available
 }
 
-void gdt_set_ring0_stack(size_t cpu_index, void* stack) {
-	g_tss[cpu_index].rsp0 = (uint64_t)stack;
+void gdt_set_ring0_stack(struct GDTBlock* gdt_block, void* stack) {
+	size_t tss_index = 0;
+	gdt_block->tss[tss_index].rsp0 = (uint64_t)stack;
 }
 
-void* gdt_get_ring0_stack(size_t cpu_index){
-	return (void*)g_tss[cpu_index].rsp0;
+void* gdt_get_ring0_stack(struct GDTBlock* gdt_block){
+	size_t tss_index = 0;
+	return (void*)gdt_block->tss[tss_index].rsp0;
 }

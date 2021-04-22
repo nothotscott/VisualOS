@@ -8,9 +8,12 @@
 
 #pragma once
 
+#include "gdt.h"
+
 
 struct CPUContext {
-	uint8_t		local_apic_id;
+	uint8_t				local_apic_id;
+	struct GDTBlock*	gdt_block;
 } __attribute__((packed));
 
 
@@ -18,6 +21,9 @@ struct CPUContext {
 void cpu_init_bsp();
 // Initializes the application processor
 void cpu_init_ap(struct CPUContext* cpu_context);
+
+// Allocates a GDT Block of memory and sets the result in [context]
+void cpu_create_gdt_block(struct CPUContext* cpu_context);
 
 // Getters
 struct CPUContext* cpu_get_bsp();

@@ -5,6 +5,9 @@
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+EXTERN	gdt_init
+EXTERN	gdt_load
+EXTERN	cpu_create_gdt_block
 EXTERN	cpu_get_bsp
 
 %include	"cpu.inc"
@@ -38,19 +41,29 @@ GLOBAL	cpu_init_bsp
 cpu_init_bsp:
 	call				cpu_get_bsp
 	mov					rdi, rax
-	mov					r12, rdi
-	SET_LOCAL_APIC_ID	rdi
-	mov					rdi, r12
-	SET_KERNEL_CONTEXT
-	mov					rdi, r12
-	ret
+	jmp					cpu_init_common
 
 
 GLOBAL	cpu_init_ap
 cpu_init_ap:
+	jmp	cpu_init_common
+
+cpu_init_common:
 	mov					r12, rdi
+	; Set context struct
 	SET_LOCAL_APIC_ID	rdi
+	; Set MSRs
 	mov					rdi, r12
 	SET_KERNEL_CONTEXT
+	; Create the gdt block
 	mov					rdi, r12
+	call				cpu_create_gdt_block
+	; Allocate kernel stacks
+	;  TODO
+	; Initialize and load GDT
+	mov					rdi, QWORD [r12 + CPUContext.gdt_block]
+	call				gdt_init
+	mov					rdi, QWORD [r12 + CPUContext.gdt_block]		; gdt_descriptor should be the first entry
+	call				gdt_load
+	; Finish up
 	ret

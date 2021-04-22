@@ -14,8 +14,7 @@
 #include "madt.h"
 #include "apic.h"
 
-#define PAUSE()													\
-				__asm__ __volatile__ ("pause" : : : "memory")	\
+#define PAUSE()	__asm__ __volatile__ ("pause" : : : "memory")
 
 
 // From trampoline.asm
@@ -40,8 +39,6 @@ void apic_init() {
 
 void apic_start_smp() {
 	uint32_t command_low, command_high;
-	struct CPUContext* ap_context;
-	size_t ap_contexts_filled = MEMORY_PAGE_SIZE;
 	uint8_t bsp_local_apic_id = cpu_get_bsp()->local_apic_id;
 	void* local_apic_ptr = (void*)(uint64_t)get_madt()->local_apic_address;
 	void* trampoline_target = (void*)APIC_TRAMPOLINE_TARGET;
@@ -50,21 +47,13 @@ void apic_start_smp() {
 	// INIT each AP
 	//debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "BSP processor %d\n", bsp_local_apic_id);
 	size_t processors_num = get_processors_num();
+	struct CPUContext* ap_context = pageframe_request_pages(NEAREST_PAGE(sizeof(struct CPUContext) * (processors_num - 1)));
 	for(size_t i = 0; i < processors_num; i++) {
 		struct ApplicationProcessor* processor = get_processor(i);
 		uint8_t local_apic_id = processor->local_processor->local_apic_id;
 		// Don't execute AP startup code on the BSP
 		if(local_apic_id == bsp_local_apic_id){
 			continue;
-		}
-		// Setup memory for this processor's context
-		if(ap_contexts_filled >= MEMORY_PAGE_SIZE) {
-			ap_context = pageframe_request();
-			ap_contexts_filled = 0;
-			memset(ap_context, 0, MEMORY_PAGE_SIZE);
-		} else {
-			ap_context++;
-			ap_contexts_filled += sizeof(struct CPUContext);
 		}
 		//debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "Signaling processor %d\n", local_apic_id);
 		// Store the trampoline code at the target. Will also clear any data from previous AP
@@ -123,6 +112,8 @@ void apic_start_smp() {
 		debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "Processor %d (context at 0x%x) responded with %d\n",
 			ap_context->local_apic_id, communicator->ap_context, communicator->ap_status
 		);
+		// Finish this iteration
+		ap_context++;
 	}
 
 }

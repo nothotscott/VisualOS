@@ -8,7 +8,8 @@
 
 #pragma once
 
-#define GDT_SIZE	8	// the null segment + 4 code / data segments + TSS descriptor is the size of 2 GDT entries
+#define GDT_SIZE		8	// the null segment + 4 code / data segments + TSS descriptor is the size of 2 GDT entries
+#define GDT_TSS_SIZE	1	// only 1 TSS
 
 #define GDT_TSS_STACK_SIZE		4096
 #define GDT_TSS_RING_STACKS_NUM	3
@@ -71,30 +72,28 @@ struct TSSDescriptor {
 	uint32_t	reserved;
 } __attribute__((packed));
 
-
-// Global idt entry pointer
-extern struct GDTEntry* g_gdt;
-// Global gdt descriptor
-extern struct GDTDescriptor g_gdt_descriptor;
-// Global TSS array pointer
-extern struct TSS* g_tss;
-
+// Carrier for the gdt at runtime
+struct GDTBlock {
+	struct GDTDescriptor	gdt_descriptor;
+	struct GDTEntry			gdt[GDT_SIZE];
+	struct TSS				tss[GDT_TSS_SIZE];
+} __attribute__((packed));
 
 
-// Sets the global gdt entry pointer and global gdt descriptor
-void gdt_init();
+// Sets the [gdt_block] gdt entry pointer and [gdt_block] gdt descriptor
+void gdt_init(struct GDTBlock* gdt_block);
 
-// Sets the gdt entry at [index] with flags of [access] and [flags]
-void gdt_set_entry(size_t index, enum GDTAccess access, enum GDTFlags flags);
+// Sets the [gdt_block] gdt entry at [index] with flags of [access] and [flags]
+void gdt_set_entry(struct GDTBlock* gdt_block, size_t index, enum GDTAccess access, enum GDTFlags flags);
 
-// Sets up a new task state segment at [cpu_index] (and at [gdt_offset] for the descriptor)
-void gdt_set_tss(size_t cpu_index, size_t gdt_offset);
+// Sets up a new task state segment and at [gdt_index] on the [gdt_block] gdt for the descriptor
+void gdt_set_tss(struct GDTBlock* gdt_block, size_t gdt_offset);
 
-// Loads the global gdt, this will also clear interrupts.
-void gdt_load();
+// Loads the gdt described at [gdt_descriptor], this will also clear interrupts.
+void gdt_load(struct GDTDescriptor* gdt_descriptor);
 
-// Sets the kernel stack to [stack] for [cpu_index]
-void gdt_set_ring0_stack(size_t cpu_index, void* stack);
+// Sets the kernel stack to [stack] in [gdt_block]
+void gdt_set_ring0_stack(struct GDTBlock* gdt_block, void* stack);
 
-// Gets TSS ring0 stack for [cpu_index]
-void* gdt_get_ring0_stack(size_t cpu_index);
+// Gets TSS ring0 stack in [gdt_block]
+void* gdt_get_ring0_stack(struct GDTBlock* gdt_block);

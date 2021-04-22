@@ -27,8 +27,9 @@ size_t memory_get_free();
 // Will return true if it's state is already in [state].
 bool pageframe_manipulate(uint64_t index, bool state);
 
-// Will find, lock, and return a free page for use
+// Will find, lock, and returns [pages] free pages for use
 void* pageframe_request();
+void* pageframe_request_pages(size_t pages);
 
 // Free pages at [address] and thereafter [pages] times and track used
 void pageframe_free(void* address, size_t pages);
