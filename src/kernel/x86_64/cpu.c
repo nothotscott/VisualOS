@@ -14,13 +14,14 @@
 
 
 static struct CPUContext s_cpu_bsp;
-
+static struct IDTBlock s_shared_idt __attribute__((aligned (8)));
 
 void cpu_create_blocks(struct CPUContext* cpu_context) {
 	size_t gdt_pages = NEAREST_PAGE(sizeof(struct GDTBlock));
-	size_t idt_pages = NEAREST_PAGE(sizeof(struct IDTBlock));
+	//size_t idt_pages = NEAREST_PAGE(sizeof(struct IDTBlock));
 	struct GDTBlock* gdt_block = pageframe_request_pages(gdt_pages);
-	struct IDTBlock* idt_block = pageframe_request_pages(idt_pages);
+	//struct IDTBlock* idt_block = pageframe_request_pages(idt_pages);
+	struct IDTBlock* idt_block = &s_shared_idt;
 	paging_identity_map(gdt_block, sizeof(struct GDTBlock));
 	paging_identity_map(idt_block, sizeof(struct IDTBlock));
 	cpu_context->gdt_block = gdt_block;

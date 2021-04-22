@@ -39,7 +39,7 @@ struct IDTDescriptor {
 
 struct IDTBlock {
 	struct IDTDescriptor	idt_descriptor;
-	struct IDTEntry			idt;
+	struct IDTEntry			idt[IDT_SIZE];
 };
 
 // Global isr handler table

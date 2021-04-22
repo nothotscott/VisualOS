@@ -12,6 +12,7 @@
 #include "memory/pageframe.h"
 #include "memory/paging.h"
 #include "memory/paging.h"
+#include "x86_64/io.h"
 #include "x86_64/pit.h"
 #include "x86_64/acpi.h"
 #include "x86_64/pci.h"
