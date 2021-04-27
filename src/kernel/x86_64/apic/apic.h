@@ -17,6 +17,10 @@
 #define APIC_SLEEP_DELAY_INIT		10	// miliseconds to sleep after INIT sequence
 #define APIC_SLEEP_DELAY_AP_STARTUP	1	// miliseconds to sleep after each AP STARTUP
 
+// IO APIC selector registers
+#define	IOAPIC_REG_SELECT_OFFSET	0x00
+#define	IOAPIC_REG_WIN_OFFSET		0x10
+
 enum IOAPICTriggerMode {
 	IOAPIC_TRIGGER_MODE_EDGE,
 	IOAPIC_TRIGGER_MODE_LEVEL
@@ -68,7 +72,7 @@ enum LocalAPICRegisterOffset {
 };
 
 // Intel 82093AA data sheet
-enum IOAPICRegisterOffset {
+enum IOAPICRegisterOffset {	
     IOAPIC_REG_OFFSET_IOAPICID		= 0x00,
     IOAPIC_REG_OFFSET_IOAPICVER		= 0x01,
     IOAPIC_REG_OFFSET_IOAPICARB 	= 0x02,
@@ -93,6 +97,6 @@ void apic_init();
 void apic_start_smp();
 
 // Gets the interprocessor interrupt for at [local_apic_ptr] and stores it at [command_low] and [command_high]
-void apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high);
+void local_apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high);
 // Issues an interprocessor interrupt [command_low] and [command_high] to [local_apic_ptr]
-void apic_ipi_set_command(void* local_apic_ptr, uint32_t command_low, uint32_t command_high);
+void local_apic_ipi_set_command(void* local_apic_ptr, uint32_t command_low, uint32_t command_high);

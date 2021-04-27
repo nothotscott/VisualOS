@@ -10,6 +10,7 @@
 #include "io.h"
 #include "gdt.h"
 #include "idt.h"
+#include "syscall.h"
 #include "cpu.h"
 
 
@@ -44,4 +45,6 @@ void cpu_init(struct CPUContext* cpu_context) {
 	io_pic_remap();
 	io_pic_mask();
 	idt_load(&cpu_context->idt_block->idt_descriptor);
+	// Setup syscalls
+	syscall_enable_sce();
 }

@@ -72,10 +72,6 @@ void setup_apic() {
 	apic_start_smp();
 }
 
-void setup_syscall(){
-	syscall_enable_sce();
-}
-
 void setup_pre() {
 	setup_shell();
 	debug("Setup shell\n");
@@ -92,9 +88,8 @@ void setup_post() {
 	debug("Setup ACPI/PCI\n");
 	setup_apic();
 	debug("Setup APIC/MP\n");
-	/*setup_syscall();
-	debug("Setup syscall\n");
-
+	
+	/*
 	paging_donate_to_userspace(&test_userspace);
 	void* userspace_stack = pageframe_request();
 	paging_donate_to_userspace(userspace_stack);

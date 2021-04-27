@@ -22,11 +22,14 @@
 extern void trampoline_code();
 extern void trampoline_data();
 
-// Inline functions to get/set APIC registers
-static inline uint32_t apic_get_register(void* local_apic_ptr, size_t reg_offset);
-static inline void apic_set_register(void* local_apic_ptr, size_t reg_offset, uint32_t value);
+// Inline functions to get/set Local APIC registers
+static inline uint32_t local_apic_get_register(void* local_apic_ptr, size_t reg_offset);
+static inline void local_apic_set_register(void* local_apic_ptr, size_t reg_offset, uint32_t value);
 // Waits for the APIC to complete its IPI
-static inline void apic_wait(void* local_apic_ptr, uint32_t* command_low);
+static inline void local_apic_wait(void* local_apic_ptr, uint32_t* command_low);
+// Inline functions to get/set IOAPIC registers
+static inline uint32_t ioapic_get_register(void* ioapic_ptr, uint8_t reg_offset);
+static inline void ioapic_set_register(void* ioapic_ptr, uint8_t reg_offset, uint32_t value);
 
 static void* s_trampoline_code_ptr = &trampoline_code;
 static void* s_trampoline_data_ptr = &trampoline_data;
@@ -59,32 +62,32 @@ void apic_start_smp() {
 		// Store the trampoline code at the target. Will also clear any data from previous AP
 		memcpy(trampoline_target, s_trampoline_code_ptr, APIC_TRAMPOLINE_TARGET_SIZE);
 		// Clear APIC errors
-		apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ERROR_STATUS, 0);
+		local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ERROR_STATUS, 0);
 		// Send INIT to the AP
-		apic_ipi_get_command(local_apic_ptr, &command_low, &command_high);
-		apic_ipi_set_command(local_apic_ptr,
+		local_apic_ipi_get_command(local_apic_ptr, &command_low, &command_high);
+		local_apic_ipi_set_command(local_apic_ptr,
 			(command_low & 0xfff32000) | 0xc500,				// trigger INIT
 			(command_high & 0x00ffffff) | (local_apic_id << 24)	// select AP in DES bits
 		);
-		apic_wait(local_apic_ptr, &command_low);
+		local_apic_wait(local_apic_ptr, &command_low);
 		// Deassert
-		apic_ipi_get_command(local_apic_ptr, &command_low, &command_high);
-		apic_ipi_set_command(local_apic_ptr,
+		local_apic_ipi_get_command(local_apic_ptr, &command_low, &command_high);
+		local_apic_ipi_set_command(local_apic_ptr,
 			(command_low & 0xfff00000) | 0x08500,				// deassert (clear Level bit)
 			(command_high & 0x00ffffff) | (local_apic_id << 24)	// select AP
 		);
-		apic_wait(local_apic_ptr, &command_low);
+		local_apic_wait(local_apic_ptr, &command_low);
 		sleep(APIC_SLEEP_DELAY_INIT);
 		// AP STARTUP
 		for(size_t j = 0; j < 2; j++) {
 			// Clear APIC errors
-			apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ERROR_STATUS, 0);
-			apic_ipi_set_command(local_apic_ptr,
+			local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ERROR_STATUS, 0);
+			local_apic_ipi_set_command(local_apic_ptr,
 				(command_low & 0xfff0f800) | 0x600 | trampoline_target_page,	// STARTUP page in Vector
 				(command_high & 0x00ffffff) | (local_apic_id << 24)				// select AP
 			);
 			sleep(APIC_SLEEP_DELAY_AP_STARTUP);
-			apic_wait(local_apic_ptr, &command_low);
+			local_apic_wait(local_apic_ptr, &command_low);
 		}
 		// Check on the status of the AP
 		uint8_t ap_status = communicator->ap_status;
@@ -118,30 +121,43 @@ void apic_start_smp() {
 
 }
 
-static inline uint32_t apic_get_register(void* local_apic_ptr, size_t reg_offset) {
+// *** Local APIC Register Functions *** //
+
+static inline uint32_t local_apic_get_register(void* local_apic_ptr, size_t reg_offset) {
 	return *((volatile uint32_t*)(local_apic_ptr + reg_offset));
 }
-static inline void apic_set_register(void* local_apic_ptr, size_t reg_offset, uint32_t value) {
+static inline void local_apic_set_register(void* local_apic_ptr, size_t reg_offset, uint32_t value) {
 	*((volatile uint32_t*)(local_apic_ptr + reg_offset)) = value;
 }
 
-__attribute__((always_inline)) static inline void apic_wait(void* local_apic_ptr, uint32_t* command_low) {
+__attribute__((always_inline)) static inline void local_apic_wait(void* local_apic_ptr, uint32_t* command_low) {
 	do {
 		PAUSE();
-		apic_ipi_get_command(local_apic_ptr, command_low, NULL);
+		local_apic_ipi_get_command(local_apic_ptr, command_low, NULL);
 	} while(*command_low & (1 << 12));	// delivery status bit
 }
 
 
-void apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high) {
+void local_apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high) {
 	if(command_low != NULL) {
-		*command_low = apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x00);
+		*command_low = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x00);
 	}
 	if(command_high != NULL) {
-		*command_high = apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x10);
+		*command_high = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x10);
 	}
 }
-void apic_ipi_set_command(void* local_apic_ptr, uint32_t command_low, uint32_t command_high) {
-	apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x10, command_high);
-	apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x00, command_low);
+void local_apic_ipi_set_command(void* local_apic_ptr, uint32_t command_low, uint32_t command_high) {
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x10, command_high);
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x00, command_low);
+}
+
+// *** IOAPIC Register Functions *** //
+
+static inline uint32_t ioapic_get_register(void* ioapic_ptr, uint8_t reg_offset) {
+	*(volatile uint32_t*)(ioapic_ptr + IOAPIC_REG_SELECT_OFFSET) = reg_offset;
+	return *(volatile uint32_t*)(ioapic_ptr + IOAPIC_REG_WIN_OFFSET);
+}
+static inline void ioapic_set_register(void* ioapic_ptr, uint8_t reg_offset, uint32_t value) {
+	*(volatile uint32_t*)(ioapic_ptr + IOAPIC_REG_SELECT_OFFSET) = reg_offset;
+	*(volatile uint32_t*)(ioapic_ptr + IOAPIC_REG_WIN_OFFSET) = value;
 }
