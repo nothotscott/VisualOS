@@ -48,6 +48,7 @@ pretargets:	$(PRETARGETS)
 			@:
 
 .PHONY:		clean
+clean:
 ifneq "$(wildcard $(TARGETS))" ""
 		rm -f $(TARGETS)
 endif
