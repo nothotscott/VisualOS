@@ -7,15 +7,12 @@
 
 include Make.defaults
 
-ifndef THIS_NODE
-	THIS_NODE	:= $(THIS)
-endif
 
 TARGET_NAME		:= $(notdir $(TARGET_DIR))
 
-SOURCES				:= $(notdir $(wildcard $(THIS_NODE)/*.c $(THIS_NODE)/*.asm))
+SOURCES				:= $(notdir $(wildcard $(THIS)/*.c $(THIS)/*.asm))
 PRETARGETS			:= $(addprefix $(TARGET_DIR)/, $(addsuffix .o, $(subst .,_, $(SOURCES))))
-TARGETS				:= $(TARGET_DIR)/$(TARGET_NAME).a
+TARGETS				:= $(TARGET_DIR)/$(TARGET_NAME).ro
 INCLUDE_DIRS		:= $(SUPER)/vos/include
 INCLUDE_LATER_DIRS	:= $(SUPER)/include
 
@@ -23,23 +20,24 @@ INCLUDE_LATER_DIRS	:= $(SUPER)/include
 export CFLAGS	:= $(addprefix -I , $(INCLUDE_LATER_DIRS)) -I- $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -nostdlib -fno-builtin -g -DDEBUG -fPIC -pedantic -Wall -DUSE_SPIN_LOCKS=0 -DLACKS_SCHED_H
 #CFLAGS			+= -DLACKS_SYS_TYPES_H -DLACKS_SYS_MMAN_H -DLACKS_FCNTL_H -DLACKS_UNISTD_H -DLACKS_SYS_PARAM_H
 ifndef DEBUG_MODE
-#	CFLAGS += -O1
+	CFLAGS += -O1
 endif
 
-LDFLAGS	:= -shared -nostdlib
-ARLIBS	= $(addprefix $(TARGET_DIR)/, $(notdir $(wildcard $(TARGET_DIR)/*.o)))
+LDFLAGS	:= -nostdlib
+LDLIBS	= $(addprefix $(TARGET_DIR)/, $(notdir $(wildcard $(TARGET_DIR)/*.o)))
 
-all:	setup
+all:	clean
 		+ $(MAKE) -f $(THIS)/Makefile pretargets
 		+ $(MAKE) -f $(THIS)/Makefile $(TARGETS)
 
-.PHONY:	setup
-setup:
-		@mkdir -p $(TARGET_DIR)
-		rm -f $(TARGETS)
-
 .PHONY:	pretargets
 pretargets:	$(PRETARGETS)
+
+.PHONY:		clean
+ifneq "$(wildcard $(TARGETS))" ""
+		rm -f $(TARGETS)
+endif
+
 
 
 include Make.rules

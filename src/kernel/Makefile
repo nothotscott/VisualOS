@@ -2,46 +2,36 @@
 
 include Make.defaults
 
-ifndef THIS_NODE
-	THIS_NODE	:= $(THIS)
-endif
+GIVENS		:= $(THIS)/kernel.h $(SRC_DIR)/$(LIBS)/$(LIBC)/include/stdint.h $(SRC_DIR)/$(LIBS)/$(LIBC)/include/stddef.h $(SRC_DIR)/$(LIBS)/$(LIBC)/include/stdbool.h
 
-GIVENS		:= $(THIS)/kernel.h $(SRC_DIR)/$(LIBC)/include/stdint.h $(SRC_DIR)/$(LIBC)/include/stddef.h $(SRC_DIR)/$(LIBC)/include/stdbool.h
-SUBDIRS		:= $(shell find $(THIS_NODE)/* -maxdepth 0 -type d)
-
-SOURCES				:= $(notdir $(wildcard $(THIS_NODE)/*.c $(THIS_NODE)/*.cpp $(THIS_NODE)/*.asm))
-PRETARGETS			:= $(addprefix $(KERNEL_DIR)/, $(addsuffix .o, $(subst .,_, $(SOURCES))))
-TARGETS				:= $(KERNEL_DIR)/$(KERNEL)_partial.o
+SOURCES				:= $(call find_many,$(THIS),c cpp asm)
+PRETARGETS			:= $(patsubst $(THIS)/%.o,$(KERNEL_DIR)/%.o,$(call to_obj,$(SOURCES)))
+TARGETS				:= $(KERNEL_DIR)/$(KERNEL).ro
 INCLUDE_DIRS		:= $(THIS)/
-INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBC)/include $(SRC_DIR)/$(LIBC)/vos/include 
+INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBS)/$(LIBC)/include $(SRC_DIR)/$(LIBS)/$(LIBC)/vos/include 
 
-export CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I , $(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS))
+export CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I ,$(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS))
 CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -gdwarf -fno-pic -fpie -fvar-tracking -std=c11 -mgeneral-regs-only -D__STDC_NO_THREADS__
 ifdef DEBUG_MODE
 	CFLAGS += -O0
 else
 	CFLAGS += -O1
 endif
-export ASFLAGS	:= -p $(THIS)/kernel.inc -i $(THIS)/ -i $(THIS_NODE)/ -f elf64 -F dwarf -g
-LDFLAGS			:= -nostdlib
-LDLIBS			= $(addprefix $(KERNEL_DIR)/, $(notdir $(wildcard $(KERNEL_DIR)/*.o)))
+export ASFLAGS	:= -p $(THIS)/kernel.inc  $(addprefix -i ,$(INCLUDE_DIRS)) -f elf64 -F dwarf -g
+LDFLAGS	:= -nostdlib
+LDLIBS	= $(PRETARGETS)
 
-all:	setup
-		+ $(MAKE) -f $(THIS)/Makefile subdirs pretargets
+all:	clean
+		+ $(MAKE) -f $(THIS)/Makefile pretargets
 		+ $(MAKE) -f $(THIS)/Makefile $(TARGETS)
-
-
-.PHONY:	setup
-setup:
-		@mkdir -p $(KERNEL_DIR)
-		rm -f $(TARGETS)
-
-.PHONY: $(SUBDIRS) subdirs
-$(SUBDIRS):	
-		+ $(MAKE) -f $(THIS)/Makefile subdirs pretargets THIS=$(THIS) THIS_NODE=$@
-subdirs:	$(SUBDIRS)
 
 .PHONY:	pretargets
 pretargets:	$(PRETARGETS)
+
+.PHONY:		clean
+ifneq "$(wildcard $(TARGETS))" ""
+		rm -f $(TARGETS)
+endif
+
 
 include Make.rules

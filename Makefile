@@ -7,8 +7,8 @@ EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 VOS_BIN			:= $(BUILD_DIR)/vos.elf
 
-LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -pie
-LDLIBS	= $(filter-out %$(USERSPACE_SUFFIX).a, $(shell find $(LIBC_DIR)/ -name *.a -type f))
+LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -pie --gc-sections
+LDLIBS	= $(filter %$(KERNEL_SUFFIX).a, $(shell find $(LIBS_DIR)/ -maxdepth 1 -type f -name '*.a'))
 
 ###############################################################################
 
@@ -31,12 +31,11 @@ $(BOOTLOADER):	setup
 				cd $(SRC_DIR)/$@ && $(MAKE) -j1 THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS) KERNEL_SRC=$(SRC_DIR)/$(KERNEL)
 bootloader:		$(BOOTLOADER)
 
-.PHONY: $(LIBC) libc
-$(LIBC):		setup
+.PHONY: $(LIBS) libs
+$(LIBS):		setup
 				$(call echo_build)
-				$(MAKE_VOS) TARGET_DIR=$(LIBC_DIR)
-#				cd $(SRC_DIR)/$@ && $(MAKE) THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS)
-libc:			$(LIBC)
+				$(MAKE_VOS) TARGET_DIR=$(LIBS_DIR)
+libs:			$(LIBS)
 
 .PHONY: $(KERNEL) kernel
 $(KERNEL):		setup
@@ -79,9 +78,9 @@ RM_IMG	:= rm -rf *.img *.iso *.vdi
 clean-bootloader:	clean-img
 					rm -rf $(BUILD_DIR)/$(BOOTLOADER)/bootloader
 
-.PHONY: clean-libc
-clean-libc:			clean-img
-					rm -rf $(LIBC_DIR)
+.PHONY: clean-libs
+clean-libs:			clean-img
+					rm -rf $(LIBS_DIR)
 
 .PHONY: clean-vos
 clean-vos:			clean-img

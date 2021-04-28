@@ -138,16 +138,16 @@ foreach ($task in $tasks) {
 		build clean-img
 	} elseif ($task -eq "clean-bootloader") {
 		build clean-bootloader
-	} elseif ($task -eq "clean-libc") {
-		build clean-libc
+	} elseif ($task -eq "clean-libs") {
+		build clean-libs
 	} elseif ($task -eq "clean-vos") {
 		build clean-vos
 	}
 	
 	elseif ($task -eq "build-bootloader") {
 		build bootloader
-	} elseif ($task -eq "build-libc") {
-		build libc
+	} elseif ($task -eq "build-libs") {
+		build libs
 	} elseif ($task -eq "build-kernel") {
 		build kernel
 	} elseif ($task -eq "build-vos") {

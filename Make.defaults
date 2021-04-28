@@ -4,17 +4,17 @@ BUILD_DIR	:= build
 
 # Build procedures
 BOOTLOADER	:= gnu-efi
-LIBC		:= pdclib
 KERNEL		:= kernel
+LIBS		:= libraries
+LIBC		:= pdclib
 
-# Linking directives
+# Explicit kernel linking directive
 KERNEL_SUFFIX		:= _k
-USERSPACE_SUFFIX	:= _u
 
 # Directories
 SRC_DIR		:= src
 KERNEL_DIR	:= $(BUILD_DIR)/$(KERNEL)
-LIBC_DIR	:= $(BUILD_DIR)/$(LIBC)
+LIBS_DIR	:= $(BUILD_DIR)/$(LIBS)
 ASMDUMP_DIR	:= $(BUILD_DIR)/asm
 
 # Programs
@@ -45,4 +45,14 @@ BUILD_DIR_ABS	:= $(abspath $(BUILD_DIR))
 # Functions
 define echo_build
 	@echo "$(GREEN)$(BOLD)Building $@$(NORMAL)"
+endef
+
+define to_obj
+	$(addsuffix .o, $(subst .,_, $(1)))
+endef
+
+define find_many
+	$(foreach ext,$(2),								\
+		$(shell find $(1) -type f -name '*.$(ext)')	\
+	)
 endef
