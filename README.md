@@ -6,7 +6,7 @@ This operating system is designed to be somewhat POSIX compatible.
 ## Purpose
 I've personally felt command line interfaces are a primitive means of interfacing with a computer. 
 Command lines aren't user friendly since users are expected to memorize arguments and flags and each program's unique syntax. 
-Users also frequently have to repeat themselves when combining tasks (i.e `mkdir foo && cd foo`) 
+Users also frequently have to repeat themselves when combining tasks (i.e `mkdir foo && ls`) 
 Command lines aren't friendly for computers either, since programs have to parse and sanitize the user's input through a single interface. 
 This OS was a shower thought about the possibilty to evolve pass the archaic constraints command lines impose on computer enthusiasts. 
 As such, I thought it would be a fun project to develop an OS as a proof of concept of my idea. 
@@ -18,11 +18,11 @@ I coined the term "microish-kernel" to mean: a hybrid kernel who, on a spectrum 
 ## Included dependencies
 The following are included and minimally modified to adapt to the build process and the VOS runtime
 - gnu-efi is included under the BSD license
-- PDCLib is included under the [Public domain](src/pdclib/COPYING.CC0)
-	- Though PDCLib is public domain, credit to the original authors can be found in [pdclib/Notes.txt](src/pdclib/Notes.txt)
+- PDCLib is included under the [Public domain](src/libraries/pdclib/COPYING.CC0)
+	- Though PDCLib is public domain, credit to the original authors can be found in [pdclib/Notes.txt](src/libraries/pdclib/Notes.txt)
 
 # Build
-The kernel is written in C, x86-64 assembly and OCaml. It uses gcc, nasm, and OCaml respectivley. It is best to compile in WSL and run the `build.ps1` PowerShell script. Tasks are comma separated. Common build tasks:
+The kernel is written in C, x86-64 assembly and. It uses gcc and nasm respectivley. It is best to compile in WSL and run the `build.ps1` PowerShell script. Tasks are comma separated. Common build tasks:
 - `.\build.ps1 clean-bootloader,build-bootloader`
 - `.\build.ps1 clean-libc,build-libc`
 - `.\build.ps1 clean-vos,build-kernel`
@@ -31,7 +31,6 @@ The kernel is written in C, x86-64 assembly and OCaml. It uses gcc, nasm, and OC
 Make sure the following tools are installed
 - GCC suite
 - nasm
-- OCaml
 - mtools
 
 # Features
