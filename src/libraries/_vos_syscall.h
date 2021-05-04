@@ -1,7 +1,7 @@
 /*
  * File:		_vos_syscall.h
  * Description:	VOS-specific syscalls designed for compatibility between
- * 				the kernel version and the userspace version of this library.
+ * 				the kernel version and the userspace versions of libraries.
  * 				Because we have to make the extra call to the standardized
  * 				syscall() function, we unfortunately lose a slight bit of
  * 				perfomance, but this module is designed to greatly improve
@@ -9,7 +9,6 @@
  * 				to directly call the sys functions while the userspace version
  * 				performs the fast system call.
  * *****************************************************************************
- * This file was made as part of VisualOS's integration with this library
  * Copyright 2021 Scott Maday
  * Check the LICENSE file that came with this program for licensing terms
  */

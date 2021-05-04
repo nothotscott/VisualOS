@@ -5,7 +5,7 @@
 ################################################################################
 # This file's working directory is the root of the project
 
-include Make.defaults
+include Defaults.mk
 
 
 TARGET_NAME		:= $(notdir $(TARGET_DIR))
@@ -41,4 +41,4 @@ endif
 
 
 
-include Make.rules
+include Rules.mk

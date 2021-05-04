@@ -1,9 +1,9 @@
 THIS		:= $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-include		Make.defaults
+include		Defaults.mk
 
 TARGET_DIR	= $(BUILD_DIR)
 
-EFI_BIN			:= $(BUILD_DIR)/gnu-efi/bootloader/BOOTX64.efi
+EFI_BIN			:= $(BOOTLOADER_DIR)/BOOTX64.efi
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 VOS_BIN			:= $(BUILD_DIR)/vos.elf
 
@@ -25,12 +25,6 @@ endif
 
 MAKE_VOS	= + $(MAKE) --no-print-directory -f $(SRC_DIR)/$@/Makefile THIS=$(SRC_DIR)/$@
 
-.PHONY: $(BOOTLOADER) bootloader
-$(BOOTLOADER):	setup
-				$(call echo_build)
-				cd $(SRC_DIR)/$@ && $(MAKE) -j1 THIS=$@ BUILD_DIR=$(BUILD_DIR_ABS) KERNEL_SRC=$(SRC_DIR)/$(KERNEL)
-bootloader:		$(BOOTLOADER)
-
 .PHONY: $(LIBS) libs
 $(LIBS):		setup
 				$(call echo_build)
@@ -50,7 +44,7 @@ $(VOS_BIN):		$(KERNEL_BIN)
 .PHONY: vos
 vos:			$(VOS_BIN)
 
-$(BUILD_DIR)/$(OSNAME).img:	$(EFI_BIN) $(VOS_BIN)
+$(BUILD_DIR)/$(OSNAME).img:	
 				dd if=/dev/zero of=$@ bs=512 count=93750
 				mformat -i $@ -f 1440 ::
 				mmd -i $@ ::/EFI
@@ -61,29 +55,26 @@ $(BUILD_DIR)/$(OSNAME).img:	$(EFI_BIN) $(VOS_BIN)
 .PHONY: img
 img:			$(BUILD_DIR)/$(OSNAME).img
 
-$(BUILD_DIR)/$(OSNAME).iso:	img
-				mkdir -p $(BUILD_DIR)/iso
-				cp $(BUILD_DIR)/$(OSNAME).img $(BUILD_DIR)/iso
-				xorriso -as mkisofs -R -f -e $(OSNAME).img -no-emul-boot -o $(BUILD_DIR)/$(OSNAME).iso $(BUILD_DIR_ABS)/iso
-				rm -rf $(BUILD_DIR)/iso
-.PHONY: iso
-iso:			$(BUILD_DIR)/$(OSNAME).iso
+# TODO do this in Python
+#$(BUILD_DIR)/$(OSNAME).iso:	img
+#				mkdir -p $(BUILD_DIR)/iso
+#				cp $(BUILD_DIR)/$(OSNAME).img $(BUILD_DIR)/iso
+#				xorriso -as mkisofs -R -f -e $(OSNAME).img -no-emul-boot -o $(BUILD_DIR)/$(OSNAME).iso $(BUILD_DIR_ABS)/iso
+#				rm -rf $(BUILD_DIR)/iso
+#.PHONY: iso
+#iso:			$(BUILD_DIR)/$(OSNAME).iso
 
 ###############################################################################
 
 RM_OBJ	:= rm -rf *.o *.a *.so *.elf
 RM_IMG	:= rm -rf *.img *.iso *.vdi
 
-.PHONY: clean-bootloader
-clean-bootloader:	clean-img
-					rm -rf $(BUILD_DIR)/$(BOOTLOADER)/bootloader
-
 .PHONY: clean-libs
 clean-libs:			clean-img
 					rm -rf $(LIBS_DIR)
 
-.PHONY: clean-vos
-clean-vos:			clean-img
+.PHONY: clean-kernel
+clean-kernel:		clean-img
 					cd $(BUILD_DIR) && $(RM_OBJ)
 					rm -rf $(KERNEL_DIR)/
 ifneq "$(wildcard $(ASMDUMP_DIR))" ""
@@ -99,4 +90,4 @@ clean:
 					rm -rf $(BUILD_DIR)
 
 
-include Make.rules
+include Rules.mk

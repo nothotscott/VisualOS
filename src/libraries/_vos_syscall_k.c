@@ -4,7 +4,6 @@
  * 				This is designed to directly link against the kernel
  * 				as a static library.
  * *****************************************************************************
- * This file was made as part of VisualOS's integration with this library
  * Copyright 2021 Scott Maday
  * Check the LICENSE file that came with this program for licensing terms
  */
@@ -29,23 +28,4 @@ syscallret_t _vos_syscall(enum SyscallNumber num, size_t argc, ...) {
 	a6 = va_arg(args, syscallarg_t);
 	va_end(args);
 	return syshandler(a1, a2, a3, a4, a5, a6);
-	// TODO remove this block
-	/*switch(argc) {
-		case 0:
-			return syshandler();
-		case 1:
-			return syshandler(a1);
-		case 2:
-			return syshandler(a1, a2);
-		case 3:
-			return syshandler(a1, a2, a3);
-		case 4:
-			return syshandler(a1, a2, a3, a4);
-		case 5:
-			return syshandler(a1, a2, a3, a4, a5);
-		case 6:
-			return syshandler(a1, a2, a3, a4, a5, a6);
-	}
-	return -1;
-	*/
 }

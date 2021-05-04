@@ -1,7 +1,7 @@
 # VisualOS
 VisualOS is a x86-64 operating system with a "microish kernel" that aims to remove the need for command line interfaces. 
 This project loosely follows along [Poncho's youtube series](https://www.youtube.com/playlist?list=PLxN4E629pPnJxCQCLy7E0SQY_zuumOVyZ). 
-This operating system is designed to be somewhat POSIX compatible. 
+This operating system is designed to be somewhat POSIX compatible.
 
 ## Purpose
 I've personally felt command line interfaces are a primitive means of interfacing with a computer. 
@@ -22,19 +22,19 @@ The following are included and minimally modified to adapt to the build process 
 	- Though PDCLib is public domain, credit to the original authors can be found in [pdclib/Notes.txt](src/libraries/pdclib/Notes.txt)
 
 # Build
-The kernel is written in C, x86-64 assembly and. It uses gcc and nasm respectivley. It is best to compile in WSL and run the `build.ps1` PowerShell script. Tasks are comma separated. Common build tasks:
-- `.\build.ps1 clean-bootloader,build-bootloader`
-- `.\build.ps1 clean-libc,build-libc`
-- `.\build.ps1 clean-vos,build-kernel`
-- `.\build.ps1 build-img,run`
-
-Make sure the following tools are installed
-- GCC suite
+A Unix-like environment is required to build VisualOS. The following systems have been tested: WSL, Linux, MacOS  
+Make sure the following tools are installed on the Unix-like system
+- python3
+- gcc suite or clang suite
 - nasm
 - mtools
 
+Installing the required tools can be done by executing `sudo ./install_tools.sh` for debian-based systems or systems that use the apt package manager.
+Simply execute `./main.py` to automatically build. Use `./main.py -h` for a list of more granular build options and execute `./main.py -r` to run a qemu instance of VisualOS.
+Note: `python3 main.py` can be executed natively on Windows if on PowerShell and traversed to the correct WSL UNC path. The script will automatically re-execute itself in WSL.
+
 # Features
-- UEFI bootloader
+- stivale2 boot protocol kernel
 - [PDCLib](https://github.com/nothotscott/pdclib) libc for both kernel and userspace
 
 ## Features in progress
@@ -49,7 +49,7 @@ Make sure the following tools are installed
 - Drives will mount similar to Windows, but present themselves as `$n/your/files.txt` where n is the drive number.
 - Programs will work best in C++, since my library will be object oriented.
 
-# Lua
+# Lua (not released)
 Lua is the primary scripting language of this OS. Lua easily integrates with the C language and is lightweight.
 Lua scripts will provide a simplified means of running programs nativley.
 Lua is also far simpler then shell scripting and can be adapted for many situations. I plan lua scripts to look like the following:

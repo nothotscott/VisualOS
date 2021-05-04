@@ -8,9 +8,9 @@
 
 #include <string.h>
 #include <stdio.h>
-//#include <stdlib.h>
 #include "x86_64/cpu.h"
 #include "sys/sys.h"
+#include "stivale2.h"
 
 // From setup.c
 extern void setup_pre();
@@ -18,12 +18,12 @@ extern void setup_post();
 
 struct KernelEntryInterface* g_interface;
 
-void _start(struct KernelEntryInterface* interface) {
-	g_interface = interface;
+void _start(struct stivale2_struct* stivale2_struct) {
 	
-	setup_pre();
+	
+	/*setup_pre();
 	cpu_init_bsp();
-	setup_post();
+	setup_post();*/
 
 	while (true);
 }

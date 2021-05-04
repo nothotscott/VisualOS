@@ -1,3 +1,4 @@
 /build/
-/OVMFbin/
+/bin/
 /.vscode/
+/__pycache__/

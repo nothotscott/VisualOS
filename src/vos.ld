@@ -1,21 +1,20 @@
 OUTPUT_FORMAT(elf64-x86-64)
 ENTRY(_start)
 
-/*PHDRS
-{
-	headers PT_PHDR PHDRS;
-	text PT_LOAD FILEHDR PHDRS;
-}*/
-
 
 SECTIONS
 {
-	. = MAX(SIZEOF_HEADERS, 1M);
+	. = 2M;
 	_kernel_start = .;
+
+    .stivale2hdr : {
+        KEEP(*(.stivale2hdr))
+    }
+
 	.text : ALIGN(4K)
 	{
 		*(.text)
-	}/* :text */
+	}
 	.data : ALIGN(4K)
 	{
 		*(.data)

@@ -1,6 +1,6 @@
 # This file's working directory is the root of the project
 
-include Make.defaults
+include Defaults.mk
 
 GIVENS		:= $(THIS)/kernel.h $(SRC_DIR)/$(LIBS)/$(LIBC)/include/stdint.h $(SRC_DIR)/$(LIBS)/$(LIBC)/include/stddef.h $(SRC_DIR)/$(LIBS)/$(LIBC)/include/stdbool.h
 
@@ -17,7 +17,7 @@ ifdef DEBUG_MODE
 else
 	CFLAGS += -O1
 endif
-export ASFLAGS	:= -p $(THIS)/kernel.inc  $(addprefix -i ,$(INCLUDE_DIRS)) -f elf64 -F dwarf -g
+export ASFLAGS	:= -p $(THIS)/kernel.inc $(addprefix -i ,$(INCLUDE_DIRS)) -f elf64 -F dwarf -g
 LDFLAGS	:= -nostdlib
 LDLIBS	= $(PRETARGETS)
 
@@ -35,4 +35,4 @@ ifneq "$(wildcard $(TARGETS))" ""
 endif
 
 
-include Make.rules
+include Rules.mk

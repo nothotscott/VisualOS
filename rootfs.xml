@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<directory name="root">
+	<directory name="EFI">
+		<directory name="BOOT">
+			<file>bin/bootloader/BOOTX64.EFI</file>
+		</directory>
+	</directory>
+	<file>src/limine.cfg</file>
+	<directory name="boot">
+		<file>build/vos.elf</file>
+	</directory>
+	<wildcard name="extras">extras</wildcard>
+</directory>

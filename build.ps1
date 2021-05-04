@@ -1,11 +1,11 @@
-################################################################################
+# ghi################################################################################
 ## File:		build.ps1
 ## Builds VisualOS and provides additional functionality such as running or
 ## using VirtualBox tools
 ## This script is agnostic to whether it's being called from WSL pwsh or native
 ## windows powerhell
 ##
-## Copyright 2020 Scott Maday
+## Copyright 2020-2021 Scott Maday
 ## Check the LICENSE file that came with this program for licensing terms
 ################################################################################
 
@@ -17,7 +17,7 @@ $tasks = $tasks -split ","
 # Configurable
 $OSNAME = "VisualOS"
 $BUILD_DIR = "build"
-$OVMF_URL = "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd" #"https://versaweb.dl.sourceforge.net/project/edk2/OVMF/OVMF-X64-r15214.zip"
+$OVMF_URL = "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd"
 $OVMF_NAME = "OVMF.fd"
 $DEFAULT_TASK = @("setup", "build-bootloader", "build-libc", "build-kernel", "build-vos", "build-img")
 

@@ -2,7 +2,6 @@
  * File:		_vos_syscall_u.c
  * Description:	The userspace module for VOS syscalls
  * *****************************************************************************
- * This file was made as part of VisualOS's integration with this library
  * Copyright 2021 Scott Maday
  * Code is partially from syscall_arch.h from musl
  * Check the LICENSE file that came with this program for licensing terms

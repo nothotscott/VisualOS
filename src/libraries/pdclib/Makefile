@@ -5,7 +5,7 @@
 ################################################################################
 # This file's working directory is the root of the project
 
-include Make.defaults
+include Defaults.mk
 
 
 ROOT_SUBDIRS	:= functions vos
@@ -53,4 +53,4 @@ ifneq "$(wildcard $(TARGETS))" ""
 		rm -f $(TARGETS)
 endif
 
-include Make.rules
+include Rules.mk

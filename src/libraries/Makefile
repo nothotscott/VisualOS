@@ -5,7 +5,7 @@
 
 # This file's working directory is the root of the project
 
-include Make.defaults
+include Defaults.mk
 
 # The names of kernel libraries that need an explicit kernel version at link time
 KERNEL_LIBS			:= pdclib
@@ -62,7 +62,7 @@ clean:
 		$(if $(wildcard $(LIBS_DIR)),rm -f $(TARGETS),)
 
 
-include Make.rules
+include Rules.mk
 
 SOURCE_RO	= $(filter %/$*.ro,$(SUBDIR_ROS))
 
