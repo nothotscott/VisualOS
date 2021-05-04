@@ -71,12 +71,15 @@ def create_img():
 	
 	img_path = os.path.join(BUILD_DIR, "{}.{}".format(OSNAME, IMG_EXT))
 	executable_path = os.path.join(BUILD_DIR, OS_EXECUTABLE)
+	if not os.path.exists(os.path.join(BIN_DIR, BOOTLOADER_NAME)):
+		logger.warning("No bootloader found before creating image. Getting it now.")
+		get_bootloader()
 	if not os.path.exists(executable_path):
-		logger.warning("No VOS executable first, creating it first")
+		logger.warning("No VOS executable first. Creating it first.")
 		make_executable()
 	if os.path.exists(img_path):
 		if os.path.getmtime(executable_path) < os.path.getmtime(img_path):
-			logger.warning("Last image more recent than VOS executable. Remaking the executable, deleting and replacing image")
+			logger.warning("Last image more recent than VOS executable. Remaking the executable, deleting and replacing image.")
 			make_executable()
 		else:
 			logger.warning("Image already exists at {}. Deleting and replacing it anyway.".format(img_path))
@@ -140,9 +143,17 @@ def get_ovmf():
 	logger.info("Created OVMF at {}".format(ovmf_path))
 
 def run_qemu():
-	qemu = "qemu-system-x86_64{}".format(".exe" if is_wsl else "")
 	ovmf_path = host_path_absolute(os.path.join(BIN_DIR, OVMF_NAME))
 	img_path = host_path_absolute(os.path.join(BUILD_DIR, "{}.{}".format(OSNAME, IMG_EXT)))
+	if not os.path.exists(ovmf_path):
+		logger.warning("No OVMF found before running. Getting now.")
+		get_ovmf()
+		ovmf_path = host_path_absolute(os.path.join(BIN_DIR, OVMF_NAME))
+	if not os.path.exists(img_path):
+		logger.warning("No image found before running. Creating now.")
+		create_img()
+		img_path = host_path_absolute(os.path.join(BUILD_DIR, "{}.{}".format(OSNAME, IMG_EXT)))
+	qemu = "qemu-system-x86_64{}".format(".exe" if is_wsl else "")
 	args = ["-drive", "if=pflash,format=raw,unit=0,readonly=on,file={}".format(ovmf_path), "-drive", "file={}".format(img_path)]
 	args += ["-cpu", QEMU_CPU, "-smp", str(QEMU_CORES), "-m", QEMU_MEMORY]
 	args += QEMU_MISC.split(" ")
