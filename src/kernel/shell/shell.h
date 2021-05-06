@@ -8,17 +8,14 @@
 
 #pragma once
 
-#include "bootloader.h"
+#include "module.h"
 
 
-extern struct FrameBuffer* g_shell_frame_buffer;
+// Initializes shell by drawing the bootloader image and setting the cursor
+void shell_init();
 
-
-// Initalize shell with the [frame_buffer]
-void shell_init(struct FrameBuffer* frame_buffer);
-
-// Draws TGA img at [xoffset] and [yoffset]
-void shell_draw_tga(struct TGAImage* img, uint32_t xoff, uint32_t yoff);
+// Draws TGA [image] at [xoff]set and [yoff]set
+void shell_draw_tga(struct Module* image, uint32_t xoff, uint32_t yoff);
 
 // Clears the framebuffer
 void shell_clear();

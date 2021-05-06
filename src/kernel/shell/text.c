@@ -5,13 +5,18 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
+#include "bootloader.h"
+#include "framebuffer.h"
+#include "module.h"
 #include "shell.h"
 #include "color.h"
 #include "text.h"
 
 
-static struct PSF1Font* s_text_font;
-static struct Point s_cursor = {
+static struct Point {
+	uint32_t	x;
+	uint32_t	y;
+} s_cursor = {
 	.x = 0,
 	.y = 0
 };
@@ -19,26 +24,23 @@ static struct Point s_cursor = {
 static text_color_t s_color_state = TEXT_COLOR_FOREGROUND;
 
 
-void text_init(struct PSF1Font* font){
-	s_text_font = font;
-}
-
 void text_set_cursor(uint32_t x, uint32_t y) {
 	s_cursor.x = x;
 	s_cursor.y = y;
 }
 
 void text_draw_char(char chr, text_color_t color, uint32_t xoff, uint32_t yoff){
-	uint32_t* pixel_ptr = (uint32_t*)g_shell_frame_buffer->base;
-	uint8_t charsize = s_text_font->header_ptr->charsize;
-	uint8_t* text_font_ptr = s_text_font->glyph_buffer + (chr * charsize);	// map character to glyph "array"
+	struct Framebuffer* framebuffer = bootloader_get_info()->framebuffer;
+	struct Module* font = bootloader_get_info()->font;
+	uint8_t charsize = ((struct ModulePSF1Header*)font->header)->charsize;
+	uint8_t* text_font_ptr = font->body + (chr * charsize);	// map character to glyph "array"
 	// Draw; dx is delta x and dy is delta y
 	for(size_t dy = 0; dy < charsize; dy++){
-		for(size_t dx = 0; dx < PSF1_WIDTH; dx++){
+		for(size_t dx = 0; dx < MODULE_PSF1_WIDTH; dx++){
 			if((*text_font_ptr & (0b10000000 >> dx)) > 0){	// bit is enabled along the dx'th position on the glyph row
 				size_t x = dx + xoff;
 				size_t y = dy + yoff;
-				*(uint32_t*)(pixel_ptr + x + (y * g_shell_frame_buffer->ppsl)) = color;
+				framebuffer_putpix32(framebuffer, x, y, color);
 			}
 		}
 		text_font_ptr++;
@@ -78,6 +80,7 @@ void text_output(char* str) {
 			continue;
 		}
 		text_output_char(str[i]);
+		i++;
 	}
 }
 void text_output_size(char* str, size_t size){
@@ -94,20 +97,22 @@ void text_output_size(char* str, size_t size){
 void text_output_char(char chr){
 	text_output_char_color(chr, s_color_state);
 }
-void text_output_char_color(char chr, text_color_t color){
+void text_output_char_color(char chr, text_color_t color) {
+	struct Framebuffer* framebuffer = bootloader_get_info()->framebuffer;
+	struct ModulePSF1Header* font_header = (struct ModulePSF1Header*)(bootloader_get_info()->font->header);
 	if(chr == '\n'){
 		goto newline;
 	}
 	// Draw, if there's no objections
 	text_draw_char(chr, color, s_cursor.x, s_cursor.y);
-	s_cursor.x += PSF1_WIDTH;
+	s_cursor.x += MODULE_PSF1_WIDTH;
 	// Check for overflow
-	if(s_cursor.x < g_shell_frame_buffer->width){
+	if(s_cursor.x < framebuffer->width){
 		return;
 	}
 	newline:
 		s_cursor.x = 0;
-		s_cursor.y += s_text_font->header_ptr->charsize;
+		s_cursor.y += font_header->charsize;
 }
 
 void text_output_newline(){

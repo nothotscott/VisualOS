@@ -2,10 +2,11 @@
  * File:		setup.c
  * Description:	Setup functions for initializing the kernel
  * *****************************************************************************
- * Copyright 2020 Scott Maday
+ * Copyright 2020-2021 Scott Maday
  * Check the LICENSE file that came with this program for licensing terms
  */
 
+#include "module.h"
 #include "shell/shell.h"
 #include "shell/text.h"
 #include "debug/debug.h"
@@ -21,32 +22,20 @@
 #include "x86_64/syscall.h"
 
 
-// From kernel.c
-extern struct KernelEntryInterface* g_interface;
-
 // *** PRE BSP INIT *** //
+
 void setup_shell() {
-	struct FrameBuffer* frame_buffer = g_interface->frame_buffer;
-	struct PSF1Font* font = g_interface->font;
-	struct TGAImage* img = g_interface->img;
-	shell_init(frame_buffer);
-	text_init(font);
 	shell_clear();
-	uint32_t screen_width = frame_buffer->width;
-	uint32_t screen_height = frame_buffer->height;
-	uint16_t img_width = img->header_ptr->width;
-	uint16_t img_height = img->header_ptr->height;
-	shell_draw_tga(img, screen_width / 2 - img_width / 2, 0);
-	text_set_cursor(0, img_height);
+	shell_init();
 }
 
 void setup_memory() {
-	struct FrameBuffer* frame_buffer = g_interface->frame_buffer;
+	/*struct FrameBuffer* frame_buffer = g_interface->frame_buffer;
 	pageframe_init(g_interface->mem_map, g_interface->mem_map_size, g_interface->mem_map_descriptor_size);
 	pageframe_reserve(frame_buffer->base, NEAREST_PAGE(frame_buffer->size));
 	paging_init();
 	paging_identity_map(frame_buffer->base, frame_buffer->size);
-	paging_load();
+	paging_load();*/
 	//paging_setup_pat();
 }
 
@@ -57,14 +46,15 @@ void setup_pit() {
 // *** POST BSP INIT *** //
 
 void setup_acpi() {
-	struct RSDP2* rsdp = g_interface->rsdp;
+	/*struct Stivale2StructureRSDP* rsdp_descriptor = (struct Stivale2StructureRSDP*)stivale2_get_structure(g_stivale2_structure, STIVALE2_STRUCTURE_TAG_IDENTIFIER_RSDP);
+	struct RSDP2* rsdp = (struct RSDP2*)rsdp_descriptor->rsdp;
 	struct SDTHeader* xsdt = (struct SDTHeader*)rsdp->xsdt_base;
 	struct MCFGHeader* mcfg = (struct MCFGHeader*)acpi_get_table(xsdt, "MCFG");
 	struct MADTHeader* madt = (struct MADTHeader*)acpi_get_table(xsdt, "APIC");
 	pci_init(mcfg);
 	io_enable_apic();
 	madt_init(madt);
-	//pci_print();
+	//pci_print();*/
 }
 
 void setup_apic() {
@@ -74,11 +64,11 @@ void setup_apic() {
 
 void setup_pre() {
 	setup_shell();
-	debug("Setup shell\n");
+	/*debug("Setup shell\n");
 	setup_memory();
 	debug("Setup memory\n");
 	setup_pit();
-	debug("Setup PIT\n");
+	debug("Setup PIT\n");*/
 }
 
 extern void test_userspace();

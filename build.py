@@ -27,15 +27,15 @@ BOOTLOADER_RELEASE_BRANCH	= "latest-binary"
 BOOTLOADER_NAME				= "bootloader"
 OVMF_RELEASE_URL			= "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd"
 OVMF_NAME					= "OVMF.fd"
-MAKE_VARS					= ["OSNAME=" + OSNAME, "BUILD_DIR=" + BUILD_DIR, "BIN_DIR=" + BIN_DIR]
+MAKE_VARS					= ["OSNAME=" + OSNAME, "BUILD_DIR=" + BUILD_DIR]
 OS_EXECUTABLE				= "vos.elf"
 ROOTFS_XML					= "rootfs.xml"
 IMG_EXT						= "img"
 
 is_wsl = "Microsoft" in uname().release
 logger = logging.getLogger()
-toolchain = "gcc"
 debug = False
+toolchain = "gcc"
 
 ### System functions ###
 
@@ -50,12 +50,13 @@ def host_path_absolute(path):
 def execute(command, exit_if_failed = True):
 	results = os.system(command)
 	if exit_if_failed and results != 0:
-		logger.critical("Error occurred when executing task. Code: {}".format(results))
+		logger.critical("Error occurred when executing the task: {}\nCode: {}".format(command, results))
 		sys.exit(results)
 
 def make(target):
 	jobs = max(1, multiprocessing.cpu_count() - 1)
-	execute("make -j{} {} {}".format(jobs, target, " ".join(MAKE_VARS)))
+	make_vars = " ".join(MAKE_VARS + ["DEBUG_MODE=true"] if debug else MAKE_VARS)
+	execute("make -j{} {} {}".format(jobs, target, make_vars))
 def make_clean(target):
 	execute("make clean-{}".format(target))
 
@@ -143,31 +144,38 @@ def get_ovmf():
 	logger.info("Created OVMF at {}".format(ovmf_path))
 
 def run_qemu():
-	ovmf_path = host_path_absolute(os.path.join(BIN_DIR, OVMF_NAME))
-	img_path = host_path_absolute(os.path.join(BUILD_DIR, "{}.{}".format(OSNAME, IMG_EXT)))
+	ovmf_path = os.path.join(BIN_DIR, OVMF_NAME)
+	img_path = os.path.join(BUILD_DIR, "{}.{}".format(OSNAME, IMG_EXT))
 	if not os.path.exists(ovmf_path):
 		logger.warning("No OVMF found before running. Getting now.")
 		get_ovmf()
-		ovmf_path = host_path_absolute(os.path.join(BIN_DIR, OVMF_NAME))
 	if not os.path.exists(img_path):
 		logger.warning("No image found before running. Creating now.")
 		create_img()
-		img_path = host_path_absolute(os.path.join(BUILD_DIR, "{}.{}".format(OSNAME, IMG_EXT)))
 	qemu = "qemu-system-x86_64{}".format(".exe" if is_wsl else "")
-	args = ["-drive", "if=pflash,format=raw,unit=0,readonly=on,file={}".format(ovmf_path), "-drive", "file={}".format(img_path)]
+	args = ["-drive", "if=pflash,format=raw,unit=0,readonly=on,file={}".format(host_path_absolute(ovmf_path)), "-drive", "file={}".format(host_path_absolute(img_path))]
 	args += ["-cpu", QEMU_CPU, "-smp", str(QEMU_CORES), "-m", QEMU_MEMORY]
 	args += QEMU_MISC.split(" ")
-	subprocess.run([qemu] + args)
+	if debug:
+		args += ["-s", "-S"]
+		if is_wsl:
+			subprocess.run("powershell.exe 'Start-Process qemu-system-x86_64.exe -ArgumentList \"{}\"'".format(" ".join(args)), shell=True)
+		else:
+			command = " ".join([qemu] + args)
+			subprocess.Popen(command, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+	else:
+		subprocess.run([qemu] + args)
 
 
 ### Main ###
 
 def main():
+	global debug, toolchain
 	logging.basicConfig(level=logging.DEBUG)
 
 	parser = OptionParser()
-	parser.add_option("-t", "--toolchain", choices=["gcc", "llvm"], default="gcc", help="Sets the compiler toolchain")
 	parser.add_option("-d", "--debug", action="store_true", default=False, help="Enables debug mode")
+	parser.add_option("-t", "--toolchain", choices=["gcc", "llvm"], default="gcc", help="Sets the compiler toolchain")
 	parser.add_option("--clean-bin", action="store_true", help="Deletes the bin directory")
 	parser.add_option("--clean-libs", action="store_true", help="Cleans the libraries build")
 	parser.add_option("--clean-kernel", action="store_true", help="Cleans the kernel build")
@@ -183,8 +191,8 @@ def main():
 		for task in DEFAULT_TASKS:
 			setattr(options, task, True)
 
-	toolchain = options.toolchain
 	debug = options.debug
+	toolchain = options.toolchain
 	if options.clean_bin:
 		if os.path.exists(BIN_DIR):
 			shutil.rmtree(BIN_DIR)

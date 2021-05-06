@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "bootloader.h"
+#include "bootloader2.h"
 #include "bitmap.h"
 
 #define MEMORY_PAGEABLE_TYPE			BOOTLOADER_CONVENTIONAL_MEMORY

@@ -1,6 +1,6 @@
 /*
  * File:		main.c
- * Description:	Kernel entry point
+ * Description:	Kernel entry points
  * *****************************************************************************
  * Copyright 2020-2021 Scott Maday
  * Check the LICENSE file that came with this program for licensing terms
@@ -8,21 +8,29 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "x86_64/cpu.h"
-#include "sys/sys.h"
-#include "stivale2.h"
 
+#include "stivale2.h"
+#include "bootloader.h"
+
+void kernel_common();
 // From setup.c
 extern void setup_pre();
 extern void setup_post();
 
-struct KernelEntryInterface* g_interface;
+void kernel_start_default() {
+	kernel_common();
+}
 
-void _start(struct stivale2_struct* stivale2_struct) {
-	
-	
-	/*setup_pre();
-	cpu_init_bsp();
+void kernel_start_stivale2(struct Stivale2Structure* structure) {
+	stivale2_init(structure);
+	kernel_common();
+}
+
+void kernel_common() {
+	setup_pre();
+
+	puts("feels good to be back");
+	/*cpu_init_bsp();
 	setup_post();*/
 
 	while (true);

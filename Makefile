@@ -3,7 +3,6 @@ include		Defaults.mk
 
 TARGET_DIR	= $(BUILD_DIR)
 
-EFI_BIN			:= $(BOOTLOADER_DIR)/BOOTX64.efi
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 VOS_BIN			:= $(BUILD_DIR)/vos.elf
 
@@ -31,11 +30,12 @@ $(LIBS):		setup
 				$(MAKE_VOS) TARGET_DIR=$(LIBS_DIR)
 libs:			$(LIBS)
 
-.PHONY: $(KERNEL) kernel
+.PHONY: $(KERNEL) kernel $(KERNEL_DIR)/kernel.ro
 $(KERNEL):		setup
 				$(call echo_build)
 				$(MAKE_VOS) TARGET_DIR=$(KERNEL_DIR)
 kernel:			$(KERNEL)
+$(KERNEL_DIR)/kernel.ro:	$(KERNEL)
 
 ###############################################################################
 
@@ -43,26 +43,6 @@ $(VOS_BIN):		$(KERNEL_BIN)
 				mv $(KERNEL_BIN) $(VOS_BIN)
 .PHONY: vos
 vos:			$(VOS_BIN)
-
-$(BUILD_DIR)/$(OSNAME).img:	
-				dd if=/dev/zero of=$@ bs=512 count=93750
-				mformat -i $@ -f 1440 ::
-				mmd -i $@ ::/EFI
-				mmd -i $@ ::/EFI/BOOT
-				mcopy -i $@ $(VOS_BIN) :: &
-				mcopy -i $@ $(EFI_BIN) ::/EFI/BOOT &
-				mcopy -i $@ -s extras/ ::/extras &
-.PHONY: img
-img:			$(BUILD_DIR)/$(OSNAME).img
-
-# TODO do this in Python
-#$(BUILD_DIR)/$(OSNAME).iso:	img
-#				mkdir -p $(BUILD_DIR)/iso
-#				cp $(BUILD_DIR)/$(OSNAME).img $(BUILD_DIR)/iso
-#				xorriso -as mkisofs -R -f -e $(OSNAME).img -no-emul-boot -o $(BUILD_DIR)/$(OSNAME).iso $(BUILD_DIR_ABS)/iso
-#				rm -rf $(BUILD_DIR)/iso
-#.PHONY: iso
-#iso:			$(BUILD_DIR)/$(OSNAME).iso
 
 ###############################################################################
 

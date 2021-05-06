@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "bootloader.h"
+#include "module.h"
 
 typedef uint32_t	text_color_t;
 
@@ -27,15 +27,6 @@ typedef uint32_t	text_color_t;
 #define TEXT_COLOR_ADDRESS		TEXT_COLOR_MAGENTA
 #define TEXT_COLOR_NUMBER		TEXT_COLOR_YELLOW
 
-
-struct Point {
-	uint32_t	x;
-	uint32_t	y;
-};
-
-
-// Initializes shell text with [font]
-void text_init(struct PSF1Font* font);
 
 // Sets the cursor to the [x] and [y]
 void text_set_cursor(uint32_t x, uint32_t y);

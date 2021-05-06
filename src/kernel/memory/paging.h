@@ -53,7 +53,7 @@ struct PageLevelIndexes {
 };
 
 
-// *** Miscellaneous functions  *** //
+// *** Miscellaneous functions *** //
 
 // Breaks the virtual [address] into its indexes and puts it in [out]
 void paging_get_indexes(void* address, struct PageLevelIndexes* out);
@@ -67,7 +67,7 @@ void* paging_get_entry_address(page_directory_entry_t entry);
 // Gets the global page table level 4 pointer
 struct PageTable* paging_get_pagetable_l4();
 
-// *** Assembly functions  *** //
+// *** Assembly functions *** //
 
 // Loads the paging information into the appropriate control register
 void paging_load();
@@ -75,7 +75,7 @@ void paging_load();
 // Creates page attribute table
 void paging_setup_pat();
 
-// *** Class functions  *** //
+// *** Class functions *** //
 
 // Initializes paging by creating the page table level 4 and sets the 
 // initial mapping between virtual and physical memory.
