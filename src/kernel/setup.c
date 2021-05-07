@@ -57,7 +57,7 @@ void setup_acpi() {
 	pci_init(mcfg);
 	io_enable_apic();
 	madt_init(madt);
-	//pci_print();
+	pci_print();
 }
 
 void setup_apic() {
