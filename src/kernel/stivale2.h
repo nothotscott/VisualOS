@@ -9,6 +9,7 @@
 #pragma once
 
 #include "framebuffer.h"
+#include "memory/memory.h"
 #include "module.h"
 
 #define STIVALE2_STACK_PAGES	1
@@ -25,7 +26,7 @@ enum Stivale2HeaderTagIdentifier {
 };
 enum Stivale2StructureTagIdentifier {
 	STIVALE2_STRUCTURE_TAG_IDENTIFIER_COMMANDLINE		= 0xe5e76a1b4597a781,
-	STIVALE2_STRUCTURE_TAG_IDENTIFIER_MEMORY_MAP		= 0x2187f79e8612de07,
+	STIVALE2_STRUCTURE_TAG_IDENTIFIER_MEMORYMAP			= 0x2187f79e8612de07,
 	STIVALE2_STRUCTURE_TAG_IDENTIFIER_FRAMEBUFFER		= 0x506461d2950408fa,
 	STIVALE2_STRUCTURE_TAG_IDENTIFIER_EDID				= 0x968609d7af96b845,
 	STIVALE2_STRUCTURE_TAG_IDENTIFIER_MTRR_WC			= 0x6bc1a78ebe871172,
@@ -240,9 +241,9 @@ void stivale2_init(struct Stivale2Structure* structure);
 
 // Gets the stivale2 structure for [identifier] at [structure]
 struct Stivale2StructureTag* stivale2_get_structure(struct Stivale2Structure* structure, enum Stivale2StructureTagIdentifier identifier);
-
 // Gets the stivale2 framebuffer and write the transformation to [framebuffer] for [structure]
 void stivale2_get_framebuffer(struct Stivale2Structure* structure, struct Framebuffer* framebuffer);
-
+// Gets the stivale2 memorymap and write the transformation of all entries to [memorymap] for [structure]
+void stivale2_get_memorymap(struct Stivale2Structure* structure, struct MemoryMap* memorymap);
 // Gets the stivale2 module with [signature] and [header_size] and writes the pointer to [module] for [structure]. Returns true on success.
 bool stivale2_get_module(struct Stivale2Structure* structure, struct Module* module, const char* signature, size_t header_size);

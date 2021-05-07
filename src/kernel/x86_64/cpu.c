@@ -5,6 +5,7 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
+#include "memory/memory.h"
 #include "memory/paging.h"
 #include "memory/pageframe.h"
 #include "io.h"

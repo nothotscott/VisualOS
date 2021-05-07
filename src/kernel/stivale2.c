@@ -7,8 +7,8 @@
 
 #include <string.h>
 #include "bootloader.h"
-#include "memory/paging.h"
 #include "framebuffer.h"
+#include "memory/memory.h"
 #include "module.h"
 #include "stivale2.h"
 
@@ -22,7 +22,7 @@ static struct Stivale2HeaderTagFrameBuffer s_tag0 = {
 	.tag.next = 0,
 	.width = 0,
 	.height = 0,
-	.bpp = 0
+	.bpp = 32
 };
 
 __attribute__((section(".stivale2hdr"), used))
@@ -39,9 +39,10 @@ static struct Stivale2Header s_stivale2_header = {
 void stivale2_init(struct Stivale2Structure* structure) {
 	struct BootloaderInformation* info = bootloader_get_info();
 	stivale2_get_framebuffer(structure, info->framebuffer);
+	stivale2_get_memorymap(structure, info->memorymap);
+	info->rsdp = (struct RSDP2*)((struct Stivale2StructureRSDP*)stivale2_get_structure(structure, STIVALE2_STRUCTURE_TAG_IDENTIFIER_RSDP))->rsdp;
 	stivale2_get_module(structure, info->font, MODULE_SIGNATURE_FONT, sizeof(struct ModulePSF1Header));
 	stivale2_get_module(structure, info->image, MODULE_SIGNATURE_IMAGE, sizeof(struct ModuleTGAHeader));
-	info->rsdp = (struct RSDP2*)((struct Stivale2StructureRSDP*)stivale2_get_structure(structure, STIVALE2_STRUCTURE_TAG_IDENTIFIER_RSDP))->rsdp;
 }
 
 struct Stivale2StructureTag* stivale2_get_structure(struct Stivale2Structure* structure, enum Stivale2StructureTagIdentifier identifier) {
@@ -68,10 +69,24 @@ void stivale2_get_framebuffer(struct Stivale2Structure* structure, struct Frameb
 	};
 }
 
+void stivale2_get_memorymap(struct Stivale2Structure* structure, struct MemoryMap* memorymap) {
+	struct Stivale2StructureTagMemoryMap* stivale2_memorymap = (struct Stivale2StructureTagMemoryMap*)stivale2_get_structure(structure, STIVALE2_STRUCTURE_TAG_IDENTIFIER_MEMORYMAP);
+	size_t entries_num = stivale2_memorymap->entries_num;
+	for(size_t i = 0; i < entries_num; i++) {
+		struct Stivale2MemoryMapEntry* stivale2_memorymap_entry = stivale2_memorymap->entries + i;
+		memorymap->entries[i] = (struct MemoryMapEntry){
+			.physical_base = (void*)stivale2_memorymap_entry->base,
+			.num_pages = NEAREST_PAGE(stivale2_memorymap_entry->length),
+			.type = MEMORY_TYPE_USABLE ? stivale2_memorymap_entry->type == STIVALE2_MEMORY_TYPE_USABLE : MEMORY_TYPE_UNUSABLE
+		};
+	}
+	memorymap->entries_num = entries_num;
+}
+
 bool stivale2_get_module(struct Stivale2Structure* structure, struct Module* module, const char* signature, size_t header_size) {
-	struct Stivale2StructureModules* modules = (struct Stivale2StructureModules*)stivale2_get_structure(structure, STIVALE2_STRUCTURE_TAG_IDENTIFIER_MODULES);
-	for(size_t i = 0; i < modules->modules_num; i++) {
-		struct Stivale2Module* stivale2_module = &modules->modules[i];
+	struct Stivale2StructureModules* stivale2_modules = (struct Stivale2StructureModules*)stivale2_get_structure(structure, STIVALE2_STRUCTURE_TAG_IDENTIFIER_MODULES);
+	for(size_t i = 0; i < stivale2_modules->modules_num; i++) {
+		struct Stivale2Module* stivale2_module = &stivale2_modules->modules[i];
 		if(strcmp(signature, stivale2_module->string) != 0) {
 			continue;
 		}

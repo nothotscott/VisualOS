@@ -7,8 +7,9 @@
 
 #include <string.h>
 #include "debug/debug.h"
-#include "memory/pageframe.h"
+#include "memory/memory.h"
 #include "memory/paging.h"
+#include "memory/pageframe.h"
 #include "x86_64/pit.h"
 #include "x86_64/cpu.h"
 #include "madt.h"

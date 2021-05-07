@@ -5,8 +5,8 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
-#include "x86_64/apic/apic.h"
 #include "bitmap.h"
+#include "memory.h"
 #include "paging.h"
 #include "pageframe.h"
 
@@ -24,48 +24,40 @@ static struct Bitmap s_pageframemap;
 static size_t s_current_index = 0;
 
 
-void pageframe_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t mem_map_descriptor_size) {
-	s_memory_total_size = 0;
-	s_memory_used_size = 0;
-	s_memory_reserved_size = 0;
-	uint32_t num_enteries = mem_map_size / mem_map_descriptor_size;
-	struct MemoryDescriptor* largest_primary = NULL;
+void pageframe_init() {
+	struct MemoryMap* memorymap = bootloader_get_info()->memorymap;
+	size_t entries_num = memorymap->entries_num;
+	struct MemoryMapEntry* largest_primary = NULL;
 	// Find largest primary memory region
-	for(uint32_t i = 0; i < num_enteries; i++){
-		struct MemoryDescriptor* descriptor = (struct MemoryDescriptor*)((void*)mem_map + (i * mem_map_descriptor_size));
-		if(descriptor->type == MEMORY_PAGEABLE_TYPE && (largest_primary == NULL || descriptor->num_pages > largest_primary->num_pages)){
-			largest_primary = descriptor;
+	for(size_t i = 0; i < entries_num; i++) {
+		struct MemoryMapEntry* memorymap_entry = memorymap->entries + i;
+		if(memorymap_entry->type == MEMORY_TYPE_USABLE && (largest_primary == NULL || memorymap_entry->num_pages > largest_primary->num_pages)){
+			largest_primary = memorymap_entry;
 		}
-		s_memory_total_size += descriptor->num_pages * BOOTLOADER_MEMORY_PAGE_SIZE;
+		s_memory_total_size += memorymap_entry->num_pages * MEMORY_PAGE_SIZE;
 	}
 	// Assign bitmap
-	bitmap_initialize(&s_pageframemap, largest_primary->phys_address, s_memory_total_size / MEMORY_PAGE_SIZE / BITMAP_SCALE);
+	bitmap_initialize(&s_pageframemap, largest_primary->physical_base, s_memory_total_size / MEMORY_PAGE_SIZE / BITMAP_SCALE);
 	// Reserve all pages
 	pageframe_reserve(0, s_memory_total_size / MEMORY_PAGE_SIZE);
 	// Unreserve unusable memory segments
-	for(uint32_t i = 0; i < num_enteries; i++){
-		struct MemoryDescriptor* descriptor = (struct MemoryDescriptor*)((void*)mem_map + (i * mem_map_descriptor_size));
-		if(descriptor->type != MEMORY_PAGEABLE_TYPE){
+	for(size_t i = 0; i < entries_num; i++) {
+		struct MemoryMapEntry* memorymap_entry = memorymap->entries + i;
+		if(memorymap_entry->type != MEMORY_TYPE_USABLE){
 			continue;
 		}
-		size_t reserved_size = descriptor->num_pages * BOOTLOADER_MEMORY_PAGE_SIZE;
-		pageframe_unreserve(descriptor->phys_address, reserved_size / MEMORY_PAGE_SIZE);
+		size_t reserved_size = memorymap_entry->num_pages * MEMORY_PAGE_SIZE;
+		pageframe_unreserve(memorymap_entry->physical_base, reserved_size / MEMORY_PAGE_SIZE);
 	}
-	// Reserve the s_pageframemap itself
-	size_t pageframemap_pages = s_pageframemap.size % MEMORY_PAGE_SIZE > 0 ? s_pageframemap.size / MEMORY_PAGE_SIZE + 1 : s_pageframemap.size / MEMORY_PAGE_SIZE;
-	pageframe_reserve(s_pageframemap.buffer, pageframemap_pages);
-	// Reserve kernel space
+	// Lock the s_pageframemap itself
+	size_t pageframemap_pages = NEAREST_PAGE(s_pageframemap.size);
+	pageframe_lock(s_pageframemap.buffer, pageframemap_pages);
+	// Lock kernel space
 	size_t kernel_size = (size_t)&_kernel_end - (size_t)&_kernel_start;
-	size_t kernel_pages = kernel_size % MEMORY_PAGE_SIZE > 0 ? kernel_size / MEMORY_PAGE_SIZE + 1 : kernel_size / MEMORY_PAGE_SIZE;
-	pageframe_reserve(&_kernel_start, kernel_pages);
+	size_t kernel_pages = NEAREST_PAGE(kernel_size);
+	pageframe_lock(&_kernel_start, kernel_pages);
 	// Reserve first 256 pages
-	pageframe_reserve(0, MEMORY_INITIAL_RESERVE_PAGES);
-	// Lock the APIC trampoline code
-	pageframe_lock((void*)APIC_TRAMPOLINE_TARGET, APIC_TRAMPOLINE_TARGET_SIZE);
-}
-
-size_t memory_get_free() {
-	return s_memory_total_size - s_memory_used_size - s_memory_reserved_size;
+	pageframe_reserve(0, PAGEFRAME_INITIAL_RESERVE_PAGES);
 }
 
 bool pageframe_manipulate(uint64_t index, bool state) {
@@ -154,12 +146,16 @@ void pageframe_reserve(void* address, size_t pages) {
 	}
 }
 
-size_t pageframe_get_memory_total_size() {
+
+size_t memory_get_total_size() {
 	return s_memory_total_size;
 }
-size_t pageframe_get_memory_used_size() {
+size_t memory_get_used_size() {
 	return s_memory_used_size;
 }
-size_t pageframe_get_memory_reserved_size() {
+size_t memory_get_reserved_size() {
 	return s_memory_reserved_size;
+}
+size_t memory_get_free() {
+	return s_memory_total_size - s_memory_used_size - s_memory_reserved_size;
 }

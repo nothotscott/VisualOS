@@ -8,20 +8,15 @@
 
 #pragma once
 
-#include "bootloader2.h"
+#include "bootloader.h"
 #include "bitmap.h"
+#include "memory.h"
 
-#define MEMORY_PAGEABLE_TYPE			BOOTLOADER_CONVENTIONAL_MEMORY
-#define MEMORY_INITIAL_RESERVE_PAGES	256
+#define PAGEFRAME_INITIAL_RESERVE_PAGES	256
 
 
-// Initalizes paging by discovering the usable memory segment from [mem_map],
-// [mem_map_size], and [mem_map_descriptor_size] and creates a bitmap
-// of the usable space
-void pageframe_init(struct MemoryDescriptor* mem_map, size_t mem_map_size, size_t mem_map_descriptor_size);
-
-// Calculates free memory space that's pageable
-size_t memory_get_free();
+// Initalizes pageframes by discovering useable memory segments passed by the bootloader
+void pageframe_init();
 
 // Checks if a page is in [state] at [index] and sets it to [state]. 
 // Will return true if it's state is already in [state].
@@ -42,10 +37,3 @@ void pageframe_unreserve(void* address, size_t pages);
 
 // Make pages in-use at [address] and therafter [pages] times and track reserved
 void pageframe_reserve(void* address, size_t pages);
-
-// Gets the total size of memory space (bytes), regardless of whether it's usable or not
-size_t pageframe_get_memory_total_size();
-// Gets the size of memory space (bytes) used by paging
-size_t pageframe_get_memory_used_size();
-// Gets the size of memory space (bytes) used by reserved paging
-size_t pageframe_get_memory_reserved_size();

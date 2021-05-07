@@ -8,11 +8,7 @@
 
 #pragma once
 
-#define MEMORY_PAGE_SIZE		4096
-#define	MEMORY_PAGE_ENTRY_SIZE	MEMORY_PAGE_SIZE/sizeof(long)
-
-#define	ROUND_UP_PAGE_SIZE(n)	ROUND_UP(n, MEMORY_PAGE_SIZE)
-#define	NEAREST_PAGE(n)			ROUND_UP_PAGE_SIZE(n) / MEMORY_PAGE_SIZE
+#include "memory.h"
 
 typedef uint64_t	page_directory_entry_t;
 
@@ -91,5 +87,5 @@ void paging_identity_map_page(void* address);
 // Maps [virtual_address] to [physical_address]
 void paging_map(void* virtual_address, void* physical_address);
 
-// Donates a page to userspace at [virtual_address]
-void paging_donate_to_userspace(void* virtual_address);
+// Sets the access of [virtual_address] to userspace or not depending on [userspace_access]
+void paging_set_userspace_access(void* virtual_address, bool userspace_access);

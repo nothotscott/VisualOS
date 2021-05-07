@@ -19,7 +19,7 @@ struct Framebuffer {
 };
 
 
-// Puts [pix] in the global framebuffer at [x],[y]
+// Puts [pix] in [framebuffer] at [x],[y]
 __attribute__((always_inline)) inline void framebuffer_putpix32(struct Framebuffer* framebuffer, framebuffer_dim_t x, framebuffer_dim_t y, uint32_t pix) {
-	((uint32_t*)framebuffer->base)[y *framebuffer->width + x] = pix;
+	((uint32_t*)framebuffer->base)[y * framebuffer->width + x] = pix;
 }

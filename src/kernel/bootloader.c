@@ -7,18 +7,21 @@
 
 #include "framebuffer.h"
 #include "module.h"
-#include "bootloader.h"
+#include "memory/memory.h"
 #include "x86_64/acpi.h"
+#include "bootloader.h"
 
 static struct Framebuffer s_framebuffer;
+static struct MemoryMap s_memorymap;
 static struct Module s_module_font;
 static struct Module s_module_image;
 
 static struct BootloaderInformation s_bootloader_info = {
 	.framebuffer = &s_framebuffer,
+	.memorymap = &s_memorymap,
+	.rsdp = NULL,
 	.font = &s_module_font,
 	.image = &s_module_image,
-	.rsdp = NULL
 };
 
 

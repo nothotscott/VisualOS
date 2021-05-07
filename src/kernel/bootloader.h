@@ -14,9 +14,10 @@
 
 struct BootloaderInformation {
 	struct Framebuffer*	framebuffer;
+	struct MemoryMap*	memorymap;
+	struct RSDP2*		rsdp;
 	struct Module*		font;
 	struct Module*		image;
-	struct RSDP2*		rsdp;
 };
 
 
