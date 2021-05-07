@@ -55,8 +55,10 @@ def execute(command, exit_if_failed = True):
 
 def make(target):
 	jobs = max(1, multiprocessing.cpu_count() - 1)
-	make_vars = " ".join(MAKE_VARS + ["DEBUG_MODE=true"] if debug else MAKE_VARS)
-	execute("make -j{} {} {}".format(jobs, target, make_vars))
+	make_vars = MAKE_VARS + ["TOOLCHAIN=" + toolchain]
+	if debug:
+		make_vars += ["DEBUG_MODE=true"]
+	execute("make -j{} {} {}".format(jobs, target, " ".join(make_vars)))
 def make_clean(target):
 	execute("make clean-{}".format(target))
 

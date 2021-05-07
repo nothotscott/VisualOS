@@ -29,10 +29,15 @@ TARGETS			= $(addprefix $(LIBS_DIR)/,																\
 					$(addsuffix $(USERSPACE_SUFFIX).a,$(SUBDIR_SPECIAL))								\
 				)
 
-export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -fno-builtin -fshort-wchar -std=c11 -nostdlib -gdwarf -fvar-tracking -O0 -fno-pic -fpie -nostdinc -pedantic
+export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -fno-builtin -std=c11 -nostdlib -gdwarf -O0 -fno-pic -fpie -nostdinc -pedantic
 CFLAGS			+= -Wall -Wextra -Wno-unused-parameter -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-declarations -Wredundant-decls -Winline -Wno-long-long -Wuninitialized -Wnested-externs -Wdeclaration-after-statement
-ifndef DEBUG_MODE
-	CFLAGS += -O1
+ifdef DEBUG_MODE
+	CFLAGS	+= -O0
+else
+	CFLAGS	+= -O1
+endif
+ifeq ($(CC), gcc)
+	CFLAGS	+ -fvar-tracking
 endif
 #export ASFLAGS	:= 
 
@@ -45,7 +50,8 @@ all:	clean
 
 .PHONY: 	$(SUBDIRS) subdirs
 $(SUBDIRS):	
-		+ $(MAKE) -f $@/Makefile SUPER=$(THIS) THIS=$@ THIS_NODE=$@ TARGET_DIR=$(TARGET_DIR)/$(notdir $@)
+#		+ $(MAKE) -f $@/Makefile SUPER=$(THIS) THIS=$@ THIS_NODE=$@ TARGET_DIR=$(TARGET_DIR)/$(notdir $@)
+		@echo Ignoring $@
 subdirs:	$(SUBDIRS)
 			@:
 

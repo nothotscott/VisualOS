@@ -27,7 +27,7 @@ struct SysHandler {
 // *** Handler functions  *** //
 
 // Gets the sys handler function for [num]
-uint64_t (*syshandler_get(uint64_t num))();
+__attribute__((no_caller_saved_registers)) uint64_t (*syshandler_get(uint64_t num))();
 // Stub sys handler
 uint64_t syshandler_stub();
 

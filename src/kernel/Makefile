@@ -11,11 +11,14 @@ INCLUDE_DIRS		:= $(THIS)/
 INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBS)/$(LIBC)/include $(SRC_DIR)/$(LIBS)/$(LIBC)/vos/include 
 
 export CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I ,$(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS))
-CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -gdwarf -fno-pic -fpie -fvar-tracking -std=c11 -mgeneral-regs-only -D__STDC_NO_THREADS__
+CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -gdwarf -fno-pic -fpie -std=c11 -D__STDC_NO_THREADS__
 ifdef DEBUG_MODE
-	CFLAGS += -O0
+	CFLAGS	+= -O0
 else
-	CFLAGS += -O1
+	CFLAGS	+= -O1
+endif
+ifeq ($(CC), gcc)
+	CFLAGS	+ -fvar-tracking -mgeneral-regs-only
 endif
 export ASFLAGS	:= -p $(THIS)/kernel.inc $(addprefix -i ,$(INCLUDE_DIRS)) -f elf64 -F dwarf -g
 LDFLAGS	:= -nostdlib
