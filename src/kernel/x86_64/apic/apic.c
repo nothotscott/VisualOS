@@ -6,7 +6,7 @@
  */
 
 #include <string.h>
-#include "debug/debug.h"
+#include "logging/log.h"
 #include "memory/memory.h"
 #include "memory/paging.h"
 #include "memory/pageframe.h"
@@ -113,7 +113,7 @@ void apic_start_smp() {
 		do {
 			sleep(APIC_SLEEP_DELAY_AP_STARTUP);
 		} while(communicator->ap_status == 0);
-		debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "Processor %d (context at 0x%x) responded with %d\n",
+		log_options((struct LogOptions){LOG_TYPE_WARNING, true}, "Processor %d (context at 0x%x) responded with %d\n",
 			ap_context->local_apic_id, communicator->ap_context, communicator->ap_status
 		);
 		// Finish this iteration

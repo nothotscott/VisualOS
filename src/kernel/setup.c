@@ -11,7 +11,7 @@
 #include "module.h"
 #include "shell/shell.h"
 #include "shell/text.h"
-#include "debug/debug.h"
+#include "logging/log.h"
 #include "memory/pageframe.h"
 #include "memory/paging.h"
 #include "memory/paging.h"
@@ -67,18 +67,18 @@ void setup_apic() {
 
 void setup_pre() {
 	setup_shell();
-	debug("Setup shell\n");
+	log("Setup shell\n");
 	setup_memory();
-	debug("Setup memory\n");
+	log("Setup memory\n");
 	setup_pit();
-	debug("Setup PIT\n");
+	log("Setup PIT\n");
 }
 
 extern void test_userspace();
 
 void setup_post() {
 	setup_acpi();
-	debug("Setup ACPI/PCI\n");
+	log("Setup ACPI/PCI\n");
 	setup_apic();
-	debug("Setup APIC/MP\n");
+	log("Setup APIC/MP\n");
 }

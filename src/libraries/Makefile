@@ -37,7 +37,7 @@ else
 	CFLAGS	+= -O1
 endif
 ifeq ($(CC), gcc)
-	CFLAGS	+ -fvar-tracking
+	CFLAGS	+= -fvar-tracking
 endif
 #export ASFLAGS	:= 
 

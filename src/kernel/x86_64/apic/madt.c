@@ -6,7 +6,7 @@
  */
 
 #include <string.h>
-#include "debug/debug.h"
+#include "logging/log.h"
 #include "memory/paging.h"
 #include "x86_64/acpi.h"
 #include "apic.h"
@@ -26,11 +26,11 @@ void madt_init(struct MADTHeader* madt) {
 	void* apic_ptr = (void*)(uint64_t)madt->local_apic_address;
 	paging_identity_map_page(apic_ptr);
 	memset(s_processors, 0, MADT_MAX_PROCESSORS * sizeof(struct ApplicationProcessor));
-	debug("Bootstrap processor APIC Address: 0x%x\n", apic_ptr);
+	log("Bootstrap processor APIC Address: 0x%x\n", apic_ptr);
 	for(size_t t = 0; t < madt->header.length - sizeof(struct MADTHeader); /* Do not increment here */ ){
 		struct MADTRecord* record = (struct MADTRecord*)((uint64_t)madt + sizeof(struct MADTHeader) + t);
 		paging_identity_map_page(record);
-		debug("Record type: %d size: %d\n", record->type, record->length);
+		log("Record type: %d size: %d\n", record->type, record->length);
 		t += record->length;	// increment here
 		switch(record->type) {
 			case MADT_TYPE_LOCAL_PROCESSOR:
@@ -40,7 +40,7 @@ void madt_init(struct MADTHeader* madt) {
 						.local_processor = local_processor
 					};
 					s_processors_num++;
-					debug("  Processor ID: %d APIC-ID: %d Flags: %d\n", local_processor->processor_id, local_processor->local_apic_id, local_processor->flags);
+					log("  Processor ID: %d APIC-ID: %d Flags: %d\n", local_processor->processor_id, local_processor->local_apic_id, local_processor->flags);
 				}
 				break;
 			case MADT_TYPE_IOAPIC:
@@ -50,19 +50,19 @@ void madt_init(struct MADTHeader* madt) {
 					paging_identity_map_page(apic_ptr);
 					s_ioapics[s_ioapics_num] = io_apic;
 					s_ioapics_num++;
-					debug("  IO APIC: 0x%x\n", apic_ptr);
+					log("  IO APIC: 0x%x\n", apic_ptr);
 				}
 				break;
 			case MADT_TYPE_INTERRUPT_SOURCE_OVERRIDE:
 				{
 					struct MADTInterruptSourceOverride* iso = (struct MADTInterruptSourceOverride*)record;
-					debug("  Interrupt Source Override source: 0x%d\n", iso->source);
+					log("  Interrupt Source Override source: 0x%d\n", iso->source);
 				}
 				break;
 			case MADT_TYPE_NONMASKABLE_INTERRUPT:
 				{
 					struct MADTNonMaskableInterrupt* nmi = (struct MADTNonMaskableInterrupt*)record;
-					debug("  Non-Maskable Interrupt ID: %d\n", nmi->local_apic_id);
+					log("  Non-Maskable Interrupt ID: %d\n", nmi->local_apic_id);
 				}
 				break;
 			case MADT_TYPE_LOCAL_APICADDRESS_OVERRIDE:

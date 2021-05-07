@@ -9,17 +9,16 @@
 #include <stdio.h>
 #include "shell/text.h"
 #include "shell/color.h"
-#include "debug/debug.h"
+#include "logging/log.h"
 #include "sys.h"
 
 uint64_t sys_write(int fd, char* buf, size_t count) {
 	switch(fd) {
 		case SYS_FD_STDOUT:
-		case SYS_FD_STDERR:
 			text_output_size(buf, count);
 			return count;
-		case SYS_FD_STDDBG:
-			debug_output_size(buf, count);
+		case SYS_FD_STDERR:
+			log_output_size(buf, count);
 			return count;
 	}
 	return 0;

@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 #include "x86_64/io.h"
-#include "debug/debug.h"
+#include "logging/log.h"
 #include "pit.h"
 #include "interrupt.h"
 #include "interrupt_handlers.h"
@@ -26,17 +26,17 @@ static const char s_keyboard_scancodes[] ={
 // *** Exceptions *** //
 
 void double_fault_handler(struct InterruptStack* stack, size_t num) {
-	debug_options((struct DebugOptions){DEBUG_TYPE_ERROR, true}, "\nDOUBLE FAULT DETECTED: %d\n", stack->error_code);
+	log_options((struct LogOptions){LOG_TYPE_ERROR, true}, "\nDOUBLE FAULT DETECTED: %d\n", stack->error_code);
 	while(true);
 }
 
 void general_protection_fault_handler(struct InterruptStack* stack, size_t num) {
-	debug_options((struct DebugOptions){DEBUG_TYPE_ERROR, true}, "\nGENERAL PROTECTION FAULT DETECTED: %d\n", stack->error_code);
+	log_options((struct LogOptions){LOG_TYPE_ERROR, true}, "\nGENERAL PROTECTION FAULT DETECTED: %d\n", stack->error_code);
 	while(true);
 }
 
 void paging_fault_handler(struct InterruptStack* stack, size_t num) {
-	debug_options((struct DebugOptions){DEBUG_TYPE_ERROR, true}, "\nPAGE FAULT DETECTED: %d\n", stack->error_code);
+	log_options((struct LogOptions){LOG_TYPE_ERROR, true}, "\nPAGE FAULT DETECTED: %d\n", stack->error_code);
 	while(true);
 }
 

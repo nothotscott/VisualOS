@@ -9,7 +9,7 @@
 #pragma once
 
 #include "text.h"
-#include "debug/debug.h"
+#include "logging/log.h"
 
 #define COLOR_MATCH_FAIL	-1
 
@@ -32,7 +32,7 @@
 struct ColorInterface {
 	char			ansi[COLOR_ANSI_MAX_SIZE];
 	text_color_t	shell;
-	enum DebugType	debug;
+	enum LogType	log;
 };
 
 
@@ -46,4 +46,4 @@ int color_ansi_compare(char* str1, char* str2);
 // Will write the index found to [index] if it's not null
 struct ColorInterface* color_from_ansi(char* color, int* index);
 struct ColorInterface* color_from_shell(text_color_t color);
-struct ColorInterface* color_from_debug(enum DebugType color);
+struct ColorInterface* color_from_log(enum LogType color);

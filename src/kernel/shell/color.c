@@ -6,23 +6,23 @@
  */
 
 #include "text.h"
-#include "debug/debug.h"
+#include "logging/log.h"
 #include "color.h"
 
 #define COLORS_SIZE	(sizeof(s_colors)/sizeof(struct ColorInterface))
 
-struct ColorInterface g_color_default = {COLOR_WHITE, TEXT_COLOR_FOREGROUND, DEBUG_TYPE_NORMAL};
+struct ColorInterface g_color_default = {COLOR_WHITE, TEXT_COLOR_FOREGROUND, LOG_TYPE_NORMAL};
 
 static struct ColorInterface s_colors[] = {
 	{ COLOR_RESET,	 	TEXT_COLOR_WHITE },
 	{ COLOR_BLACK,		TEXT_COLOR_BLACK },
-	{ COLOR_RED,		TEXT_COLOR_RED,		DEBUG_TYPE_ERROR },
+	{ COLOR_RED,		TEXT_COLOR_RED,		LOG_TYPE_ERROR },
 	{ COLOR_GREEN,		TEXT_COLOR_GREEN },
-	{ COLOR_YELLOW,		TEXT_COLOR_YELLOW,	DEBUG_TYPE_WARNING },
-	{ COLOR_BLUE,		TEXT_COLOR_BLUE,	DEBUG_TYPE_INFO },
+	{ COLOR_YELLOW,		TEXT_COLOR_YELLOW,	LOG_TYPE_WARNING },
+	{ COLOR_BLUE,		TEXT_COLOR_BLUE,	LOG_TYPE_INFO },
 	{ COLOR_MAGENTA,	TEXT_COLOR_MAGENTA },
 	{ COLOR_CYAN,		TEXT_COLOR_CYAN },
-	{ COLOR_WHITE,	 	TEXT_COLOR_WHITE,	DEBUG_TYPE_NORMAL },
+	{ COLOR_WHITE,	 	TEXT_COLOR_WHITE,	LOG_TYPE_NORMAL },
 };
 
 
@@ -68,9 +68,9 @@ struct ColorInterface* color_from_shell(text_color_t color) {
 	return &g_color_default;
 }
 
-struct ColorInterface* color_from_debug(enum DebugType color) {
+struct ColorInterface* color_from_log(enum LogType color) {
 	for(size_t i = 0; i < COLORS_SIZE; i++) {
-		if(s_colors[i].debug == color) {
+		if(s_colors[i].log == color) {
 			return &s_colors[i];
 		}
 	}

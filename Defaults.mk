@@ -19,19 +19,20 @@ LIBS_DIR		:= $(BUILD_DIR)/$(LIBS)
 ASMDUMP_DIR		:= $(BUILD_DIR)/asm
 
 # Programs
-ifeq ($(TOOLCHAIN),llvm)
-CC		:= clang
-CXX		:= clang++
-LD		:= lld
-else
 CC		:= gcc
 CXX		:= g++
 LD		:= ld
-endif
 AS		:= nasm
 ML		:= ocamlopt
 MAKE	:= make
 OBJCOPY	:= objcopy
+
+# LLVM
+ifeq ($(TOOLCHAIN),llvm)
+CC		:= clang
+CXX		:= clang++
+LD		:= lld
+endif
 
 # Shell configurations
 NORMAL	:= $(shell tput sgr0)

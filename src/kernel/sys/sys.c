@@ -9,7 +9,7 @@
 
 
 #include "shell/text.h"
-#include "debug/debug.h"
+#include "logging/log.h"
 
 static struct SysHandler s_handlers[] = {
 	{ SYS_NUM_READ,		sys_read },
@@ -30,6 +30,6 @@ __attribute__((no_caller_saved_registers)) uint64_t (*syshandler_get(uint64_t nu
 }
 
 uint64_t syshandler_stub(){
-	debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, false}, "Sys stub reached\n");
+	log_options((struct LogOptions){LOG_TYPE_WARNING, false}, "Sys stub reached\n");
 	return 0;
 }

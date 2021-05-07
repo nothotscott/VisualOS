@@ -24,11 +24,9 @@ void kernel_start_stivale2(struct Stivale2Structure* structure) {
 	kernel_common();
 }
 
-#include <stdio.h>
 void kernel_common() {
 	setup_pre();
 
-	puts("feels good to be back");
 	cpu_init_bsp();
 	setup_post();
 

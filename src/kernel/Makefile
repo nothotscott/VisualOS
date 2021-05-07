@@ -18,7 +18,7 @@ else
 	CFLAGS	+= -O1
 endif
 ifeq ($(CC), gcc)
-	CFLAGS	+ -fvar-tracking -mgeneral-regs-only
+	CFLAGS	+= -fvar-tracking -mgeneral-regs-only
 endif
 export ASFLAGS	:= -p $(THIS)/kernel.inc $(addprefix -i ,$(INCLUDE_DIRS)) -f elf64 -F dwarf -g
 LDFLAGS	:= -nostdlib

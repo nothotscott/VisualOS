@@ -11,7 +11,6 @@
 #define SYS_FD_STDIN	0
 #define SYS_FD_STDOUT	1
 #define SYS_FD_STDERR	2
-#define SYS_FD_STDDBG	3
 
 #define SYS_NUM_READ	0
 #define SYS_NUM_WRITE	1

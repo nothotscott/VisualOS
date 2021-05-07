@@ -7,9 +7,9 @@
  */
 
 #include "sys.h"
-#include "debug/debug.h"
+#include "logging/log.h"
 
 uint64_t sys_exit(uint64_t error_code) {
-	debug_options((struct DebugOptions){DEBUG_TYPE_INFO, true}, "Exiting userspace\n");
+	log_options((struct LogOptions){LOG_TYPE_INFO, true}, "Exiting userspace\n");
 	return error_code;
 }
