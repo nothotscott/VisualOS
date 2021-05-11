@@ -10,9 +10,11 @@
 
 #pragma once
 
+#include "local_apic.h"
+#include "ioapic.h"
 #include "x86_64/acpi.h"
 
-#define MADT_MAX_PROCESSORS	256
+#define MADT_MAX_PROCESSORS	255
 #define MADT_IO_APICS		8	// I have no clue
 
 
@@ -31,9 +33,9 @@ struct MADTLocalProcessor {
 // Type 1: IO APIC, the global system interrupt base is the first interrupt number that this IO APIC handles
 struct MADTIOAPIC {
 	struct MADTRecord	record;
-	uint8_t				io_apic_id;
+	uint8_t				ioapic_id;
 	uint8_t				reserved;
-	uint32_t			io_apic_address;
+	uint32_t			ioapic_address;
 	uint32_t			global_interrupt_base;
 } __attribute__((packed));
 // Type 2: Interrupt Source Override explaining how IRQ sources are mapped to global system interrupts
@@ -78,19 +80,17 @@ enum MADTType {
 	MADT_TYPE_MULTIPROCESSOR_WAKEUP			= 16,
 };
 
-struct ApplicationProcessor {
-	struct MADTLocalProcessor*	local_processor;
-	void*						stack_ptr;
-	size_t						stack_size;
-};
-
 // Initializes ACPI from [madt]
 void madt_init(struct MADTHeader* madt);
 
-// Gets the AP at [index]
-struct ApplicationProcessor* get_processor(size_t index);
-// Getters
+// *** Getters *** //
+
 struct MADTHeader* get_madt();
+
+// Gets the AP at [index]
+struct LocalAPICProcessor* get_processor(size_t index);
 size_t get_processors_num();
-struct MADTIOAPIC** get_ioapics();
+
+// Gets the IOAPIC at [index]
+struct IOAPIC* get_ioapic(size_t index);
 size_t get_ioapics_num();

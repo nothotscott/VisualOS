@@ -22,7 +22,8 @@
 #include "x86_64/acpi.h"
 #include "x86_64/pci.h"
 #include "x86_64/apic/madt.h"
-#include "x86_64/apic/apic.h"
+#include "x86_64/apic/local_apic.h"
+#include "x86_64/apic/ioapic.h"
 #include "x86_64/syscall.h"
 
 
@@ -38,7 +39,7 @@ void setup_memory() {
 	size_t framebuffer_size = framebuffer->pitch * framebuffer->height;
 	pageframe_init();
 	pageframe_reserve(framebuffer->base, NEAREST_PAGE(framebuffer_size));
-	pageframe_lock((void*)APIC_TRAMPOLINE_TARGET, APIC_TRAMPOLINE_TARGET_SIZE);	// Lock the APIC trampoline code
+	pageframe_lock((void*)LOCAL_APIC_TRAMPOLINE_TARGET, LOCAL_APIC_TRAMPOLINE_TARGET_SIZE);	// Lock the APIC trampoline code
 	// TODO reserve framebuffer shadow buffer here
 	paging_init();
 	paging_load();
@@ -68,8 +69,9 @@ void setup_acpi() {
 }
 
 void setup_apic() {
-	apic_init();
-	apic_start_smp();
+	local_apic_init();
+	local_apic_start_smp();
+	ioapic_init();
 }
 
 void setup_pre() {

@@ -11,36 +11,11 @@
 #pragma once
 
 
-#define APIC_TRAMPOLINE_TARGET		0x8000
-#define APIC_TRAMPOLINE_TARGET_SIZE	4096
+#define LOCAL_APIC_TRAMPOLINE_TARGET		0x8000
+#define LOCAL_APIC_TRAMPOLINE_TARGET_SIZE	4096
 
-#define APIC_SLEEP_DELAY_INIT		10	// miliseconds to sleep after INIT sequence
-#define APIC_SLEEP_DELAY_AP_STARTUP	1	// miliseconds to sleep after each AP STARTUP
-
-// IO APIC selector registers
-#define	IOAPIC_REG_SELECT_OFFSET	0x00
-#define	IOAPIC_REG_WIN_OFFSET		0x10
-
-enum IOAPICTriggerMode {
-	IOAPIC_TRIGGER_MODE_EDGE,
-	IOAPIC_TRIGGER_MODE_LEVEL
-};
-enum IOAPICPolarity {
-	IOAPIC_POLARITY_ACTIVEHIGH,
-	IOAPIC_POLARITY_ACTIVELOW
-};
-enum IOAPICDestinationMode {
-	IOAPIC_DESTINATIONMODE_PHYSICAL,
-	IOAPIC_DESTINATIONMODE_LOGICAL
-};
-enum IOAPICDeliveryMode {
-	IOAPIC_DELIVERY_MODE_FIXED,
-	IOAPIC_DELIVERY_MODE_LOWESTPRIORITY,
-	IOAPIC_DELIVERY_MODE_SMI,
-	IOAPIC_DELIVERY_MODE_NMI				= 0b100,
-	IOAPIC_DELIVERY_MODE_INIT,
-	IOAPIC_DELIVERY_MODE_EXTINT				= 0b111,
-};
+#define LOCAL_APIC_SLEEP_DELAY_INIT		10	// miliseconds to sleep after INIT sequence
+#define LOCAL_APIC_SLEEP_DELAY_AP_STARTUP	1	// miliseconds to sleep after each AP STARTUP
 
 // Intel SDM Volume 3 Table 10-1
 enum LocalAPICRegisterOffset {
@@ -71,14 +46,6 @@ enum LocalAPICRegisterOffset {
 	LOCAL_APIC_REG_OFFSET_DIVIDE_CONFIG			= 0x03e0,
 };
 
-// Intel 82093AA data sheet
-enum IOAPICRegisterOffset {	
-    IOAPIC_REG_OFFSET_IOAPICID		= 0x00,
-    IOAPIC_REG_OFFSET_IOAPICVER		= 0x01,
-    IOAPIC_REG_OFFSET_IOAPICARB 	= 0x02,
-    IOAPIC_REG_OFFSET_IOREBTBL_BASE	= 0x10,
-};
-
 // VOS specifc data structure to communicate with the AP
 struct ApplicationProcessorCommunication {
 	uint8_t		ap_status;
@@ -90,11 +57,17 @@ struct ApplicationProcessorCommunication {
 	uint64_t	cpu_init_ap;
 } __attribute__((packed));
 
+struct LocalAPICProcessor {
+	struct MADTLocalProcessor*	local_processor;
+	void*						stack_ptr;
+	size_t						stack_size;
+};
+
 // Initializes the bootstrap processor
-void apic_init();
+void local_apic_init();
 
 // Launches all application processors to be ready for symmetric multiprocessing
-void apic_start_smp();
+void local_apic_start_smp();
 
 // Gets the interprocessor interrupt for at [local_apic_ptr] and stores it at [command_low] and [command_high]
 void local_apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high);

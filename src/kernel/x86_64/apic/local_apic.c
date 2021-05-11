@@ -13,7 +13,7 @@
 #include "x86_64/pit.h"
 #include "x86_64/cpu.h"
 #include "madt.h"
-#include "apic.h"
+#include "local_apic.h"
 
 #define PAUSE()	__asm__ __volatile__ ("pause" : : : "memory")
 
@@ -28,24 +28,21 @@ static inline uint32_t local_apic_get_register(void* local_apic_ptr, size_t reg_
 static inline void local_apic_set_register(void* local_apic_ptr, size_t reg_offset, uint32_t value);
 // Waits for the APIC to complete its IPI
 static inline void local_apic_wait(void* local_apic_ptr, uint32_t* command_low);
-// Inline functions to get/set IOAPIC registers
-static inline uint32_t ioapic_get_register(void* ioapic_ptr, uint8_t reg_offset);
-static inline void ioapic_set_register(void* ioapic_ptr, uint8_t reg_offset, uint32_t value);
 
 static void* s_trampoline_code_ptr = &trampoline_code;
 static void* s_trampoline_data_ptr = &trampoline_data;
 
 
-void apic_init() {
-	void* trampoline_target = (void*)APIC_TRAMPOLINE_TARGET;
-	paging_identity_map(trampoline_target, APIC_TRAMPOLINE_TARGET_SIZE);
+void local_apic_init() {
+	void* trampoline_target = (void*)LOCAL_APIC_TRAMPOLINE_TARGET;
+	paging_identity_map(trampoline_target, LOCAL_APIC_TRAMPOLINE_TARGET_SIZE);
 }
 
-void apic_start_smp() {
+void local_apic_start_smp() {
 	uint32_t command_low, command_high;
 	uint8_t bsp_local_apic_id = cpu_get_bsp()->local_apic_id;
 	void* local_apic_ptr = (void*)(uint64_t)get_madt()->local_apic_address;
-	void* trampoline_target = (void*)APIC_TRAMPOLINE_TARGET;
+	void* trampoline_target = (void*)LOCAL_APIC_TRAMPOLINE_TARGET;
 	uint8_t trampoline_target_page = (uint8_t)(((uint64_t)trampoline_target >> 12) & 0xff);
 	volatile struct ApplicationProcessorCommunication* communicator = trampoline_target + (s_trampoline_data_ptr - s_trampoline_code_ptr);
 	// INIT each AP
@@ -53,7 +50,7 @@ void apic_start_smp() {
 	size_t processors_num = get_processors_num();
 	struct CPUContext* ap_context = pageframe_request_pages(NEAREST_PAGE(sizeof(struct CPUContext) * (processors_num - 1)));
 	for(size_t i = 0; i < processors_num; i++) {
-		struct ApplicationProcessor* processor = get_processor(i);
+		struct LocalAPICProcessor* processor = get_processor(i);
 		uint8_t local_apic_id = processor->local_processor->local_apic_id;
 		// Don't execute AP startup code on the BSP
 		if(local_apic_id == bsp_local_apic_id){
@@ -61,7 +58,7 @@ void apic_start_smp() {
 		}
 		//debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "Signaling processor %d\n", local_apic_id);
 		// Store the trampoline code at the target. Will also clear any data from previous AP
-		memcpy(trampoline_target, s_trampoline_code_ptr, APIC_TRAMPOLINE_TARGET_SIZE);
+		memcpy(trampoline_target, s_trampoline_code_ptr, LOCAL_APIC_TRAMPOLINE_TARGET_SIZE);
 		// Clear APIC errors
 		local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ERROR_STATUS, 0);
 		// Send INIT to the AP
@@ -78,7 +75,7 @@ void apic_start_smp() {
 			(command_high & 0x00ffffff) | (local_apic_id << 24)	// select AP
 		);
 		local_apic_wait(local_apic_ptr, &command_low);
-		pit_sleep(APIC_SLEEP_DELAY_INIT);
+		pit_sleep(LOCAL_APIC_SLEEP_DELAY_INIT);
 		// AP STARTUP
 		for(size_t j = 0; j < 2; j++) {
 			// Clear APIC errors
@@ -87,13 +84,13 @@ void apic_start_smp() {
 				(command_low & 0xfff0f800) | 0x600 | trampoline_target_page,	// STARTUP page in Vector
 				(command_high & 0x00ffffff) | (local_apic_id << 24)				// select AP
 			);
-			pit_sleep(APIC_SLEEP_DELAY_AP_STARTUP);
+			pit_sleep(LOCAL_APIC_SLEEP_DELAY_AP_STARTUP);
 			local_apic_wait(local_apic_ptr, &command_low);
 		}
 		// Check on the status of the AP
 		uint8_t ap_status = communicator->ap_status;
 		while(communicator->ap_status == 0) {
-			pit_sleep(APIC_SLEEP_DELAY_AP_STARTUP);
+			pit_sleep(LOCAL_APIC_SLEEP_DELAY_AP_STARTUP);
 		}
 		// Configure the AP, knowing it's responded and it's ready
 		void* ap_stack = pageframe_request();
@@ -111,7 +108,7 @@ void apic_start_smp() {
 		communicator->bsp_status = 1;
 		// Wait for another response
 		do {
-			pit_sleep(APIC_SLEEP_DELAY_AP_STARTUP);
+			pit_sleep(LOCAL_APIC_SLEEP_DELAY_AP_STARTUP);
 		} while(communicator->ap_status == 0);
 		log_options((struct LogOptions){LOG_TYPE_WARNING, true}, "Processor %d (context at 0x%x) responded with %d\n",
 			ap_context->local_apic_id, communicator->ap_context, communicator->ap_status
@@ -150,15 +147,4 @@ void local_apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uin
 void local_apic_ipi_set_command(void* local_apic_ptr, uint32_t command_low, uint32_t command_high) {
 	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x10, command_high);
 	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x00, command_low);
-}
-
-// *** IOAPIC Register Functions *** //
-
-static inline uint32_t ioapic_get_register(void* ioapic_ptr, uint8_t reg_offset) {
-	*(volatile uint32_t*)(ioapic_ptr + IOAPIC_REG_SELECT_OFFSET) = reg_offset;
-	return *(volatile uint32_t*)(ioapic_ptr + IOAPIC_REG_WIN_OFFSET);
-}
-static inline void ioapic_set_register(void* ioapic_ptr, uint8_t reg_offset, uint32_t value) {
-	*(volatile uint32_t*)(ioapic_ptr + IOAPIC_REG_SELECT_OFFSET) = reg_offset;
-	*(volatile uint32_t*)(ioapic_ptr + IOAPIC_REG_WIN_OFFSET) = value;
 }

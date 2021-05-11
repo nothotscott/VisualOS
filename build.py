@@ -15,6 +15,7 @@ OSNAME			= "VisualOS"
 BUILD_DIR		= "build"
 BIN_DIR			= "bin"
 DEFAULT_TASKS	= ["bootloader", "libs", "kernel", "vos"]
+IMG_SIZE_MB		= 16
 # Qemu configuration
 QEMU_CPU		= "qemu64"
 QEMU_MEMORY		= "512M"
@@ -87,7 +88,7 @@ def create_img():
 		else:
 			logger.warning("Image already exists at {}. Deleting and replacing it anyway.".format(img_path))
 		os.remove(img_path)
-	execute("dd if=/dev/zero of={} bs=1M count=0 seek=512".format(img_path))
+	execute("dd if=/dev/zero of={} bs=1M count=0 seek={}".format(img_path, IMG_SIZE_MB))
 	execute("printf 'o\nn\np\n1\n\n\nt\nc\nw\n' | fdisk {}".format(img_path))
 	execute("mkfs.vfat {}".format(img_path))
 	
