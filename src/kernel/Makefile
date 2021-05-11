@@ -10,23 +10,11 @@ TARGETS				:= $(KERNEL_DIR)/$(KERNEL).ro
 INCLUDE_DIRS		:= $(THIS)/
 INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBS)/$(LIBC)/include $(SRC_DIR)/$(LIBS)/$(LIBC)/vos/include 
 
-export CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I ,$(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS))
-CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -fno-pic -fpie -std=c11 -fno-omit-frame-pointer -D__STDC_NO_THREADS__
-ifdef DEBUG_MODE
-	CFLAGS	+= -O0 -gdwarf
-else
-	CFLAGS	+= -O1
-endif
+CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I ,$(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS)) $(DEFAULT_CFLAGS) $(DEBUG_CFLAGS)
 ifeq ($(CC), gcc)
 	CFLAGS	+= -mgeneral-regs-only
-	ifdef DEBUG_MODE
-		CFLAGS	+= -fvar-tracking
-	endif
 endif
-export ASFLAGS	:= -p $(THIS)/kernel.inc $(addprefix -i ,$(INCLUDE_DIRS)) -f elf64
-ifdef DEBUG_MODE
-	ASFLAGS	+= -g -F dwarf
-endif
+ASFLAGS	:= -p $(THIS)/kernel.inc $(addprefix -i ,$(INCLUDE_DIRS)) $(DEFAULT_ASFLAGS) $(DEBUG_ASFLAGS)
 LDFLAGS	:= -nostdlib
 LDLIBS	= $(PRETARGETS)
 

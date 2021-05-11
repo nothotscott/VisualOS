@@ -27,17 +27,12 @@ TARGETS			= $(addprefix $(LIBS_DIR)/,																\
 					$(addsuffix $(USERSPACE_SUFFIX).a,$(SUBDIR_SPECIAL))								\
 				)
 
-export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -fno-builtin -std=c11 -nostdlib -fno-pic -fpie -nostdinc -fno-omit-frame-pointer -pedantic -ffreestanding
-CFLAGS			+= -Wall -Wextra -Wno-unused-parameter -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-declarations -Wredundant-decls -Winline -Wno-long-long -Wuninitialized -Wnested-externs -Wdeclaration-after-statement
-#ifdef DEBUG_MODE
-	CFLAGS	+= -O0 -gdwarf
-#else
-#	CFLAGS	+= -O1
-#endif
+CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) $(DEFAULT_CFLAGS) $(DEBUG_CFLAGS) -pedantic
+CFLAGS	+= -Wall -Wextra -Wno-unused-parameter -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-declarations -Wredundant-decls -Winline -Wno-long-long -Wuninitialized -Wnested-externs -Wdeclaration-after-statement
 ifeq ($(CC), gcc)
 	CFLAGS	+= -fvar-tracking
 endif
-#export ASFLAGS	:= 
+ASFLAGS	:= $(DEFAULT_ASFLAGS) $(DEBUG_ASFLAGS)
 
 ARLIBS	= $(INDEPENDENT_PRETARGETS)
 

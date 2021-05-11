@@ -27,12 +27,25 @@ AS		:= nasm
 ML		:= ocamlopt
 MAKE	:= make
 OBJCOPY	:= objcopy
-
 # LLVM
 ifeq ($(TOOLCHAIN),llvm)
 CC		:= clang
 CXX		:= clang++
 LD		:= lld
+endif
+
+# Flags
+DEFAULT_CFLAGS	:= -fno-pic -fpie -m64 -ffreestanding -fno-builtin -nostdinc -fshort-wchar -std=c11 -fno-omit-frame-pointer -D__STDC_NO_THREADS__
+DEFAULT_ASFLAGS	:= -f elf64
+ifdef DEBUG_MODE
+	DEBUG_CFLAGS	:= -O0 -gdwarf
+	DEBUG_ASFLAGS	:= -g -F dwarf
+	ifeq ($(CC), gcc)
+		DEBUG_CFLAGS	+= -fvar-tracking
+	endif
+else
+	DEBUG_CFLAGS	:= -O1
+	DEBUG_ASFLAGS	:= -g -F dwarf
 endif
 
 # Shell configurations
