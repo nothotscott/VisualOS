@@ -9,8 +9,6 @@ include Defaults.mk
 
 # The names of kernel libraries that need an explicit kernel version at link time
 KERNEL_LIBS			:= pdclib
-# Only used in this context for explicit userspace use
-USERSPACE_SUFFIX	:= _u
 
 SUBDIRS			:= $(shell find $(THIS)/* -maxdepth 0 -type d)
 
@@ -25,17 +23,17 @@ SUBDIR_ROS		= $(shell find $(LIBS_DIR)/ -mindepth 2 -name *.ro -type f)
 SUBDIR_SPECIAL	= $(filter $(KERNEL_LIBS), $(basename $(notdir $(SUBDIR_ROS))))
 TARGETS			= $(addprefix $(LIBS_DIR)/,																\
 					$(addsuffix .a,$(filter-out $(SUBDIR_SPECIAL),$(basename $(notdir $(SUBDIR_ROS)))))	\
-					$(addsuffix $(KERNEL_SUFFIX).a,$(SUBDIR_SPECIAL))									\
+					$(addsuffix $(KERNEL_SUFFIX).ro,$(SUBDIR_SPECIAL))									\
 					$(addsuffix $(USERSPACE_SUFFIX).a,$(SUBDIR_SPECIAL))								\
 				)
 
-export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -fno-builtin -std=c11 -nostdlib -gdwarf -O0 -fno-pic -fpie -nostdinc -pedantic
+export CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -fno-builtin -std=c11 -nostdlib -fno-pic -fpie -nostdinc -fno-omit-frame-pointer -pedantic -ffreestanding
 CFLAGS			+= -Wall -Wextra -Wno-unused-parameter -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-declarations -Wredundant-decls -Winline -Wno-long-long -Wuninitialized -Wnested-externs -Wdeclaration-after-statement
-ifdef DEBUG_MODE
-	CFLAGS	+= -O0
-else
-	CFLAGS	+= -O1
-endif
+#ifdef DEBUG_MODE
+	CFLAGS	+= -O0 -gdwarf
+#else
+#	CFLAGS	+= -O1
+#endif
 ifeq ($(CC), gcc)
 	CFLAGS	+= -fvar-tracking
 endif
@@ -50,8 +48,7 @@ all:	clean
 
 .PHONY: 	$(SUBDIRS) subdirs
 $(SUBDIRS):	
-#		+ $(MAKE) -f $@/Makefile SUPER=$(THIS) THIS=$@ THIS_NODE=$@ TARGET_DIR=$(TARGET_DIR)/$(notdir $@)
-		@echo Ignoring $@
+		+ $(MAKE) -f $@/Makefile SUPER=$(THIS) THIS=$@ THIS_NODE=$@ TARGET_DIR=$(TARGET_DIR)/$(notdir $@)
 subdirs:	$(SUBDIRS)
 			@:
 
@@ -71,6 +68,9 @@ clean:
 include Rules.mk
 
 SOURCE_RO	= $(filter %/$*.ro,$(SUBDIR_ROS))
+
+$(TARGET_DIR)/%$(KERNEL_SUFFIX).ro:
+			$(LD) $(LDFLAGS) -r $(SOURCE_RO) $(INDEPENDENT_PRETARGETS) $(KERNEL_PRETARGETS) -o $@
 
 $(TARGET_DIR)/%$(KERNEL_SUFFIX).a:
 			$(AR) $(ARFLAGS) $@ $(SOURCE_RO) $(ARLIBS) $(KERNEL_PRETARGETS)

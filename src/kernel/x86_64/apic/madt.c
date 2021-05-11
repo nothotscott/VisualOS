@@ -6,7 +6,7 @@
  */
 
 #include <string.h>
-#include "logging/log.h"
+#include "log.h"
 #include "memory/paging.h"
 #include "x86_64/acpi.h"
 #include "apic.h"

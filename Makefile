@@ -6,8 +6,8 @@ TARGET_DIR	= $(BUILD_DIR)
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 VOS_BIN			:= $(BUILD_DIR)/vos.elf
 
-LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -pie --gc-sections
-LDLIBS	= $(filter %$(KERNEL_SUFFIX).a, $(shell find $(LIBS_DIR)/ -maxdepth 1 -type f -name '*.a'))
+LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -pie --no-dynamic-linker --gc-sections -nostdlib
+LDLIBS	= $(filter-out %$(USERSPACE_SUFFIX).a, $(shell find $(LIBS_DIR)/ -maxdepth 1 -type f -name '*.a') $(shell find $(LIBS_DIR)/ -maxdepth 1 -type f -name '*.ro'))
 
 ###############################################################################
 
@@ -22,19 +22,15 @@ endif
 
 ###############################################################################
 
-MAKE_VOS	= + $(MAKE) --no-print-directory -f $(SRC_DIR)/$@/Makefile THIS=$(SRC_DIR)/$@
-
-.PHONY: $(LIBS) libs
-$(LIBS):		setup
+.PHONY:	libs
+libs:			setup
 				$(call echo_build)
-				$(MAKE_VOS) TARGET_DIR=$(LIBS_DIR)
-libs:			$(LIBS)
+				+ $(MAKE) --no-print-directory -f $(SRC_DIR)/$(LIBS)/Makefile THIS=$(SRC_DIR)/$(LIBS) TARGET_DIR=$(LIBS_DIR)
 
-.PHONY: $(KERNEL) kernel $(KERNEL_DIR)/kernel.ro
-$(KERNEL):		setup
+.PHONY: kernel $(KERNEL_DIR)/kernel.ro
+kernel:			setup
 				$(call echo_build)
-				$(MAKE_VOS) TARGET_DIR=$(KERNEL_DIR)
-kernel:			$(KERNEL)
+				+ $(MAKE) --no-print-directory -f $(SRC_DIR)/$(KERNEL)/Makefile THIS=$(SRC_DIR)/$(KERNEL) TARGET_DIR=$(KERNEL_DIR)
 $(KERNEL_DIR)/kernel.ro:	$(KERNEL)
 
 ###############################################################################

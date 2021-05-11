@@ -24,6 +24,7 @@ typedef	signed long	ssize_t;
 
 ssize_t read(int fd, char* buffer, size_t count);
 ssize_t write(int fd, char* buffer, size_t count);
+void vos_exit(int status) __attribute__((noreturn));
 
 // TODO sys implementations
 int open(const char* filename, int flags, int mode);

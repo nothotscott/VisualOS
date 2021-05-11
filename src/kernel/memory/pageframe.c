@@ -73,6 +73,7 @@ void* pageframe_request() {
 			continue;	// not free
 		}
 		void* page = (void*)(s_current_index * MEMORY_PAGE_SIZE);	// transform the index into the page address
+		s_current_index++;
 		pageframe_lock(page, 1);
 		return page;
 	}
@@ -84,18 +85,19 @@ void* pageframe_request_pages(size_t pages) {
 	while(s_current_index < bitmap_size) {
 		for(size_t j = 0; j < pages; j++) {
 			if(bitmap_get(&s_pageframemap, s_current_index + j) == true) {
-				s_current_index = s_current_index + j + 1;
+				s_current_index += j + 1;
 				goto not_free;
 			}
 		}
 		goto exit;
 		not_free:
 			continue;
-		exit:
-			s_current_index++;
+		exit: {
 			void* page = (void*)(s_current_index * MEMORY_PAGE_SIZE);	// transform the index into the page address
+			s_current_index += pages;
 			pageframe_lock(page, pages);
 			return page;
+		}
 	}
 	return NULL;
 }

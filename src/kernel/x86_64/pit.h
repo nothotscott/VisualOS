@@ -36,4 +36,4 @@ uint64_t pit_get_ticks_since_boot();
 
 // TODO remove or modify this for scheduling
 // Sleeps for [milliseconds]
-void sleep(uint64_t milliseconds);
+void pit_sleep(volatile uint64_t milliseconds);

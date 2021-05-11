@@ -93,7 +93,7 @@ syscall_entry:
 	; Restore state-sensitive information and exit
 	pop		rcx
 	pop		r11
-	lea		rdx, [rel sys_exit]
+	lea		rdx, [REL sys_exit]
 	cmp		rbx, rdx
 	je		.kernel_exit
 	.sysret_exit:

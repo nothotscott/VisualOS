@@ -6,7 +6,7 @@
  */
 
 #include <string.h>
-#include "logging/log.h"
+#include "log.h"
 #include "memory/memory.h"
 #include "memory/paging.h"
 #include "memory/pageframe.h"
@@ -78,7 +78,7 @@ void apic_start_smp() {
 			(command_high & 0x00ffffff) | (local_apic_id << 24)	// select AP
 		);
 		local_apic_wait(local_apic_ptr, &command_low);
-		sleep(APIC_SLEEP_DELAY_INIT);
+		pit_sleep(APIC_SLEEP_DELAY_INIT);
 		// AP STARTUP
 		for(size_t j = 0; j < 2; j++) {
 			// Clear APIC errors
@@ -87,13 +87,13 @@ void apic_start_smp() {
 				(command_low & 0xfff0f800) | 0x600 | trampoline_target_page,	// STARTUP page in Vector
 				(command_high & 0x00ffffff) | (local_apic_id << 24)				// select AP
 			);
-			sleep(APIC_SLEEP_DELAY_AP_STARTUP);
+			pit_sleep(APIC_SLEEP_DELAY_AP_STARTUP);
 			local_apic_wait(local_apic_ptr, &command_low);
 		}
 		// Check on the status of the AP
 		uint8_t ap_status = communicator->ap_status;
 		while(communicator->ap_status == 0) {
-			sleep(APIC_SLEEP_DELAY_AP_STARTUP);
+			pit_sleep(APIC_SLEEP_DELAY_AP_STARTUP);
 		}
 		// Configure the AP, knowing it's responded and it's ready
 		void* ap_stack = pageframe_request();
@@ -111,7 +111,7 @@ void apic_start_smp() {
 		communicator->bsp_status = 1;
 		// Wait for another response
 		do {
-			sleep(APIC_SLEEP_DELAY_AP_STARTUP);
+			pit_sleep(APIC_SLEEP_DELAY_AP_STARTUP);
 		} while(communicator->ap_status == 0);
 		log_options((struct LogOptions){LOG_TYPE_WARNING, true}, "Processor %d (context at 0x%x) responded with %d\n",
 			ap_context->local_apic_id, communicator->ap_context, communicator->ap_status

@@ -7,8 +7,6 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
-#include "pdclib/_PDCLIB_config.h"
-
 #include "stdint.h"
 #include "stddef.h"
 #include "stdarg.h"
@@ -25,8 +23,6 @@ static inline syscallret_t _vos_syscall3(syscallnum_t n, syscallarg_t a1, syscal
 static inline syscallret_t _vos_syscall4(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3, syscallarg_t a4);
 static inline syscallret_t _vos_syscall5(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3, syscallarg_t a4, syscallarg_t a5);
 static inline syscallret_t _vos_syscall6(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3, syscallarg_t a4, syscallarg_t a5, syscallarg_t a6);
-
-void vos_noreturn_stub() _PDCLIB_NORETURN;
 
 syscallret_t _vos_syscall(enum SyscallNumber num, size_t argc, ...) {
 	va_list args;
@@ -103,14 +99,4 @@ __attribute__((always_inline)) static inline syscallret_t _vos_syscall6(syscalln
 	__asm__ volatile ("syscall" : "=a"(ret) : "a"(n), "D"(a1), "S"(a2),
 						  "d"(a3), "r"(r10), "r"(r8), "r"(r9) : "rcx", "r11", "memory");
 	return ret;
-}
-
-
-// *** SPECIAL CASES *** //
-
-// We need to directly establish this syscall here, since it does not return
-void vos_exit(int status) _PDCLIB_NORETURN;
-void vos_exit(int status){
-	_vos_syscall1(SYSCALL_NUM_EXIT, status);
-	vos_noreturn_stub();
 }

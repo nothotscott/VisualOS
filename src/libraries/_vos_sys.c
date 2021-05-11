@@ -20,3 +20,8 @@ ssize_t read(int fd, char* buf, size_t count) {
 ssize_t write(int fd, char* buf, size_t count) {
 	return (ssize_t)_VOS_SYSCALL(SYSCALL_NUM_WRITE, fd, buf, count);
 }
+
+void vos_exit(int status){
+	_VOS_SYSCALL(SYSCALL_NUM_EXIT, status);
+	while(1);
+}

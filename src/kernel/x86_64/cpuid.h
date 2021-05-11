@@ -241,13 +241,16 @@ struct CPUIDFeatures {
 // TODO
 //extern bool cpuid_supported();
 
+// Returns the local APIC ID for the processor calling this function
+uint8_t cpuid_get_local_apic_id();
+
 // Returns the vendor ID based on the ecx value from cpuid eax=0
-extern enum CPUIDVendorID cpuid_get_vendor();
+enum CPUIDVendorID cpuid_get_vendor();
 
 // Write the cpu vendor to [str], must be 12 bytes. Does not include null terminator
-extern void cpuid_get_vendor_str(char* str);
+void cpuid_get_vendor_str(char* str);
 // Write the cpu brand to [str], must be 48 bytes. Does not include null terminator
-extern void cpuid_get_brand_str(char* str);
+void cpuid_get_brand_str(char* str);
 
 // Write the cpu features supported to [features]
-extern void cpuid_get_features(struct CPUIDFeatures* features);
+void cpuid_get_features(struct CPUIDFeatures* features);

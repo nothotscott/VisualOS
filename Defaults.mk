@@ -10,6 +10,7 @@ LIBC		:= pdclib
 
 # Explicit kernel linking directive
 KERNEL_SUFFIX		:= _k
+USERSPACE_SUFFIX	:= _u
 
 # Directories
 SRC_DIR			:= src

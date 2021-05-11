@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "shell/text.h"
 #include "shell/color.h"
-#include "logging/log.h"
+#include "log.h"
 #include "sys.h"
 
 uint64_t sys_write(int fd, char* buf, size_t count) {

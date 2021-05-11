@@ -16,9 +16,6 @@
 extern "C" {
 #endif
 
-// The kernel module should *not* link against this
-extern void vos_exit( int status ) _PDCLIB_NORETURN;
-
 #ifdef __cplusplus
 }
 #endif

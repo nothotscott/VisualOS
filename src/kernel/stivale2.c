@@ -8,7 +8,6 @@
 #include <string.h>
 #include "bootloader.h"
 #include "framebuffer.h"
-#include "memory/memory.h"
 #include "module.h"
 #include "stivale2.h"
 
@@ -41,6 +40,8 @@ void stivale2_init(struct Stivale2Structure* structure) {
 	stivale2_get_framebuffer(structure, info->framebuffer);
 	stivale2_get_memorymap(structure, info->memorymap);
 	info->rsdp = (struct RSDP2*)((struct Stivale2StructureRSDP*)stivale2_get_structure(structure, STIVALE2_STRUCTURE_TAG_IDENTIFIER_RSDP))->rsdp;
+	info->kernel_header = (void*)((struct Stivale2StructureKernelFile*)stivale2_get_structure(structure, STIVALE2_STRUCTURE_TAG_IDENTIFIER_KERNEL_FILE))->kernel_file;
+	info->kernel_offset = ((struct Stivale2StructureKernelSlide*)stivale2_get_structure(structure, STIVALE2_STRUCTURE_TAG_IDENTIFIER_KERNEL_SLIDE))->kernel_slide;
 	stivale2_get_module(structure, info->font, MODULE_SIGNATURE_FONT, sizeof(struct ModulePSF1Header));
 	stivale2_get_module(structure, info->image, MODULE_SIGNATURE_IMAGE, sizeof(struct ModuleTGAHeader));
 }

@@ -6,7 +6,7 @@
  */
 
 #include "text.h"
-#include "logging/log.h"
+#include "log.h"
 #include "color.h"
 
 #define COLORS_SIZE	(sizeof(s_colors)/sizeof(struct ColorInterface))

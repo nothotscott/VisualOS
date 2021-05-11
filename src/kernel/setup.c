@@ -7,14 +7,16 @@
  */
 
 #include "bootloader.h"
+#include "log.h"
 #include "framebuffer.h"
 #include "module.h"
 #include "shell/shell.h"
 #include "shell/text.h"
-#include "logging/log.h"
 #include "memory/pageframe.h"
 #include "memory/paging.h"
 #include "memory/paging.h"
+#include "memory/paging.h"
+#include "symbols/symbol.h"
 #include "x86_64/io.h"
 #include "x86_64/pit.h"
 #include "x86_64/acpi.h"
@@ -39,8 +41,13 @@ void setup_memory() {
 	pageframe_lock((void*)APIC_TRAMPOLINE_TARGET, APIC_TRAMPOLINE_TARGET_SIZE);	// Lock the APIC trampoline code
 	// TODO reserve framebuffer shadow buffer here
 	paging_init();
+	paging_load();
 	paging_identity_map(framebuffer->base, framebuffer_size);
 	//paging_setup_pat();
+}
+
+void setup_debugging() {
+	symbol_init();
 }
 
 void setup_pit() {
@@ -57,7 +64,7 @@ void setup_acpi() {
 	pci_init(mcfg);
 	io_enable_apic();
 	madt_init(madt);
-	pci_print();
+	//pci_print();
 }
 
 void setup_apic() {
@@ -70,6 +77,8 @@ void setup_pre() {
 	log("Setup shell\n");
 	setup_memory();
 	log("Setup memory\n");
+	setup_debugging();
+	log("Setup debugging\n");
 	setup_pit();
 	log("Setup PIT\n");
 }

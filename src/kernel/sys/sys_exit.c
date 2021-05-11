@@ -7,7 +7,7 @@
  */
 
 #include "sys.h"
-#include "logging/log.h"
+#include "log.h"
 
 uint64_t sys_exit(uint64_t error_code) {
 	log_options((struct LogOptions){LOG_TYPE_INFO, true}, "Exiting userspace\n");

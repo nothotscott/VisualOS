@@ -2,8 +2,7 @@ OUTPUT_FORMAT(elf64-x86-64)
 ENTRY(kernel_start_default)
 
 
-SECTIONS
-{
+SECTIONS {
 	. = 2M;
 	_kernel_start = .;
 
@@ -14,19 +13,17 @@ SECTIONS
 	.text : ALIGN(4K)
 	{
 		*(.text)
+		*(.text.rel) *(.text.rel.*)
 	}
-	.data : ALIGN(4K)
+	.data :
 	{
-		*(.data)
-	}
-	.rodata : ALIGN(4K)
-	{
-		*(.rodata)
+		*(.data .data.*) *(.rodata .rodata.*)
 	}
 	.bss : ALIGN(4K)
 	{
 		*(COMMON)
-		*(.bss)
+		*(.bss .bss.*)
+		*(.bss.rel .bss.rel.*)
 	}
 	_kernel_end = .;
 	/DISCARD/ : { *(.eh_frame) }

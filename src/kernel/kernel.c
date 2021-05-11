@@ -7,21 +7,19 @@
  */
 
 #include "x86_64/cpu.h"
-#include "stivale2.h"
 #include "bootloader.h"
 
-void kernel_common();
+void kernel_common() __attribute__((noreturn));
 // From setup.c
 extern void setup_pre();
 extern void setup_post();
 
-void kernel_start_default() {
-	kernel_common();
+void test_fault() {
+	*(uint8_t*)(0x12341234abc) = 123;
 }
 
-void kernel_start_stivale2(struct Stivale2Structure* structure) {
-	stivale2_init(structure);
-	kernel_common();
+void lets_go_deeper() {
+	test_fault();
 }
 
 void kernel_common() {
@@ -29,6 +27,8 @@ void kernel_common() {
 
 	cpu_init_bsp();
 	setup_post();
+
+	lets_go_deeper();
 
 	while (true);
 }

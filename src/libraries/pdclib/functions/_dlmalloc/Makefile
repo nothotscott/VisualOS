@@ -17,11 +17,13 @@ INCLUDE_DIRS		:= $(SUPER)/vos/include
 INCLUDE_LATER_DIRS	:= $(SUPER)/include
 
 # TODO -nostdinc
-export CFLAGS	:= $(addprefix -I , $(INCLUDE_LATER_DIRS)) -I- $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -nostdlib -fno-builtin -g -DDEBUG -fPIC -pedantic -Wall -DUSE_SPIN_LOCKS=0 -DLACKS_SCHED_H
+export CFLAGS	:= $(addprefix -I , $(INCLUDE_LATER_DIRS)) -I- $(addprefix -I , $(INCLUDE_DIRS)) -fno-builtin -fvisibility=hidden -nostdlib -fno-builtin -fno-pic -fpie -pedantic -Wall -ffreestanding -fno-omit-frame-pointer -DUSE_SPIN_LOCKS=0 -DLACKS_SCHED_H
 #CFLAGS			+= -DLACKS_SYS_TYPES_H -DLACKS_SYS_MMAN_H -DLACKS_FCNTL_H -DLACKS_UNISTD_H -DLACKS_SYS_PARAM_H
-ifndef DEBUG_MODE
-	CFLAGS += -O1
-endif
+#ifdef DEBUG_MODE
+	CFLAGS	+= -O0 -gdwarf -DDEBUG
+#else
+#	CFLAGS	+= -O1
+#endif
 
 LDFLAGS	:= -nostdlib
 LDLIBS	= $(addprefix $(TARGET_DIR)/, $(notdir $(wildcard $(TARGET_DIR)/*.o)))

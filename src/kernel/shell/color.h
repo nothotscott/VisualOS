@@ -9,7 +9,7 @@
 #pragma once
 
 #include "text.h"
-#include "logging/log.h"
+#include "log.h"
 
 #define COLOR_MATCH_FAIL	-1
 

@@ -11,16 +11,22 @@ INCLUDE_DIRS		:= $(THIS)/
 INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBS)/$(LIBC)/include $(SRC_DIR)/$(LIBS)/$(LIBC)/vos/include 
 
 export CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I ,$(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS))
-CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -gdwarf -fno-pic -fpie -std=c11 -D__STDC_NO_THREADS__
+CFLAGS			+= -m64 -ffreestanding -nostdinc -fshort-wchar -fno-pic -fpie -std=c11 -fno-omit-frame-pointer -D__STDC_NO_THREADS__
 ifdef DEBUG_MODE
-	CFLAGS	+= -O0
+	CFLAGS	+= -O0 -gdwarf
 else
 	CFLAGS	+= -O1
 endif
 ifeq ($(CC), gcc)
-	CFLAGS	+= -fvar-tracking -mgeneral-regs-only
+	CFLAGS	+= -mgeneral-regs-only
+	ifdef DEBUG_MODE
+		CFLAGS	+= -fvar-tracking
+	endif
 endif
-export ASFLAGS	:= -p $(THIS)/kernel.inc $(addprefix -i ,$(INCLUDE_DIRS)) -f elf64 -F dwarf -g
+export ASFLAGS	:= -p $(THIS)/kernel.inc $(addprefix -i ,$(INCLUDE_DIRS)) -f elf64
+ifdef DEBUG_MODE
+	ASFLAGS	+= -g -F dwarf
+endif
 LDFLAGS	:= -nostdlib
 LDLIBS	= $(PRETARGETS)
 

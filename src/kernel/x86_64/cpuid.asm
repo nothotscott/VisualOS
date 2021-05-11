@@ -8,6 +8,15 @@
 
 SECTION	.text
 
+GLOBAL	cpuid_get_local_apic_id
+cpuid_get_local_apic_id:
+	mov		eax, 0x01
+	cpuid
+	mov		eax, ebx
+	shr		eax, 24
+	and		eax, DWORD 0xff
+	ret
+
 GLOBAL	cpuid_get_vendor
 cpuid_get_vendor:
 	mov		eax, 0x00
