@@ -43,7 +43,9 @@ void cpu_init(struct CPUContext* cpu_context) {
 	gdt_init(cpu_context->gdt_block);
 	gdt_load(&cpu_context->gdt_block->gdt_descriptor);
 	// Setup IDT
-	idt_init(cpu_context->idt_block);
+	if(cpu_context->local_apic_id == s_cpu_bsp.local_apic_id) {
+		idt_init(cpu_context->idt_block);	// only need to initialize once
+	}
 	idt_load(&cpu_context->idt_block->idt_descriptor);
 	// Setup syscalls
 	syscall_enable_sce();

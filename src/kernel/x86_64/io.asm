@@ -5,15 +5,22 @@
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+GLOBAL	io_interrupts_disable
+io_interrupts_disable:
+	cli
+	ret
+GLOBAL	io_interrupts_enable
+io_interrupts_enable:
+	sti
+	ret
 
 GLOBAL	io_enable_apic
 io_enable_apic:
-	mov		ecx, 0x1b	; IA32_APIC_BASE_MSR?
+	mov		ecx, 0x1b	; IA32_APIC_BASE_MSR
 	rdmsr
-	or		eax, 0x800	; IA32_APIC_BASE_MSR_ENABLE?
+	or		eax, 0x800	; IA32_APIC_BASE_MSR_ENABLE
 	wrmsr
 	ret
-
 
 GLOBAL	outb
 outb:	; rdi=[port], rsi=[value]

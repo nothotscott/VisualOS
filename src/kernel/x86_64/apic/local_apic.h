@@ -13,7 +13,7 @@
 #define LOCAL_APIC_TRAMPOLINE_TARGET		0x8000
 #define LOCAL_APIC_TRAMPOLINE_TARGET_SIZE	4096
 
-#define LOCAL_APIC_SLEEP_DELAY_INIT		10	// miliseconds to sleep after INIT sequence
+#define LOCAL_APIC_SLEEP_DELAY_INIT			10	// miliseconds to sleep after INIT sequence
 #define LOCAL_APIC_SLEEP_DELAY_AP_STARTUP	1	// miliseconds to sleep after each AP STARTUP
 
 // Intel SDM Volume 3 Table 10-1

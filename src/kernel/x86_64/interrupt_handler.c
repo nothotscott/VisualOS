@@ -70,6 +70,7 @@ void pit_handler(struct InterruptStack* stack, size_t num) {
 }
 
 void keyboard_handler(struct InterruptStack* stack, size_t num) {
+	printf("APIC: %d\n", cpuid_get_local_apic_id());
 	/*uint8_t scancode = inb(0x60);
 	if(scancode < sizeof(s_keyboard_scancodes)) {
 		char chr = s_keyboard_scancodes[scancode];

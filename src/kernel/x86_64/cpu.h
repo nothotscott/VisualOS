@@ -11,7 +11,6 @@
 #include "gdt.h"
 #include "idt.h"
 
-
 struct CPUContext {
 	uint8_t				local_apic_id;
 	struct GDTBlock*	gdt_block;

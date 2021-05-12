@@ -69,7 +69,7 @@ enum IOAPICRegisterOffset {
 
 struct IOAPIC {
 	struct MADTIOAPIC*	ioapic;
-	uint8_t				num_pins;	// also the max amount of redirection entries
+	uint8_t				max_interrupts;
 };
 
 // This is NOT directly casted, this is only to transfer redirection information
@@ -93,6 +93,6 @@ void ioapic_init();
 void ioapic_set_from_isrs();
 
 // Sets the redirection entry in [ioapic_ptr] to [entry] at [index]
-void ioapic_set_redirection_entry(void* ioapic_ptr, size_t index, struct IOAPICRedirectionEntry* entry);
+void ioapic_set_redirection_entry(void* ioapic_ptr, size_t index, struct IOAPICRedirectionEntry entry);
 // Transforms and writes the redirection [entry] in [ioapic_ptr] at [index] 
 void ioapic_get_redirection_entry(void* ioapic_ptr, size_t index, struct IOAPICRedirectionEntry* entry);

@@ -25,6 +25,10 @@
 
 #define IO_PIC_EOI		0x20
 
+// Disables/enables interrupts
+void io_interrupts_disable();
+void io_interrupts_enable();
+
 // Enables APIC
 void io_enable_apic();
 
@@ -41,15 +45,17 @@ extern uint32_t inl(uint16_t port);
 // Send byte onto port 0x80 to signal a checkpoint
 extern void io_wait();
 
-// Sets the interrupt mask register
-void io_pic_mask();
-
-// Remap to receive proper interrupt vectors
-void io_pic_remap();
-
-// Ends either the master or slave PIC
-void io_pic_end_master();
-void io_pic_end_slave();
-
 // Overrides the PIC in favor of the APIC
 void io_pic_override();
+
+// *** DEPRECATED PIC FUNCTIONS *** //
+
+// Sets the interrupt mask register
+void io_pic_mask() __attribute__((deprecated));
+
+// Remap to receive proper interrupt vectors
+void io_pic_remap() __attribute__((deprecated));
+
+// Ends either the master or slave PIC
+void io_pic_end_master() __attribute__((deprecated));
+void io_pic_end_slave() __attribute__((deprecated));

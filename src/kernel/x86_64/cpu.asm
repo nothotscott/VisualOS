@@ -5,8 +5,6 @@
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-EXTERN	gdt_init
-EXTERN	gdt_load
 EXTERN	cpu_get_bsp
 EXTERN	cpu_init
 EXTERN	cpuid_get_local_apic_id

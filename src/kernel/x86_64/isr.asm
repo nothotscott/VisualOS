@@ -31,6 +31,10 @@ EXTERN	g_isr_handlers
 			sti
 			iretq
 %endmacro
+%macro	ISR_IRQ_DEFINE	1
+	%assign		ISR_NUM	32 + %1
+	ISR_DEFINE	ISR_NUM, 0
+%endmacro
 
 SECTION .text
 
@@ -57,9 +61,19 @@ ISR_DEFINE	14, 1	; Page Fault Exception
 ;ISR_DEFINE	20, 0	; Virtualization Exception
 ;ISR_DEFINE	30, 1	; Security Exception
 ; Interrupt requests
-ISR_DEFINE	32, 0	; PIT
-ISR_DEFINE	33, 0	; Keyboard Interrupt
-;ISR_DEFINE	35, 0	; COM2
-;ISR_DEFINE	36, 0	; COM1
-;ISR_DEFINE	37, 0	; LPT2
-;ISR_DEFINE	39, 0	; LPT1
+ISR_IRQ_DEFINE	0	; PIT
+ISR_IRQ_DEFINE	1	; Keyboard Interrupt
+;ISR_IRQ_DEFINE	2	; Cascade
+ISR_IRQ_DEFINE	3	; COM2
+ISR_IRQ_DEFINE	4	; COM1
+ISR_IRQ_DEFINE	5	; LPT2
+ISR_IRQ_DEFINE	6	; Floppy disk
+ISR_IRQ_DEFINE	7	; LPT (spurious interrupt)
+ISR_IRQ_DEFINE	8	; CMOS
+ISR_IRQ_DEFINE	9	; Peripherals 1 (legacy SCSI/NIC)
+ISR_IRQ_DEFINE	10	; Peripherals 2 (SCSI/NIC)
+ISR_IRQ_DEFINE	11	; Peripherals 3 (SCSI/NIC)
+ISR_IRQ_DEFINE	12	; PS2 Mouse
+ISR_IRQ_DEFINE	13	; Coprocessor/interprocessor
+ISR_IRQ_DEFINE	14	; Primary ATA Hard disk
+ISR_IRQ_DEFINE	15	; Secondary ATA Hard disk

@@ -48,19 +48,9 @@ void setup_memory() {
 	//paging_setup_pat();
 }
 
-void setup_interrupt_prep() {
-	// NOTE interrupts should be cleared at this point
-	isr_init();
-	pit_init();
-	io_pic_remap();
-	io_pic_mask();
-}
-
 void setup_debugging() {
 	symbol_init();
 }
-
-// *** POST BSP INIT *** //
 
 void setup_acpi() {
 	struct RSDP2* rsdp = (struct RSDP2*)bootloader_get_info()->rsdp;
@@ -73,12 +63,23 @@ void setup_acpi() {
 	//pci_print();
 }
 
-void setup_apic() {
+void setup_interrupt_prep() {
+	// NOTE interrupts should be cleared at this point
+	isr_init();
+	pit_init();
 	io_enable_apic();
-	local_apic_init();
-	local_apic_start_smp();
 	ioapic_init();
 	ioapic_set_from_isrs();
+}
+
+
+// *** POST BSP INIT *** //
+
+
+
+void setup_local_apic() {
+	local_apic_init();
+	local_apic_start_smp();
 }
 
 // *** ORDERED SETUP FUNCTIONS *** //
@@ -90,13 +91,13 @@ void setup_pre() {
 	log("Setup memory\n");
 	setup_debugging();
 	log("Setup debugging\n");
+	setup_acpi();
+	log("Setup ACPI/PCI\n");
 	setup_interrupt_prep();
 	log("Setup interrupt preperation\n");
 }
 
 void setup_post() {
-	setup_acpi();
-	log("Setup ACPI/PCI\n");
-	setup_apic();
-	log("Setup APIC/MP\n");
+	//setup_local_apic();
+	//log("Setup Local APIC/SMP\n");
 }

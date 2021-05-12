@@ -8,6 +8,14 @@
 #include "io.h"
 
 
+void io_pic_override() {
+	outb(IO_PIC1_DATA, 0xff);
+	outb(IO_PIC2_DATA, 0xff);
+	io_wait();
+	outb(IO_CHIPSET_ADDRESS_REGISTER, IO_IMCR_REGISTER_ADDRESS);
+	outb(IO_CHIPSET_DATA_REGISTER, IO_IMCR_VIA_APIC);
+}
+
 void io_pic_mask(){
 	outb(IO_PIC1_DATA, 0b11111000);
 	outb(IO_PIC2_DATA, 0b11101111);
@@ -50,12 +58,4 @@ void io_pic_end_master() {
 void io_pic_end_slave() {
 	outb(IO_PIC2_COMMAND, IO_PIC_EOI);
 	outb(IO_PIC1_COMMAND, IO_PIC_EOI);
-}
-
-void io_pic_override() {
-	outb(IO_PIC1_DATA, 0xff);
-	outb(IO_PIC2_DATA, 0xff);
-	io_wait();
-	outb(IO_CHIPSET_ADDRESS_REGISTER, IO_IMCR_REGISTER_ADDRESS);
-	outb(IO_CHIPSET_DATA_REGISTER, IO_IMCR_VIA_APIC);
 }
