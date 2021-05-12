@@ -9,6 +9,7 @@ EXTERN	kernel_common
 EXTERN	stivale2_init
 
 %macro ENTRY_SETUP	0
+	cli
 	mov		rbp, 0
 %endmacro
 

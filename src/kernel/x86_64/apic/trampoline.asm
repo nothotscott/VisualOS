@@ -104,13 +104,15 @@ trampoline_longmode:
 	mov		cr4, rax
 	; Get our stack
 	mov		rsp, QWORD [ebx + OFFSET_REL(trampoline_data.stack_ptr)]
-	mov		rbp, rsp
-	sub		ebp, DWORD [ebx + OFFSET_REL(trampoline_data.stack_size)]
+	mov		rbp, 0					; null base pointer for stack unwinding
 	; Continue BSP initialization
 	mov		rdi, QWORD [ebx + OFFSET_REL(trampoline_data.ap_context)]
 	call	QWORD [ebx + OFFSET_REL(trampoline_data.cpu_init_ap)]
-	; Finish up
+	; Finish up and begin scheduling work
 	mov		BYTE [ebx + OFFSET_REL(trampoline_data.ap_status)], 2
+	mov		rdi, QWORD [ebx + OFFSET_REL(trampoline_data.ap_context)]
+	push	QWORD 0
+	;jmp	QWORD [ebx + OFFSET_REL(trampoline_data.scheduler_start)]
 	hlt
 
 ;;; Data ;;;
@@ -121,13 +123,14 @@ GLOBAL	trampoline_data
 trampoline_data:
 	; The AP communication structure should be the first thing here
 	; NOTE: these should reflect the initial values when this gets memcpy'ed
-	.ap_status:		db	0
-	.bsp_status:	db	0
-	.pagetable_l4:	dd	0
-	.stack_ptr:		dq	0
-	.stack_size:	dd	0
-	.ap_context:	dq	0
-	.cpu_init_ap:	dq	0
+	.ap_status:			db	0
+	.bsp_status:		db	0
+	.pagetable_l4:		dd	0
+	.stack_ptr:			dq	0
+	.stack_size:		dd	0
+	.ap_context:		dq	0
+	.cpu_init_ap:		dq	0
+	.scheduler_start:	dq	0
 
 
 ALIGN	16

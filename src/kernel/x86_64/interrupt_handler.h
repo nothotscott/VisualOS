@@ -1,5 +1,5 @@
 /*
- * File:		interrupt_handlers.h
+ * File:		interrupt_handler.h
  * Description:	Handles interrupts and dispatches events to userspace
  * *****************************************************************************
  * Copyright 2020-2021 Scott Maday
@@ -9,7 +9,7 @@
 #pragma once
 
 
-#include "interrupt.h"
+#include "isr.h"
 
 
 // *** Exceptions *** //

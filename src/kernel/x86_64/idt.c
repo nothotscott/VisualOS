@@ -6,15 +6,9 @@
  */
 
 #include <string.h>
-#include "memory/pageframe.h"
-#include "memory/paging.h"
 #include "gdt.h"
-#include "interrupt.h"
-#include "interrupt_handlers.h"
+#include "isr.h"
 #include "idt.h"
-
-
-void (*g_isr_handlers[ISR_MAX])(struct InterruptStack*, size_t);
 
 
 void idt_init(struct IDTBlock* idt_block) {
@@ -39,16 +33,4 @@ void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum I
 	idt[index].ist = 0;
 	idt[index].selector = 1 * sizeof(struct GDTEntry);	// code segment at index 1
 	idt[index].type_attr = IDT_TYPE_PRESENT << 7 | IDT_TYPE_PRIVILEGE << 5 | gate;
-}
-
-void idt_register_isr_handler(size_t num, void (*handler)(struct InterruptStack*, size_t)) {
-	g_isr_handlers[num] = handler;
-}
-
-void idt_register_handlers() {
-	idt_register_isr_handler(8, double_fault_handler);
-	idt_register_isr_handler(13, general_protection_fault_handler);
-	idt_register_isr_handler(14, paging_fault_handler);
-	idt_register_isr_handler(32, pit_handler);
-	idt_register_isr_handler(33, keyboard_handler);
 }

@@ -18,6 +18,7 @@
 #include "memory/paging.h"
 #include "symbols/symbol.h"
 #include "x86_64/io.h"
+#include "x86_64/isr.h"
 #include "x86_64/pit.h"
 #include "x86_64/acpi.h"
 #include "x86_64/pci.h"
@@ -38,7 +39,7 @@ void setup_memory() {
 	struct Framebuffer* framebuffer = bootloader_get_info()->framebuffer;
 	size_t framebuffer_size = framebuffer->pitch * framebuffer->height;
 	pageframe_init();
-	pageframe_reserve(framebuffer->base, NEAREST_PAGE(framebuffer_size));
+	pageframe_reserve_size(framebuffer->base, framebuffer_size);
 	pageframe_lock((void*)LOCAL_APIC_TRAMPOLINE_TARGET, LOCAL_APIC_TRAMPOLINE_TARGET_SIZE);	// Lock the APIC trampoline code
 	// TODO reserve framebuffer shadow buffer here
 	paging_init();
@@ -47,12 +48,16 @@ void setup_memory() {
 	//paging_setup_pat();
 }
 
-void setup_debugging() {
-	symbol_init();
+void setup_interrupt_prep() {
+	// NOTE interrupts should be cleared at this point
+	isr_init();
+	pit_init();
+	io_pic_remap();
+	io_pic_mask();
 }
 
-void setup_pit() {
-	pit_init();
+void setup_debugging() {
+	symbol_init();
 }
 
 // *** POST BSP INIT *** //
@@ -69,10 +74,14 @@ void setup_acpi() {
 }
 
 void setup_apic() {
+	io_enable_apic();
 	local_apic_init();
 	local_apic_start_smp();
 	ioapic_init();
+	ioapic_set_from_isrs();
 }
+
+// *** ORDERED SETUP FUNCTIONS *** //
 
 void setup_pre() {
 	setup_shell();
@@ -81,11 +90,9 @@ void setup_pre() {
 	log("Setup memory\n");
 	setup_debugging();
 	log("Setup debugging\n");
-	setup_pit();
-	log("Setup PIT\n");
+	setup_interrupt_prep();
+	log("Setup interrupt preperation\n");
 }
-
-extern void test_userspace();
 
 void setup_post() {
 	setup_acpi();

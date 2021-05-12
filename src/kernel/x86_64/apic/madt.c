@@ -7,7 +7,9 @@
 
 #include <string.h>
 #include "log.h"
+#include "memory/memory.h"
 #include "memory/paging.h"
+#include "memory/pageframe.h"
 #include "x86_64/acpi.h"
 #include "local_apic.h"
 #include "ioapic.h"
@@ -15,77 +17,71 @@
 
 
 static struct MADTHeader* s_madt;
-
-static struct LocalAPICProcessor s_processors[MADT_MAX_PROCESSORS];
-static size_t s_processors_num = 0;
-static struct IOAPIC s_ioapics[MADT_IO_APICS];
-static size_t s_ioapics_num = 0;
+static struct MADTInformation s_madt_info = (struct MADTInformation){
+	.processors_num = 0,
+	.ioapics_num = 0,
+	.isos_num = 0,
+};
 
 
 void madt_init(struct MADTHeader* madt) {
 	s_madt = madt;
-	void* apic_ptr = (void*)(uint64_t)madt->local_apic_address;
-	paging_identity_map_page(apic_ptr);
-	memset(s_processors, 0, MADT_MAX_PROCESSORS * sizeof(struct LocalAPICProcessor));
-	log("Bootstrap processor APIC Address: 0x%x\n", apic_ptr);
-	for(size_t t = 0; t < madt->header.length - sizeof(struct MADTHeader); /* Do not increment here */ ){
+	MEMORY_MAP_RESERVE(madt, madt->header.length);
+	void* local_apic_ptr = (void*)(uint64_t)madt->local_apic_address;
+	size_t t = 0;
+	while(t < madt->header.length - sizeof(struct MADTHeader)) {
 		struct MADTRecord* record = (struct MADTRecord*)((uint64_t)madt + sizeof(struct MADTHeader) + t);
-		paging_identity_map_page(record);
-		t += record->length;	// increment here
+		t += record->length;
 		switch(record->type) {
-			case MADT_TYPE_LOCAL_PROCESSOR:
-				{
-					struct MADTLocalProcessor* local_processor = (struct MADTLocalProcessor*)record;
-					s_processors[s_processors_num] = (struct LocalAPICProcessor){
-						.local_processor = local_processor
-					};
-					s_processors_num++;
-					log("Processor ID: %d APIC-ID: %d Flags: %d\n", local_processor->processor_id, local_processor->local_apic_id, local_processor->flags);
-				}
+			case MADT_TYPE_LOCAL_PROCESSOR: {
+				struct MADTLocalProcessor* local_processor = (struct MADTLocalProcessor*)record;
+				s_madt_info.processors[s_madt_info.processors_num] = (struct LocalAPICProcessor){
+					.local_processor = local_processor
+				};
+				s_madt_info.processors_num++;
+				log("Processor ID: %d APIC-ID: %d Flags: %d\n", local_processor->processor_id, local_processor->local_apic_id, local_processor->flags);
 				break;
-			case MADT_TYPE_IOAPIC:
-				{
-					struct MADTIOAPIC* ioapic = (struct MADTIOAPIC*)record;
-					void* ioapic_ptr = (void*)(uint64_t)ioapic->ioapic_address;
-					paging_identity_map_page(ioapic_ptr);
-					s_ioapics[s_ioapics_num] = (struct IOAPIC) {
-						.ioapic = ioapic
-					};
-					s_ioapics_num++;
-					log("IO APIC: 0x%x\n", ioapic_ptr);
-				}
+			}
+			case MADT_TYPE_IOAPIC: {
+				struct MADTIOAPIC* ioapic = (struct MADTIOAPIC*)record;
+				void* ioapic_ptr = (void*)(uint64_t)ioapic->ioapic_address;
+				paging_identity_map_page(ioapic_ptr);
+				s_madt_info.ioapics[s_madt_info.ioapics_num] = (struct IOAPIC) {
+					.ioapic = ioapic
+				};
+				s_madt_info.ioapics_num++;
+				log("IO APIC base: 0x%x\n", ioapic->global_interrupt_base);
 				break;
-			case MADT_TYPE_INTERRUPT_SOURCE_OVERRIDE:
-				{
-					struct MADTInterruptSourceOverride* iso = (struct MADTInterruptSourceOverride*)record;
-					log("Interrupt Source Override source: 0x%d\n", iso->source);
-				}
+			}
+			case MADT_TYPE_INTERRUPT_SOURCE_OVERRIDE: {
+				struct MADTInterruptSourceOverride* iso = (struct MADTInterruptSourceOverride*)record;
+				s_madt_info.isos[s_madt_info.isos_num] = iso;
+				s_madt_info.isos_num++;
+				log("Interrupt Source Override source: 0x%d\n", iso->source);
 				break;
-			case MADT_TYPE_NONMASKABLE_INTERRUPT:
-				{
-					struct MADTNonMaskableInterrupt* nmi = (struct MADTNonMaskableInterrupt*)record;
-					log("Non-Maskable Interrupt ID: %d\n", nmi->local_apic_id);
-				}
+			}
+			case MADT_TYPE_NONMASKABLE_INTERRUPT: {
+				struct MADTNonMaskableInterrupt* nmi = (struct MADTNonMaskableInterrupt*)record;
+				log("Non-Maskable Interrupt ID: %d\n", nmi->local_apic_id);
 				break;
-			case MADT_TYPE_LOCAL_APICADDRESS_OVERRIDE:
+			}
+			case MADT_TYPE_LOCAL_APIC_ADDRESS_OVERRIDE: {
+				struct MADTLocalAPICAddressOverride* local_apic_override = (struct MADTLocalAPICAddressOverride*)record;
+				local_apic_ptr = (void*)local_apic_override->local_apic_address;
+				log_options((struct LogOptions){ LOG_TYPE_WARNING }, "Local PIC Address changed");
 				break;
+			}
 		}
 	}
+	paging_identity_map_page(local_apic_ptr);
+	pageframe_reserve(local_apic_ptr, 1);
+	s_madt_info.local_apic_ptr = local_apic_ptr;
+	log("Bootstrap processor APIC Address: 0x%x\n", local_apic_ptr);
 }
 
-struct MADTHeader* get_madt() {
+struct MADTHeader* madt_get() {
 	return s_madt;
 }
-
-struct LocalAPICProcessor* get_processor(size_t index) {
-	return s_processors + index;
-}
-size_t get_processors_num() {
-	return s_processors_num;
-}
-struct IOAPIC* get_ioapic(size_t index) {
-	return s_ioapics + index;
-}
-size_t get_ioapics_num() {
-	return s_ioapics_num;
+struct MADTInformation* madt_get_info() {
+	return &s_madt_info;
 }

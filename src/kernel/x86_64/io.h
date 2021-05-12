@@ -17,6 +17,12 @@
 #define IO_ICW1_ICW4	0x01
 #define IO_ICW4_8086	0x01
 
+#define IO_CHIPSET_ADDRESS_REGISTER	0x22
+#define IO_CHIPSET_DATA_REGISTER	0x23
+#define IO_IMCR_REGISTER_ADDRESS	0x70
+#define IO_IMCR_8259_DIRECT			0x00
+#define IO_IMCR_VIA_APIC			0x01
+
 #define IO_PIC_EOI		0x20
 
 // Enables APIC
@@ -44,3 +50,6 @@ void io_pic_remap();
 // Ends either the master or slave PIC
 void io_pic_end_master();
 void io_pic_end_slave();
+
+// Overrides the PIC in favor of the APIC
+void io_pic_override();

@@ -1,5 +1,5 @@
 /*
- * File:		apic.c
+ * File:		local_apic.c
  * *****************************************************************************
  * Copyright 2021 Scott Maday
  * Check the LICENSE file that came with this program for licensing terms
@@ -41,16 +41,16 @@ void local_apic_init() {
 void local_apic_start_smp() {
 	uint32_t command_low, command_high;
 	uint8_t bsp_local_apic_id = cpu_get_bsp()->local_apic_id;
-	void* local_apic_ptr = (void*)(uint64_t)get_madt()->local_apic_address;
+	void* local_apic_ptr = madt_get_info()->local_apic_ptr;
 	void* trampoline_target = (void*)LOCAL_APIC_TRAMPOLINE_TARGET;
 	uint8_t trampoline_target_page = (uint8_t)(((uint64_t)trampoline_target >> 12) & 0xff);
-	volatile struct ApplicationProcessorCommunication* communicator = trampoline_target + (s_trampoline_data_ptr - s_trampoline_code_ptr);
+	volatile struct LocalAPICApplicationProcessorCommunication* communicator = trampoline_target + (s_trampoline_data_ptr - s_trampoline_code_ptr);
 	// INIT each AP
 	//debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "BSP processor %d\n", bsp_local_apic_id);
-	size_t processors_num = get_processors_num();
+	size_t processors_num = madt_get_info()->processors_num;
 	struct CPUContext* ap_context = pageframe_request_pages(NEAREST_PAGE(sizeof(struct CPUContext) * (processors_num - 1)));
 	for(size_t i = 0; i < processors_num; i++) {
-		struct LocalAPICProcessor* processor = get_processor(i);
+		struct LocalAPICProcessor* processor = madt_get_info()->processors + i;
 		uint8_t local_apic_id = processor->local_processor->local_apic_id;
 		// Don't execute AP startup code on the BSP
 		if(local_apic_id == bsp_local_apic_id){

@@ -5,11 +5,13 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
+#include "log.h"
 #include "memory/memory.h"
 #include "memory/paging.h"
 #include "memory/pageframe.h"
 #include "io.h"
 #include "gdt.h"
+#include "isr.h"
 #include "idt.h"
 #include "syscall.h"
 #include "cpu.h"
@@ -42,10 +44,8 @@ void cpu_init(struct CPUContext* cpu_context) {
 	gdt_load(&cpu_context->gdt_block->gdt_descriptor);
 	// Setup IDT
 	idt_init(cpu_context->idt_block);
-	idt_register_handlers();
-	io_pic_remap();
-	io_pic_mask();
 	idt_load(&cpu_context->idt_block->idt_descriptor);
 	// Setup syscalls
 	syscall_enable_sce();
+	log("Processor %d successfully initialized\n", cpu_context->local_apic_id);
 }

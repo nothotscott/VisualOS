@@ -14,9 +14,22 @@
 #include "ioapic.h"
 #include "x86_64/acpi.h"
 
-#define MADT_MAX_PROCESSORS	255
-#define MADT_IO_APICS		8	// I have no clue
+// I have no clue with these values
+// Please let me know if you do
+#define MADT_MAX_PROCESSORS					128
+#define MADT_MAX_IO_APICS					8
+#define MADT_MAX_INTERRUPT_SOURCE_OVERRIDES	16
 
+
+struct MADTInformation {
+	void*								local_apic_ptr;
+	struct LocalAPICProcessor			processors[MADT_MAX_PROCESSORS];
+	size_t								processors_num;
+	struct IOAPIC						ioapics[MADT_MAX_IO_APICS];
+	size_t								ioapics_num;
+	struct MADTInterruptSourceOverride*	isos[MADT_MAX_INTERRUPT_SOURCE_OVERRIDES];
+	size_t								isos_num;
+};
 
 struct MADTRecord {
 	uint8_t	type;
@@ -66,7 +79,7 @@ enum MADTType {
 	MADT_TYPE_IOAPIC						= 1,
 	MADT_TYPE_INTERRUPT_SOURCE_OVERRIDE		= 2,
 	MADT_TYPE_NONMASKABLE_INTERRUPT			= 4,
-	MADT_TYPE_LOCAL_APICADDRESS_OVERRIDE	= 5,
+	MADT_TYPE_LOCAL_APIC_ADDRESS_OVERRIDE	= 5,
 	MADT_TYPE_IO_SAPIC						= 6,
 	MADT_TYPE_LOCAL_SAPIC					= 7,
 	MADT_TYPE_PLAT_INTERRUPT_SRC			= 8,
@@ -85,12 +98,5 @@ void madt_init(struct MADTHeader* madt);
 
 // *** Getters *** //
 
-struct MADTHeader* get_madt();
-
-// Gets the AP at [index]
-struct LocalAPICProcessor* get_processor(size_t index);
-size_t get_processors_num();
-
-// Gets the IOAPIC at [index]
-struct IOAPIC* get_ioapic(size_t index);
-size_t get_ioapics_num();
+struct MADTHeader* madt_get();
+struct MADTInformation* madt_get_info();

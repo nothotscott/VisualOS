@@ -1,7 +1,6 @@
 /*
- * File:		apic.h
- * Description:	Executes APIC-scoped commands
- * 				Not to be confused with the lexically similar acpi
+ * File:		local_apic.h
+ * Description:	Executes Local APIC-scoped commands
  * *****************************************************************************
  * Copyright 2021 Scott Maday
  * Check the LICENSE file that came with this program for licensing terms
@@ -47,7 +46,7 @@ enum LocalAPICRegisterOffset {
 };
 
 // VOS specifc data structure to communicate with the AP
-struct ApplicationProcessorCommunication {
+struct LocalAPICApplicationProcessorCommunication {
 	uint8_t		ap_status;
 	uint8_t		bsp_status;
 	uint32_t	pagetable_l4;
@@ -55,6 +54,7 @@ struct ApplicationProcessorCommunication {
 	uint32_t	stack_size;
 	uint64_t	ap_context;
 	uint64_t	cpu_init_ap;
+	uint64_t	scheduler_start;
 } __attribute__((packed));
 
 struct LocalAPICProcessor {

@@ -147,6 +147,9 @@ void pageframe_reserve(void* address, size_t pages) {
 		}
 	}
 }
+void pageframe_reserve_size(void* address, size_t size) {
+	pageframe_reserve(address, NEAREST_PAGE(size));
+}
 
 
 size_t memory_get_total_size() {

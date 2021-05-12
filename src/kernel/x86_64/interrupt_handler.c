@@ -1,5 +1,5 @@
 /*
- * File:		interrupt_handlers.c
+ * File:		interrupt_handler.c
  * *****************************************************************************
  * Copyright 2020-2021 Scott Maday
  * Check the LICENSE file that came with this program for licensing terms
@@ -12,8 +12,8 @@
 #include "x86_64/io.h"
 #include "x86_64/cpuid.h"
 #include "pit.h"
-#include "interrupt.h"
-#include "interrupt_handlers.h"
+#include "isr.h"
+#include "interrupt_handler.h"
 
 static const char s_keyboard_scancodes[] ={
 	0, 0, '1', '2', '3', '4', '5', '6',
@@ -70,7 +70,7 @@ void pit_handler(struct InterruptStack* stack, size_t num) {
 }
 
 void keyboard_handler(struct InterruptStack* stack, size_t num) {
-	uint8_t scancode = inb(0x60);
+	/*uint8_t scancode = inb(0x60);
 	if(scancode < sizeof(s_keyboard_scancodes)) {
 		char chr = s_keyboard_scancodes[scancode];
 		ungetc(chr, stdin);
@@ -79,5 +79,5 @@ void keyboard_handler(struct InterruptStack* stack, size_t num) {
 		fflush(stdout);
 
 	}
-	io_pic_end_slave();
+	io_pic_end_slave();*/
 }

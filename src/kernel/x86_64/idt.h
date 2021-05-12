@@ -8,10 +8,7 @@
 
 #pragma once
 
-#include "interrupt.h"
-
 #define IDT_SIZE	256
-#define	ISR_MAX		IDT_SIZE
 
 #define IDT_TYPE_PRESENT	0b1
 #define IDT_TYPE_PRIVILEGE	0b00
@@ -42,9 +39,6 @@ struct IDTBlock {
 	struct IDTEntry			idt[IDT_SIZE];
 };
 
-// Global isr handler table
-extern void (*g_isr_handlers[ISR_MAX])(struct InterruptStack*, size_t);
-
 // Initializes the idt and idt descriptors in [idt_block]
 void idt_init(struct IDTBlock* idt_block);
 
@@ -52,43 +46,9 @@ void idt_init(struct IDTBlock* idt_block);
 // This should be done during idt_load
 void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum IDTGateType gate);
 
-// Adds isr [handler] for interrupt [num] in g_isr_handlers
-void idt_register_isr_handler(size_t num, void (*handler)(struct InterruptStack*, size_t));
-
-// Registers all default isr handlers in g_isr_handlers
-void idt_register_handlers();
-
 
 // *** From idt.asm *** //
 
+
 // Loads the [idt_descriptor]
 void idt_load(struct IDTDescriptor* idt_descriptor);
-
-// Interrupt service routines defined in idt.asm
-extern void isr0();
-extern void isr1();
-extern void isr2();
-extern void isr3();
-extern void isr4();
-extern void isr5();
-extern void isr6();
-extern void isr7();
-extern void isr8();
-extern void isr9();
-extern void isr10();
-extern void isr11();
-extern void isr12();
-extern void isr13();
-extern void isr14();
-extern void isr16();
-extern void isr17();
-extern void isr18();
-extern void isr19();
-extern void isr20();
-extern void isr30();
-extern void isr32();
-extern void isr33();
-extern void isr35();
-extern void isr36();
-extern void isr37();
-extern void isr39();

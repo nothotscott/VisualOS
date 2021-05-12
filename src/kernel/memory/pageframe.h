@@ -37,3 +37,5 @@ void pageframe_unreserve(void* address, size_t pages);
 
 // Make pages in-use at [address] and therafter [pages] times and track reserved
 void pageframe_reserve(void* address, size_t pages);
+// Shortcut for reserving a page at [address] of [size]
+void pageframe_reserve_size(void* address, size_t size);

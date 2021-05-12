@@ -21,15 +21,6 @@
 // Returns [n]'s value of [bit]
 #define GET_BIT(n, bit)			((1 << (bit) & (n)) > 0)
 
-// Puts character [chr] in [buffer] at [position]
-#define __PUTC(chr, buffer, position)								\
-									{								\
-										if(buffer != nullptr) {		\
-											buffer[position] = chr;	\
-										}							\
-										position++;					\
-									}
-
 // From kernel.ld linker script
 extern void** _kernel_start;
 extern void** _kernel_end;
