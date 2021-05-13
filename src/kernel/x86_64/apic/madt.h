@@ -19,6 +19,7 @@
 #define MADT_MAX_PROCESSORS					128
 #define MADT_MAX_IO_APICS					8
 #define MADT_MAX_INTERRUPT_SOURCE_OVERRIDES	16
+#define MADT_MAX_NONMASKABLE_INTERRUPTS		8
 
 
 struct MADTInformation {
@@ -29,6 +30,8 @@ struct MADTInformation {
 	size_t								ioapics_num;
 	struct MADTInterruptSourceOverride*	isos[MADT_MAX_INTERRUPT_SOURCE_OVERRIDES];
 	size_t								isos_num;
+	struct MADTNonMaskableInterrupt*	nmis[MADT_MAX_NONMASKABLE_INTERRUPTS];
+	size_t								nmis_num;
 };
 
 struct MADTRecord {

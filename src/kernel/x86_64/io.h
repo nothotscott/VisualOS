@@ -30,7 +30,7 @@ void io_interrupts_disable();
 void io_interrupts_enable();
 
 // Enables APIC
-void io_enable_apic();
+void io_apic_enable();
 
 // Sends value out onto the processor bus on port
 extern void outb(uint16_t port, uint8_t value);

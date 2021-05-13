@@ -27,3 +27,5 @@ void paging_fault_handler(struct InterruptStack* stack, size_t num);
 void pit_handler(struct InterruptStack* stack, size_t num);
 // ISR 33
 void keyboard_handler(struct InterruptStack* stack, size_t num);
+// ISR 39
+void spurious_interrupt_handler(struct InterruptStack* stack, size_t num);

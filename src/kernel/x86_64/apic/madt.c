@@ -59,6 +59,8 @@ void madt_init(struct MADTHeader* madt) {
 			}
 			case MADT_TYPE_NONMASKABLE_INTERRUPT: {
 				struct MADTNonMaskableInterrupt* nmi = (struct MADTNonMaskableInterrupt*)record;
+				s_madt_info.nmis[s_madt_info.nmis_num] = nmi;
+				s_madt_info.nmis_num++;
 				log("Non-Maskable Interrupt ID: %d\n", nmi->local_apic_id);
 				break;
 			}

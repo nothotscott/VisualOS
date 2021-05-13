@@ -58,7 +58,7 @@ void setup_acpi() {
 	struct MCFGHeader* mcfg = (struct MCFGHeader*)acpi_get_table(xsdt, "MCFG");
 	struct MADTHeader* madt = (struct MADTHeader*)acpi_get_table(xsdt, "APIC");
 	pci_init(mcfg);
-	io_enable_apic();
+	io_apic_enable();
 	madt_init(madt);
 	local_apic_init();
 	//pci_print();
@@ -68,7 +68,6 @@ void setup_interrupt_prep() {
 	// NOTE interrupts should be cleared at this point
 	isr_init();
 	pit_init();
-	io_enable_apic();
 	io_pic_disable();
 	ioapic_init();
 	ioapic_set_from_isrs();
@@ -87,4 +86,9 @@ void setup_pre() {
 	log("Setup ACPI/PCI\n");
 	setup_interrupt_prep();
 	log("Setup interrupt preperation\n");
+}
+
+void setup_post() {
+	local_apic_start_smp();
+	log("Setup SMP\n");
 }

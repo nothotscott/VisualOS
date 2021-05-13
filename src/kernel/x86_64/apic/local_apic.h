@@ -16,6 +16,58 @@
 #define LOCAL_APIC_SLEEP_DELAY_INIT			10	// miliseconds to sleep after INIT sequence
 #define LOCAL_APIC_SLEEP_DELAY_AP_STARTUP	1	// miliseconds to sleep after each AP STARTUP
 
+enum LocalAPICInterruptRegisterMessageType {
+	LOCAL_APIC_INTERRUPT_REGISTER_MESSAGE_TYPE_FIXED		= 0b000,
+	LOCAL_APIC_INTERRUPT_REGISTER_MESSAGE_TYPE_SMI			= 0b010,
+	LOCAL_APIC_INTERRUPT_REGISTER_MESSAGE_TYPE_NMI			= 0b100,
+	LOCAL_APIC_INTERRUPT_REGISTER_MESSAGE_TYPE_EXTINT		= 0b111,
+};
+enum LocalAPICInterruptRegisterDeliveryStatus {
+	LOCAL_APIC_INTERRUPT_REGISTER_DELIVERY_STATUS_IDLE		= 0,
+	LOCAL_APIC_INTERRUPT_REGISTER_DELIVERY_STATUS_PENDING	= 1
+};
+enum LocalAPICInterruptRegisterRemoteIRR {
+	LOCAL_APIC_INTERRUPT_REGISTER_REMOTE_COMPLETED	= 0,
+	LOCAL_APIC_INTERRUPT_REGISTER_REMOTE_ACCEPTED	= 1,
+};
+enum LocalAPICInterruptRegisterTriggerMode {
+	LOCAL_APIC_INTERRUPT_REGISTER_TRIGGER_MODE_EDGE		= 0,
+	LOCAL_APIC_INTERRUPT_REGISTER_TRIGGER_MODE_LEVEL	= 1
+};
+enum LocalAPICInterruptRegisterMask {
+	LOCAL_APIC_INTERRUPT_REGISTER_MASK_ENABLE	= 0,
+	LOCAL_APIC_INTERRUPT_REGISTER_MASK_DISABLE	= 1
+};
+enum LocalAPICInterruptTimerMode {
+	LOCAL_APIC_INTERRUPT_REGISTER_TIMER_MODE_ONESHOT	= 0,
+	LOCAL_APIC_INTERRUPT_REGISTER_TIMER_MODE_PERIODIC	= 1
+};
+
+enum LocalAPICInterruptBits {
+	LOCAL_APIC_INTERRUPT_REGISTER_VECTOR			= 0,
+	LOCAL_APIC_INTERRUPT_REGISTER_MESSAGE_TYPE		= 8,
+	LOCAL_APIC_INTERRUPT_REGISTER_DELIVERY_STATUS	= 12,
+	LOCAL_APIC_INTERRUPT_REGISTER_TRIGGER_MODE		= 15,
+	LOCAL_APIC_INTERRUPT_REGISTER_MASK				= 16,
+	LOCAL_APIC_INTERRUPT_REGISTER_TIMER_MODE		= 17,
+};
+
+struct LocalAPICInterruptRegister {
+	uint8_t											vector : 8;
+	enum LocalAPICInterruptRegisterMessageType		message_type : 3;
+	enum LocalAPICInterruptRegisterDeliveryStatus	delivery_status : 1;
+	enum LocalAPICInterruptRegisterRemoteIRR		remote_irr : 1;
+	enum LocalAPICInterruptRegisterTriggerMode		trigger_mode : 1;
+	enum LocalAPICInterruptRegisterMask				mask : 1;
+	enum LocalAPICInterruptTimerMode				timer_mode : 1;
+};
+
+enum LocalAPICInterruptVectors {
+	LOCAL_APIC_INTERRUPT_VECTOR_SPURIOUS	= 39,
+	LOCAL_APIC_INTERRUPT_VECTOR_LINT		= 255,
+	LOCAL_APIC_INTERRUPT_VECTOR_TIMER		= 48
+};
+
 // Intel SDM Volume 3 Table 10-1
 enum LocalAPICRegisterOffset {
 	LOCAL_APIC_REG_OFFSET_ID					= 0x0020,
@@ -63,14 +115,21 @@ struct LocalAPICProcessor {
 	size_t						stack_size;
 };
 
+
 // Initializes the bootstrap processor
 void local_apic_init();
+
+// Starts local interrupts for the calling processor(NMIs and timer)
+void local_apic_start_lints();
 
 // Launches all application processors to be ready for symmetric multiprocessing
 void local_apic_start_smp();
 
 // Sends the end of interrupt signal for the calling APIC
 void local_apic_eoi();
+
+// Returns the register value for general register [reg]
+uint32_t local_apic_create_register_value(struct LocalAPICInterruptRegister reg);
 
 // Gets the interprocessor interrupt for at [local_apic_ptr] and stores it at [command_low] and [command_high]
 void local_apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high);

@@ -102,6 +102,11 @@ trampoline_longmode:
 	mov		rax, cr4
 	or		rax, 0x600				; enable OSFXSR, OSXMMEXCPT
 	mov		cr4, rax
+	; Enable APIC
+	mov		ecx, 0x1b
+	rdmsr
+	or		eax, 0x800
+	wrmsr
 	; Get our stack
 	mov		rsp, QWORD [ebx + OFFSET_REL(trampoline_data.stack_ptr)]
 	mov		rbp, 0					; null base pointer for stack unwinding

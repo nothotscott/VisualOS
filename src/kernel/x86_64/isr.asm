@@ -33,10 +33,9 @@ EXTERN	local_apic_eoi
 			iretq
 %endmacro
 %macro	ISR_IRQ_DEFINE	1
-	%assign	ISR_NUM	32 + %1
+	%assign	ISR_NUM	%1
 	GLOBAL	isr%+ISR_NUM
 	isr%+ISR_NUM:
-		push	QWORD 0
 		PUSH_REG
 		mov		rax, [g_isr_handlers + 8 * ISR_NUM]
 		cmp		rax, 0
@@ -47,7 +46,6 @@ EXTERN	local_apic_eoi
 		call	local_apic_eoi
 		%%.finish:
 			POP_REG
-			add		rsp, 8
 			iretq
 %endmacro
 
@@ -76,19 +74,21 @@ ISR_DEFINE	14, 1	; Page Fault Exception
 ;ISR_DEFINE	20, 0	; Virtualization Exception
 ;ISR_DEFINE	30, 1	; Security Exception
 ; Interrupt requests
-ISR_IRQ_DEFINE	0	; PIT
-ISR_IRQ_DEFINE	1	; Keyboard Interrupt
-;ISR_IRQ_DEFINE	2	; Cascade
-ISR_IRQ_DEFINE	3	; COM2
-ISR_IRQ_DEFINE	4	; COM1
-ISR_IRQ_DEFINE	5	; LPT2
-ISR_IRQ_DEFINE	6	; Floppy disk
-ISR_IRQ_DEFINE	7	; LPT (spurious interrupt)
-ISR_IRQ_DEFINE	8	; CMOS
-ISR_IRQ_DEFINE	9	; Peripherals 1 (legacy SCSI/NIC)
-ISR_IRQ_DEFINE	10	; Peripherals 2 (SCSI/NIC)
-ISR_IRQ_DEFINE	11	; Peripherals 3 (SCSI/NIC)
-ISR_IRQ_DEFINE	12	; PS2 Mouse
-ISR_IRQ_DEFINE	13	; Coprocessor/interprocessor
-ISR_IRQ_DEFINE	14	; Primary ATA Hard disk
-ISR_IRQ_DEFINE	15	; Secondary ATA Hard disk
+ISR_IRQ_DEFINE	32	; PIT
+ISR_IRQ_DEFINE	33	; Keyboard Interrupt
+;ISR_IRQ_DEFINE	34	; Cascade
+ISR_IRQ_DEFINE	35	; COM2
+ISR_IRQ_DEFINE	36	; COM1
+ISR_IRQ_DEFINE	37	; LPT2
+ISR_IRQ_DEFINE	38	; Floppy disk
+ISR_IRQ_DEFINE	39	; LPT (spurious interrupt)
+ISR_IRQ_DEFINE	40	; CMOS
+ISR_IRQ_DEFINE	41	; Peripherals 1 (legacy SCSI/NIC)
+ISR_IRQ_DEFINE	42	; Peripherals 2 (SCSI/NIC)
+ISR_IRQ_DEFINE	43	; Peripherals 3 (SCSI/NIC)
+ISR_IRQ_DEFINE	44	; PS2 Mouse
+ISR_IRQ_DEFINE	45	; Coprocessor/interprocessor
+ISR_IRQ_DEFINE	46	; Primary ATA Hard disk
+ISR_IRQ_DEFINE	47	; Secondary ATA Hard disk
+; Custom LVT IRQs
+ISR_IRQ_DEFINE	48	; Timer

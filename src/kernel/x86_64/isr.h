@@ -12,10 +12,18 @@
 #define	ISR_MAX			256
 
 
-struct InterruptStack
-{
+struct InterruptGeneralRegisters {
 	uint64_t	rax, rbx, rcx, rdx, rsi, rdi, rbp, r8, r9, r10, r11, r12, r13, r14, r15;
-	uint64_t	error_code, rip, cs, rflags, rsp, ss;
+};
+
+struct InterruptStack {
+	struct InterruptGeneralRegisters	general;
+	uint64_t							rip, cs, rflags, rsp, ss;
+};
+
+struct InterruptErrorStack {
+	struct InterruptGeneralRegisters	general;
+	uint64_t							error_code, rip, cs, rflags, rsp, ss;
 };
 
 // Global ISR handler table
@@ -70,3 +78,5 @@ extern void isr44();
 extern void isr45();
 extern void isr46();
 extern void isr47();
+
+extern void isr48();

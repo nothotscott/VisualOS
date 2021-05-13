@@ -13,16 +13,16 @@
 #define IDT_SET_ISR(num)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_TRAP)
 #define IDT_SET_IRQ(num)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_INTERRUPT)
 
-
 void idt_init(struct IDTBlock* idt_block) {
 	size_t idt_total_size = IDT_SIZE * sizeof(struct IDTEntry);	// size of all IDT enteries in bytes
 	memset(&idt_block->idt, 0, idt_total_size);
 	idt_block->idt_descriptor.limit = idt_total_size - 1;
 	idt_block->idt_descriptor.base = idt_block->idt;
-	// Sets isrs from assembly
+	// Internal ISRs
 	IDT_SET_ISR(8);
 	IDT_SET_ISR(13);
 	IDT_SET_ISR(14);
+	// IRQs
 	IDT_SET_IRQ(32);
 	IDT_SET_IRQ(33);
 	IDT_SET_IRQ(35);
@@ -38,6 +38,8 @@ void idt_init(struct IDTBlock* idt_block) {
 	IDT_SET_IRQ(45);
 	IDT_SET_IRQ(46);
 	IDT_SET_IRQ(47);
+	// Custom LVT
+	IDT_SET_IRQ(48);
 }
 
 void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum IDTGateType gate) {

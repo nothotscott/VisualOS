@@ -9,6 +9,7 @@
 #include "memory/memory.h"
 #include "memory/paging.h"
 #include "memory/pageframe.h"
+#include "apic/local_apic.h"
 #include "io.h"
 #include "gdt.h"
 #include "isr.h"
@@ -36,7 +37,6 @@ struct CPUContext* cpu_get_bsp() {
 	return &s_cpu_bsp;
 }
 
-
 void cpu_init(struct CPUContext* cpu_context) {
 	cpu_create_blocks(cpu_context);
 	// Setup GDT
@@ -47,6 +47,8 @@ void cpu_init(struct CPUContext* cpu_context) {
 		idt_init(cpu_context->idt_block);	// only need to initialize once
 	}
 	idt_load(&cpu_context->idt_block->idt_descriptor);
+	// Setup local interrupts
+	local_apic_start_lints();
 	// Setup syscalls
 	syscall_enable_sce();
 	log("Processor %d successfully initialized\n", cpu_context->local_apic_id);

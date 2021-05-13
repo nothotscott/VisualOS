@@ -6,19 +6,21 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
+#include "log.h"
 #include "x86_64/cpu.h"
-#include "x86_64/apic/local_apic.h"
 #include "bootloader.h"
 
 void kernel_common() __attribute__((noreturn));
 // From setup.c
 extern void setup_pre();
-
+extern void setup_post();
 
 void kernel_common() {
 	setup_pre();
 	cpu_init_bsp();
-	local_apic_start_smp();
+	//setup_post();
+
+	log_options((struct LogOptions){LOG_TYPE_NORMAL, true}, "Welcome to VisualOS!\n");
 
 	while (true);
 }

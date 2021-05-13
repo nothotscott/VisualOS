@@ -36,6 +36,10 @@ static void* s_trampoline_data_ptr = &trampoline_data;
 void local_apic_init() {
 	void* trampoline_target = (void*)LOCAL_APIC_TRAMPOLINE_TARGET;
 	paging_identity_map(trampoline_target, LOCAL_APIC_TRAMPOLINE_TARGET_SIZE);
+	// Enable APIC software enabled
+	void* local_apic_ptr = madt_get_info()->local_apic_ptr;
+	uint32_t spurious_reg = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_SPURIOUS_INT_VECTOR);
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_SPURIOUS_INT_VECTOR, spurious_reg | 0x100);
 }
 
 void local_apic_start_smp() {
@@ -62,25 +66,25 @@ void local_apic_start_smp() {
 		// Send INIT to the AP
 		local_apic_ipi_get_command(local_apic_ptr, &command_low, &command_high);
 		local_apic_ipi_set_command(local_apic_ptr,
-			(command_low & 0xfff32000) | 0xc500,				// trigger INIT
-			(command_high & 0x00ffffff) | (local_apic_id << 24)	// select AP in DES bits
+			(command_low & 0xfff32000) | 0xc500,
+			(command_high & 0x00ffffff) | (local_apic_id << 24)
 		);
 		local_apic_wait(local_apic_ptr, &command_low);
-		// Deassert
+		// Deassert (clear Level bit)
 		local_apic_ipi_get_command(local_apic_ptr, &command_low, &command_high);
 		local_apic_ipi_set_command(local_apic_ptr,
-			(command_low & 0xfff00000) | 0x08500,				// deassert (clear Level bit)
-			(command_high & 0x00ffffff) | (local_apic_id << 24)	// select AP
+			(command_low & 0xfff00000) | 0x8500,
+			(command_high & 0x00ffffff) | (local_apic_id << 24)
 		);
 		local_apic_wait(local_apic_ptr, &command_low);
 		pit_sleep(LOCAL_APIC_SLEEP_DELAY_INIT);
 		// AP STARTUP
 		for(size_t j = 0; j < 2; j++) {
-			// Clear APIC errors
+			// Clear APIC errors and set trampoline code page in vector
 			local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ERROR_STATUS, 0);
 			local_apic_ipi_set_command(local_apic_ptr,
-				(command_low & 0xfff0f800) | 0x600 | trampoline_target_page,	// STARTUP page in Vector
-				(command_high & 0x00ffffff) | (local_apic_id << 24)				// select AP
+				(command_low & 0xfff0f800) | 0x600 | trampoline_target_page,
+				(command_high & 0x00ffffff) | (local_apic_id << 24)
 			);
 			pit_sleep(LOCAL_APIC_SLEEP_DELAY_AP_STARTUP);
 			local_apic_wait(local_apic_ptr, &command_low);
@@ -116,6 +120,46 @@ void local_apic_start_smp() {
 	}
 }
 
+void local_apic_start_lints() {
+	void* local_apic_ptr = madt_get_info()->local_apic_ptr;
+	uint8_t local_apic_id = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ID) >> 24;
+	// Set Spurious interrupts
+	uint32_t spurious_reg = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_SPURIOUS_INT_VECTOR);
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_SPURIOUS_INT_VECTOR, spurious_reg | LOCAL_APIC_INTERRUPT_VECTOR_SPURIOUS);
+	// Set NMI from MADT
+	size_t nmis_num = madt_get_info()->nmis_num;
+	for(size_t i = 0; i < nmis_num; i++) {
+		struct MADTNonMaskableInterrupt* nmi = madt_get_info()->nmis[i];
+		if(nmi->local_apic_id != 0xff && nmi->local_apic_id != local_apic_id) {
+			continue;
+		}
+		uint32_t nmi_entry = local_apic_create_register_value((struct LocalAPICInterruptRegister){
+			.vector = LOCAL_APIC_INTERRUPT_VECTOR_LINT,
+			.message_type = LOCAL_APIC_INTERRUPT_REGISTER_MESSAGE_TYPE_NMI,
+			.trigger_mode = nmi->flags & 8 ? LOCAL_APIC_INTERRUPT_REGISTER_TRIGGER_MODE_LEVEL : LOCAL_APIC_INTERRUPT_REGISTER_TRIGGER_MODE_EDGE,
+			.mask = LOCAL_APIC_INTERRUPT_REGISTER_MASK_DISABLE	// TODO figure the rest of this out
+		});
+		switch(nmi->lint) {
+			case 0:
+				local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_LVT_LINT0, nmi_entry);
+				break;
+			case 1:
+				local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_LVT_LINT1, nmi_entry);
+				break;
+		}
+	}
+	// Setup Local APIC timer
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INITIAL_COUNT, 0x100000);
+	uint32_t divide_reg = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_DIVIDE_CONFIG);
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_DIVIDE_CONFIG, (divide_reg & 0xfffffff4) | 0b1010);
+	uint32_t timer_reg = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_LVT_TIMER);
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_LVT_TIMER, local_apic_create_register_value((struct LocalAPICInterruptRegister){
+		.vector = LOCAL_APIC_INTERRUPT_VECTOR_TIMER,
+		.mask = LOCAL_APIC_INTERRUPT_REGISTER_MASK_ENABLE,
+		.timer_mode = LOCAL_APIC_INTERRUPT_REGISTER_TIMER_MODE_PERIODIC
+	}) | (timer_reg & 0xfffcef00));
+}
+
 void local_apic_eoi() {
 	void* local_apic_ptr = madt_get_info()->local_apic_ptr;
 	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_EOI, 0);
@@ -137,6 +181,16 @@ __attribute__((always_inline)) static inline void local_apic_wait(void* local_ap
 	} while(*command_low & (1 << 12));	// delivery status bit
 }
 
+uint32_t local_apic_create_register_value(struct LocalAPICInterruptRegister reg) {
+	return (
+		(reg.vector << LOCAL_APIC_INTERRUPT_REGISTER_VECTOR) |
+		(reg.message_type << LOCAL_APIC_INTERRUPT_REGISTER_MESSAGE_TYPE) |
+		(reg.delivery_status << LOCAL_APIC_INTERRUPT_REGISTER_DELIVERY_STATUS) |
+		(reg.trigger_mode << LOCAL_APIC_INTERRUPT_REGISTER_TRIGGER_MODE) |
+		(reg.mask << LOCAL_APIC_INTERRUPT_REGISTER_MASK) |
+		(reg.timer_mode << LOCAL_APIC_INTERRUPT_REGISTER_TIMER_MODE)
+	);
+}
 
 void local_apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high) {
 	if(command_low != NULL) {

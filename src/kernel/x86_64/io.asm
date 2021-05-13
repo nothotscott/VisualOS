@@ -14,8 +14,8 @@ io_interrupts_enable:
 	sti
 	ret
 
-GLOBAL	io_enable_apic
-io_enable_apic:
+GLOBAL	io_apic_enable
+io_apic_enable:
 	mov		ecx, 0x1b	; IA32_APIC_BASE_MSR
 	rdmsr
 	or		eax, 0x800	; IA32_APIC_BASE_MSR_ENABLE

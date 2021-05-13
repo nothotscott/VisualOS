@@ -25,7 +25,7 @@ enum IOAPICRedirectionEntryDestinationMode {
 	IOAPIC_REDIRECTION_ENTRY_DESTINATION_MODE_LOGICAL	= 1
 };
 enum IOAPICRedirectionEntryDeliveryStatus {
-	IOAPIC_REDIRECTION_ENTRY_DELIVERY_STATUS_READY		= 0,
+	IOAPIC_REDIRECTION_ENTRY_DELIVERY_STATUS_IDLE		= 0,
 	IOAPIC_REDIRECTION_ENTRY_DELIVERY_STATUS_PENDING	= 1
 };
 enum IOAPICRedirectionEntryPinPolarity {
@@ -59,19 +59,6 @@ enum IOAPICRedirectionBitsHigh {
 	IOAPIC_REDIRECTION_BITS_HIGH_DESTINATION	= 24
 };
 
-// Intel 82093AA data sheet
-enum IOAPICRegisterOffset {
-	IOAPIC_REG_OFFSET_ID				= 0x00,
-	IOAPIC_REG_OFFSET_VERSION			= 0x01,
-	IOAPIC_REG_OFFSET_ARBITRATION 		= 0x02,
-	IOAPIC_REG_OFFSET_REDIRECTION_TABLE	= 0x10,
-};
-
-struct IOAPIC {
-	struct MADTIOAPIC*	ioapic;
-	uint8_t				max_interrupts;
-};
-
 // This is NOT directly casted, this is only to transfer redirection information
 struct IOAPICRedirectionEntry {
 	uint8_t										vector : 8;
@@ -85,6 +72,18 @@ struct IOAPICRedirectionEntry {
 	uint8_t										destination : 8;
 };
 
+// Intel 82093AA data sheet
+enum IOAPICRegisterOffset {
+	IOAPIC_REG_OFFSET_ID				= 0x00,
+	IOAPIC_REG_OFFSET_VERSION			= 0x01,
+	IOAPIC_REG_OFFSET_ARBITRATION 		= 0x02,
+	IOAPIC_REG_OFFSET_REDIRECTION_TABLE	= 0x10,
+};
+
+struct IOAPIC {
+	struct MADTIOAPIC*	ioapic;
+	uint8_t				max_interrupts;
+};
 
 // Initializes each IOAPIC
 void ioapic_init();
