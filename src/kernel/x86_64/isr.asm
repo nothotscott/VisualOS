@@ -8,6 +8,7 @@
 
 
 EXTERN	g_isr_handlers
+EXTERN	local_apic_eoi
 
 %macro	ISR_DEFINE	2
 	GLOBAL	isr%1
@@ -18,7 +19,7 @@ EXTERN	g_isr_handlers
 		%endif
 		PUSH_REG
 		mov		rax, [g_isr_handlers + 8 * %1]
-		cmp		rax, 0					; hopefully, a valid function doesn't point to 0
+		cmp		rax, 0					; avoid null handlers
 		jz		%%.finish
 		mov		rdi, rsp				; we'll create a struct out of the stack pointer
 		mov		rsi, %1
@@ -32,8 +33,22 @@ EXTERN	g_isr_handlers
 			iretq
 %endmacro
 %macro	ISR_IRQ_DEFINE	1
-	%assign		ISR_NUM	32 + %1
-	ISR_DEFINE	ISR_NUM, 0
+	%assign	ISR_NUM	32 + %1
+	GLOBAL	isr%+ISR_NUM
+	isr%+ISR_NUM:
+		push	QWORD 0
+		PUSH_REG
+		mov		rax, [g_isr_handlers + 8 * ISR_NUM]
+		cmp		rax, 0
+		jz		%%.finish
+		mov		rdi, rsp
+		mov		rsi, ISR_NUM
+		call	rax
+		call	local_apic_eoi
+		%%.finish:
+			POP_REG
+			add		rsp, 8
+			iretq
 %endmacro
 
 SECTION .text

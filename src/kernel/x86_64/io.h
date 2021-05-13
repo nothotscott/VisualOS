@@ -45,8 +45,8 @@ extern uint32_t inl(uint16_t port);
 // Send byte onto port 0x80 to signal a checkpoint
 extern void io_wait();
 
-// Overrides the PIC in favor of the APIC
-void io_pic_override();
+// Disables the PIC in favor of the APIC
+void io_pic_disable();
 
 // *** DEPRECATED PIC FUNCTIONS *** //
 

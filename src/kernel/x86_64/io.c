@@ -8,12 +8,14 @@
 #include "io.h"
 
 
-void io_pic_override() {
-	outb(IO_PIC1_DATA, 0xff);
-	outb(IO_PIC2_DATA, 0xff);
-	io_wait();
+void io_pic_disable() {
+	// Redirect
 	outb(IO_CHIPSET_ADDRESS_REGISTER, IO_IMCR_REGISTER_ADDRESS);
 	outb(IO_CHIPSET_DATA_REGISTER, IO_IMCR_VIA_APIC);
+	io_wait();
+	// Disable
+	outb(IO_PIC1_DATA, 0xff);
+	outb(IO_PIC2_DATA, 0xff);
 }
 
 void io_pic_mask(){

@@ -32,16 +32,14 @@ void ioapic_init() {
 			struct MADTInterruptSourceOverride* iso = madt_get_info()->isos[j];
 			ioapic_set_redirection_entry(ioapic_ptr, iso->global_interrupt, (struct IOAPICRedirectionEntry){
 				.vector = iso->source + ISR_IRQ_START,
-				.delivery_mode = IOAPIC_REDIRECTION_ENTRY_DELIVERY_MODE_LOW_PRIORITY,
+				.delivery_mode = IOAPIC_REDIRECTION_ENTRY_DELIVERY_MODE_FIXED,
 				.destination_mode = IOAPIC_REDIRECTION_ENTRY_DESTINATION_MODE_PHYSICAL,
 				.pin_polarity = (iso->flags & 0x03) == 0x03 ? IOAPIC_REDIRECTION_ENTRY_PIN_POLARITY_ACTIVELOW : IOAPIC_REDIRECTION_ENTRY_PIN_POLARITY_ACTIVEHIGH,
 				.trigger_mode = (iso->flags & 0x0c) == 0x0c ? IOAPIC_REDIRECTION_ENTRY_TRIGGER_MODE_LEVEL : IOAPIC_REDIRECTION_ENTRY_TRIGGER_MODE_EDGE,
 				.mask = IOAPIC_REDIRECTION_ENTRY_MASK_ENABLE,
-				.destination = 0
 			});
-			log("Override IRQ %d -> %d\n", iso->source, iso->global_interrupt);
 		}
-		log("IOAPIC %d: %d\n", ioapic->ioapic->ioapic_id, max_interrupts);
+		log("IOAPIC %d:%d Initialized\n", ioapic->ioapic->ioapic_id, max_interrupts);
 	}
 }
 
@@ -67,10 +65,8 @@ void ioapic_set_from_isrs() {
 				.destination_mode = IOAPIC_REDIRECTION_ENTRY_DESTINATION_MODE_PHYSICAL,
 				.pin_polarity = IOAPIC_REDIRECTION_ENTRY_PIN_POLARITY_ACTIVEHIGH,
 				.trigger_mode = IOAPIC_REDIRECTION_ENTRY_TRIGGER_MODE_EDGE,
-				.mask = IOAPIC_REDIRECTION_ENTRY_MASK_ENABLE,
-				.destination = 0
+				.mask = IOAPIC_REDIRECTION_ENTRY_MASK_ENABLE
 			});
-			log("Redirect %d\n", isr_num);
 			next:
 				continue;
 		}
@@ -108,37 +104,19 @@ void ioapic_get_redirection_entry(void* ioapic_ptr, size_t index, struct IOAPICR
 }
 
 void ioapic_set_redirection_entry(void* ioapic_ptr, size_t index, struct IOAPICRedirectionEntry entry) {
-	volatile uint32_t low = 0; (
-		((entry.vector << IOAPIC_REDIRECTION_BITS_LOW_VECTOR) & 0xff) ||
-		((entry.delivery_mode << IOAPIC_REDIRECTION_BITS_LOW_DELIVERY_MODE) & 0x07) ||
-		((entry.destination_mode << IOAPIC_REDIRECTION_BITS_LOW_DESTINATION_MODE) & 0x01) ||
-		((entry.delivery_status << IOAPIC_REDIRECTION_BITS_LOW_DELIVERY_STATUS) & 0x01) ||
-		((entry.pin_polarity << IOAPIC_REDIRECTION_BITS_LOW_PIN_POLARITY) & 0x01) ||
-		((entry.remote_irr << IOAPIC_REDIRECTION_BITS_LOW_REMOTE_IRR) & 0x01) ||
-		((entry.trigger_mode << IOAPIC_REDIRECTION_BITS_LOW_TRIGGER_MODE) & 0x01) ||
-		((entry.mask << IOAPIC_REDIRECTION_BITS_LOW_MASK) & 0xff)
-	);
-	volatile uint32_t high = 0; (
-		((entry.destination << IOAPIC_REDIRECTION_BITS_HIGH_DESTINATION) & 0xff)
-	);
-	ioapic_set_register(ioapic_ptr, IOAPIC_REG_OFFSET_REDIRECTION_TABLE + 2 * index + 0, low);
-	ioapic_set_register(ioapic_ptr, IOAPIC_REG_OFFSET_REDIRECTION_TABLE + 2 * index + 1, high);
-}
-
-/*void ioapic_set_redirection_entry(void* ioapic_ptr, size_t index, struct IOAPICRedirectionEntry entry) {
-	volatile uint32_t low = 0; (
-		(entry.vector << IOAPIC_REDIRECTION_BITS_LOW_VECTOR) ||
-		(entry.delivery_mode << IOAPIC_REDIRECTION_BITS_LOW_DELIVERY_MODE) ||
-		(entry.destination_mode << IOAPIC_REDIRECTION_BITS_LOW_DESTINATION_MODE) ||
-		(entry.delivery_status << IOAPIC_REDIRECTION_BITS_LOW_DELIVERY_STATUS) ||
-		(entry.pin_polarity << IOAPIC_REDIRECTION_BITS_LOW_PIN_POLARITY) ||
-		(entry.remote_irr << IOAPIC_REDIRECTION_BITS_LOW_REMOTE_IRR) ||
-		(entry.trigger_mode << IOAPIC_REDIRECTION_BITS_LOW_TRIGGER_MODE) ||
+	volatile uint32_t low = (
+		(entry.vector << IOAPIC_REDIRECTION_BITS_LOW_VECTOR) |
+		(entry.delivery_mode << IOAPIC_REDIRECTION_BITS_LOW_DELIVERY_MODE) |
+		(entry.destination_mode << IOAPIC_REDIRECTION_BITS_LOW_DESTINATION_MODE) |
+		(entry.delivery_status << IOAPIC_REDIRECTION_BITS_LOW_DELIVERY_STATUS) |
+		(entry.pin_polarity << IOAPIC_REDIRECTION_BITS_LOW_PIN_POLARITY) |
+		(entry.remote_irr << IOAPIC_REDIRECTION_BITS_LOW_REMOTE_IRR) |
+		(entry.trigger_mode << IOAPIC_REDIRECTION_BITS_LOW_TRIGGER_MODE) |
 		(entry.mask << IOAPIC_REDIRECTION_BITS_LOW_MASK)
 	);
-	volatile uint32_t high = 0; (
+	volatile uint32_t high = (
 		(entry.destination << IOAPIC_REDIRECTION_BITS_HIGH_DESTINATION)
 	);
 	ioapic_set_register(ioapic_ptr, IOAPIC_REG_OFFSET_REDIRECTION_TABLE + 2 * index + 0, low);
 	ioapic_set_register(ioapic_ptr, IOAPIC_REG_OFFSET_REDIRECTION_TABLE + 2 * index + 1, high);
-}*/
+}

@@ -69,6 +69,9 @@ void local_apic_init();
 // Launches all application processors to be ready for symmetric multiprocessing
 void local_apic_start_smp();
 
+// Sends the end of interrupt signal for the calling APIC
+void local_apic_eoi();
+
 // Gets the interprocessor interrupt for at [local_apic_ptr] and stores it at [command_low] and [command_high]
 void local_apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high);
 // Issues an interprocessor interrupt [command_low] and [command_high] to [local_apic_ptr]

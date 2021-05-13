@@ -60,6 +60,7 @@ void setup_acpi() {
 	pci_init(mcfg);
 	io_enable_apic();
 	madt_init(madt);
+	local_apic_init();
 	//pci_print();
 }
 
@@ -68,18 +69,9 @@ void setup_interrupt_prep() {
 	isr_init();
 	pit_init();
 	io_enable_apic();
+	io_pic_disable();
 	ioapic_init();
 	ioapic_set_from_isrs();
-}
-
-
-// *** POST BSP INIT *** //
-
-
-
-void setup_local_apic() {
-	local_apic_init();
-	local_apic_start_smp();
 }
 
 // *** ORDERED SETUP FUNCTIONS *** //
@@ -95,9 +87,4 @@ void setup_pre() {
 	log("Setup ACPI/PCI\n");
 	setup_interrupt_prep();
 	log("Setup interrupt preperation\n");
-}
-
-void setup_post() {
-	//setup_local_apic();
-	//log("Setup Local APIC/SMP\n");
 }

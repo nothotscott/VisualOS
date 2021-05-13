@@ -66,19 +66,15 @@ void paging_fault_handler(struct InterruptStack* stack, size_t num) {
 
 void pit_handler(struct InterruptStack* stack, size_t num) {
 	pit_on_interrupt();
-	io_pic_end_master();
 }
 
 void keyboard_handler(struct InterruptStack* stack, size_t num) {
-	printf("APIC: %d\n", cpuid_get_local_apic_id());
-	/*uint8_t scancode = inb(0x60);
+	uint8_t scancode = inb(0x60);
 	if(scancode < sizeof(s_keyboard_scancodes)) {
 		char chr = s_keyboard_scancodes[scancode];
 		ungetc(chr, stdin);
 		// For now, get back the char and output to stdout
 		putchar((char)getchar());
 		fflush(stdout);
-
 	}
-	io_pic_end_slave();*/
 }

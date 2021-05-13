@@ -46,7 +46,6 @@ void local_apic_start_smp() {
 	uint8_t trampoline_target_page = (uint8_t)(((uint64_t)trampoline_target >> 12) & 0xff);
 	volatile struct LocalAPICApplicationProcessorCommunication* communicator = trampoline_target + (s_trampoline_data_ptr - s_trampoline_code_ptr);
 	// INIT each AP
-	//debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "BSP processor %d\n", bsp_local_apic_id);
 	size_t processors_num = madt_get_info()->processors_num;
 	struct CPUContext* ap_context = pageframe_request_pages(NEAREST_PAGE(sizeof(struct CPUContext) * (processors_num - 1)));
 	for(size_t i = 0; i < processors_num; i++) {
@@ -56,7 +55,6 @@ void local_apic_start_smp() {
 		if(local_apic_id == bsp_local_apic_id){
 			continue;
 		}
-		//debug_options((struct DebugOptions){DEBUG_TYPE_WARNING, true}, "Signaling processor %d\n", local_apic_id);
 		// Store the trampoline code at the target. Will also clear any data from previous AP
 		memcpy(trampoline_target, s_trampoline_code_ptr, LOCAL_APIC_TRAMPOLINE_TARGET_SIZE);
 		// Clear APIC errors
@@ -116,7 +114,11 @@ void local_apic_start_smp() {
 		// Finish this iteration
 		ap_context++;
 	}
+}
 
+void local_apic_eoi() {
+	void* local_apic_ptr = madt_get_info()->local_apic_ptr;
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_EOI, 0);
 }
 
 // *** Local APIC Register Functions *** //

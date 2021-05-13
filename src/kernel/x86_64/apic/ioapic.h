@@ -41,8 +41,8 @@ enum IOAPICRedirectionEntryTriggerMode {
 	IOAPIC_REDIRECTION_ENTRY_TRIGGER_MODE_LEVEL	= 1
 };
 enum IOAPICRedirectionEntryMask {
-	IOAPIC_REDIRECTION_ENTRY_MASK_DISABLE	= 0,
-	IOAPIC_REDIRECTION_ENTRY_MASK_ENABLE	= 1
+	IOAPIC_REDIRECTION_ENTRY_MASK_ENABLE	= 0,	// Masks the interrupt through
+	IOAPIC_REDIRECTION_ENTRY_MASK_DISABLE	= 1		// Masks the so it doesn't go through
 };
 
 enum IOAPICRedirectionBitsLow {

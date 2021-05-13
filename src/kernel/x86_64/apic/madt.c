@@ -39,7 +39,6 @@ void madt_init(struct MADTHeader* madt) {
 					.local_processor = local_processor
 				};
 				s_madt_info.processors_num++;
-				log("Processor ID: %d APIC-ID: %d Flags: %d\n", local_processor->processor_id, local_processor->local_apic_id, local_processor->flags);
 				break;
 			}
 			case MADT_TYPE_IOAPIC: {
@@ -50,14 +49,12 @@ void madt_init(struct MADTHeader* madt) {
 					.ioapic = ioapic
 				};
 				s_madt_info.ioapics_num++;
-				log("IO APIC base: 0x%x\n", ioapic->global_interrupt_base);
 				break;
 			}
 			case MADT_TYPE_INTERRUPT_SOURCE_OVERRIDE: {
 				struct MADTInterruptSourceOverride* iso = (struct MADTInterruptSourceOverride*)record;
 				s_madt_info.isos[s_madt_info.isos_num] = iso;
 				s_madt_info.isos_num++;
-				log("Interrupt Source Override source: 0x%d\n", iso->source);
 				break;
 			}
 			case MADT_TYPE_NONMASKABLE_INTERRUPT: {
