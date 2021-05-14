@@ -54,15 +54,13 @@ void gdt_set_tss(struct GDTBlock* gdt_block, size_t gdt_index) {
 void gdt_set_tss_ist(struct GDTBlock* gdt_block, size_t ist_num, void* stack) {
 	size_t tss_index = 0;
 	struct TSSEntry* tss = (struct TSSEntry*)(gdt_block->tss + tss_index);
-	tss->ist[ist_num - 1] = (uint64_t)stack;
+	tss->ist[(ist_num - 1) * 2 + 0] = (uint32_t)(uint64_t)stack;
+	tss->ist[(ist_num - 1) * 2 + 1] = (uint32_t)((uint64_t)stack >> 32);
 }
 
-void gdt_set_ring0_stack(struct GDTBlock* gdt_block, void* stack) {
+void gdt_set_tss_ring(struct GDTBlock* gdt_block, size_t ring_num, void* stack) {
 	size_t tss_index = 0;
-	gdt_block->tss[tss_index].rsp0 = (uint64_t)stack;
-}
-
-void* gdt_get_ring0_stack(struct GDTBlock* gdt_block){
-	size_t tss_index = 0;
-	return (void*)gdt_block->tss[tss_index].rsp0;
+	struct TSSEntry* tss = (struct TSSEntry*)(gdt_block->tss + tss_index);
+	tss->rsp[ring_num * 2 + 0] = (uint32_t)(uint64_t)stack;
+	tss->rsp[ring_num * 2 + 1] = (uint32_t)((uint64_t)stack >> 32);
 }

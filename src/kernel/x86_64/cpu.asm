@@ -29,13 +29,18 @@ cpu_init_ap:
 	mov		rbp, rsp
 	jmp		cpu_init_common
 
-cpu_init_common:
+cpu_init_common:	; rdi=[cpu_context]
 	mov		r12, rdi
-	; Set context struct
-	;SET_LOCAL_APIC_ID	rdi
+	; Set some of the context struct
+	lea		rax, [rdi]
+	mov		QWORD [rdi + CPUContext.self], rax
 	call	cpuid_get_local_apic_id
 	mov		BYTE [rdi + CPUContext.local_apic_id], al
-	; Set MSRs
+	; Set gs/fs base MSRs
+	mov		rax, cr4
+	or		rax, 0x10000
+	mov		cr4, rax
+	mov		rdi, r12
 	mov		ecx, CPU_MSR_KERNEL_GS_BASE	
 	mov		eax, edi					; low
 	shr		rdi, 32

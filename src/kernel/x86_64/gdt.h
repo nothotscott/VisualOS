@@ -45,12 +45,10 @@ enum GDTFlags {
 
 struct TSSEntry {
 	uint32_t	reserved0;
-	uint64_t	rsp0;		// ring stacks
-	uint64_t	rsp1;
-	uint64_t	rsp2;
-	uint64_t	reserved1;
-	uint64_t	ist[7];		// interrupt stack tables
-	uint64_t	reserved2;
+	uint32_t	rsp[3 * 2];		// ring stacks
+	uint32_t	reserved1[2];
+	uint32_t	ist[7 * 2];		// interrupt stack tables
+	uint32_t	reserved2[2];
 	uint16_t	reserved3;
 	uint16_t	io_map_base;
 } __attribute__((packed));
@@ -89,8 +87,5 @@ void gdt_load(struct GDTDescriptor* gdt_descriptor);
 // Sets the [ist_num] in [gdt_block]'s TSS to [stack]
 void gdt_set_tss_ist(struct GDTBlock* gdt_block, size_t ist_num, void* stack);
 
-// Sets the kernel stack to [stack] in [gdt_block]
-void gdt_set_ring0_stack(struct GDTBlock* gdt_block, void* stack);
-
-// Gets TSS ring0 stack in [gdt_block]
-void* gdt_get_ring0_stack(struct GDTBlock* gdt_block);
+// Sets the [ring_num] stack to [stack] in [gdt_block]
+void gdt_set_tss_ring(struct GDTBlock* gdt_block, size_t ring_num, void* stack);

@@ -52,7 +52,9 @@ void local_apic_start_smp() {
 	volatile struct LocalAPICApplicationProcessorCommunication* communicator = trampoline_target + (s_trampoline_data_ptr - s_trampoline_code_ptr);
 	// INIT each AP
 	size_t processors_num = madt_get_info()->processors_num;
-	struct CPUContext* ap_context = pageframe_request_pages(NEAREST_PAGE(sizeof(struct CPUContext) * (processors_num - 1)));
+	size_t cpu_context_size = ROUND_UP(sizeof(struct CPUContext), LOCAL_APIC_AP_CPU_CONTEXT_ALIGNMENT);
+	void* ap_contexts = pageframe_request_pages(NEAREST_PAGE(cpu_context_size * (processors_num - 1)));
+	size_t ai = 0;	// adjusted i
 	for(size_t i = 0; i < processors_num; i++) {
 		struct LocalAPICProcessor* processor = madt_get_info()->processors + i;
 		uint8_t local_apic_id = processor->local_processor->local_apic_id;
@@ -96,6 +98,7 @@ void local_apic_start_smp() {
 			pit_sleep(LOCAL_APIC_SLEEP_DELAY_AP_STARTUP);
 		}
 		// Configure the AP, knowing it's responded and it's ready
+		struct CPUContext* ap_context = ap_contexts + ai * cpu_context_size;
 		size_t ap_stack_size = LOCAL_APIC_AP_STACK_PAGES * MEMORY_PAGE_SIZE;
 		void* ap_stack = pageframe_request_pages(LOCAL_APIC_AP_STACK_PAGES) + ap_stack_size;
 		processor->stack_ptr = ap_stack;
@@ -118,7 +121,7 @@ void local_apic_start_smp() {
 			ap_context->local_apic_id, communicator->ap_context, communicator->ap_status
 		);
 		// Finish this iteration
-		ap_context++;
+		ai++;
 	}
 }
 

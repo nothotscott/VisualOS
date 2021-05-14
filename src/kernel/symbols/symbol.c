@@ -43,11 +43,11 @@ void symbol_init() {
 			size_t string_table_size = section_header->sh_size;
 			MEMORY_MAP_RESERVE(string_table, string_table_size);
 			if(section_string_index == i) {
-				log("Section string table located, offset: 0x%x\n", section_header->sh_offset);
+				//log("Section string table located, offset: 0x%x\n", section_header->sh_offset);
 				s_symbol_table.section_strings = string_table;
 				s_symbol_table.section_strings_size = string_table_size;
 			} else {
-				log("Symbol string table located, offset: 0x%x\n", section_header->sh_offset);
+				//log("Symbol string table located, offset: 0x%x\n", section_header->sh_offset);
 				s_symbol_table.symbol_strings = string_table;
 				s_symbol_table.symbol_strings_size = string_table_size;
 			}

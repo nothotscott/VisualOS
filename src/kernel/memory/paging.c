@@ -119,7 +119,7 @@ void paging_map(void* virtual_address, void* physical_address) {
 	pagetable_l1->entries[index] = entry;
 }
 
-void paging_donate_to_userspace(void* virtual_address, bool userspace_access) {
+void paging_set_userspace_access(void* virtual_address, bool userspace_access) {
 	page_directory_entry_t entry;
 	struct PageLevelIndexes indexes;
 	paging_get_indexes(virtual_address, &indexes);

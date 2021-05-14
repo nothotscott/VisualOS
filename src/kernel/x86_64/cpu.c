@@ -18,8 +18,8 @@
 #include "cpu.h"
 
 
-static struct CPUContext s_cpu_bsp;
-static struct IDTBlock s_shared_idt __attribute__((aligned (8)));
+static struct CPUContext s_cpu_bsp __attribute__((aligned(16)));
+static struct IDTBlock s_shared_idt __attribute__((aligned(8)));
 static bool s_idt_initialized = false;
 
 void cpu_allocate(struct CPUContext* cpu_context) {
@@ -43,6 +43,9 @@ struct CPUContext* cpu_get_bsp() {
 	return &s_cpu_bsp;
 }
 
+#include "syscall.h"
+extern void test_userspace();
+
 void cpu_init(struct CPUContext* cpu_context) {
 	cpu_allocate(cpu_context);
 	// Setup GDT
@@ -61,4 +64,10 @@ void cpu_init(struct CPUContext* cpu_context) {
 	//paging_setup_pat();
 	syscall_enable_sce();
 	log("Processor %d successfully initialized\n", cpu_context->local_apic_id);
+
+	void* userspace_stack = pageframe_request();
+	paging_identity_map(userspace_stack, MEMORY_PAGE_SIZE);
+	paging_set_userspace_access(test_userspace, true);
+	paging_set_userspace_access(userspace_stack, true);
+	syscall_goto_userspace(test_userspace, userspace_stack + MEMORY_PAGE_SIZE);
 }

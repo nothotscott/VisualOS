@@ -11,9 +11,13 @@
 %define	CPU_MSR_KERNEL_GS_BASE	0xc0000102
 
 struc	CPUContext
-	.local_apic_id:	resb	1
-	.gdt_block:		resq	1
-	.idt_block:		resq	1
-	.stack_irq:		resq	1
-	.stack_lvt:		resq	1
+	.self:				resq	1
+	.local_apic_id:		resb	1
+	.reserved:			resb	3
+	.stack_kernel:		resq	1
+	.stack_userspace:	resq	1
+	.gdt_block:			resq	1
+	.idt_block:			resq	1
+	.stack_irq:			resq	1
+	.stack_lvt:			resq	1
 endstruc

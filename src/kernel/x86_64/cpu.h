@@ -15,7 +15,11 @@
 #define CPU_STACK_LVT_PAGES	2
 
 struct CPUContext {
+	struct CPUContext*	self;
 	uint8_t				local_apic_id;
+	uint8_t				reserved[3];
+	uint64_t			stack_kernel;		// do not touch, for assembly only
+	uint64_t			stack_userspace;	// do not touch, for assembly only
 	struct GDTBlock*	gdt_block;
 	struct IDTBlock*	idt_block;
 	void*				stack_irq;

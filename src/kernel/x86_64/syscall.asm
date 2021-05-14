@@ -5,6 +5,8 @@
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+%include "cpu.inc"
+
 %define SYSCALL_EXIT	60
 
 %macro	SYSCALL_SAVE	0
@@ -36,8 +38,6 @@
 	pop	r15
 %endmacro
 
-EXTERN	gdt_set_ring0_stack
-EXTERN	gdt_get_ring0_stack
 EXTERN	syshandler_get
 EXTERN	sys_exit
 
@@ -64,32 +64,30 @@ syscall_enable_sce:
 
 GLOBAL	syscall_goto_userspace
 syscall_goto_userspace:	; rdi=[code], rsi=[stack]
-	; Save parameters
-	push	rsi
-	push	rdi
-	; Quickly save our stack pointer
-	mov		rdi, 0
-	mov		rsi, rsp
-	add		rsi, 16				; compensate for our saved parameters
-	call	gdt_set_ring0_stack
+	; Save kernel stack
+	swapgs											; load in the CPU context
+	mov		QWORD [gs:CPUContext.stack_kernel], rsp	; save the kernel stack
+	swapgs											; restore GS state
 	; Enter into userspace
-	pop		rcx					; Former rdi parameter, used to locate the code in userspace
-	pop		rsp					; Former rsi parameter, userspace stack. Must be last popped (obviously)
-	mov		r11, 0x0202			; RFLAGS
-	o64 sysret					; NASM weirdness, equivalent to sysretq
+	mov		rcx, rdi								; locate the code in userspace
+	mov		rsp, rsi								; userspace stack
+	mov		r11, 0x0202								; RFLAGS
+	o64 sysret										; NASM weirdness, equivalent to sysretq
 
 syscall_entry:
 	; Save and switch context
-	; TODO switch stacks
+	swapgs												; load in the CPU context from the kernel GS
+	mov		QWORD [gs:CPUContext.stack_userspace], rsp	; save userspace stack
+	mov		rsp, [gs:CPUContext.stack_kernel]			; load kernel stack
 	SYSCALL_SAVE
 	push	r11
 	push	rcx
 	; Get syscall handler and call the routine
 	mov		rdi, rax
 	call	syshandler_get
-	mov		rbx, rax		; save the function pointer
-	mov		rcx, r10		; syscall's 4th param and sys v abi's 4th param are the only misaligned parameters
-	call	rbx				; call the returned function pointer
+	mov		rbx, rax									; save the function pointer
+	mov		rcx, r10									; syscall's 4th param and System V abi's 4th param are the only misaligned parameters
+	call	rbx											; call the returned function pointer
 	; Restore state-sensitive information and exit
 	pop		rcx
 	pop		r11
@@ -98,10 +96,10 @@ syscall_entry:
 	je		.kernel_exit
 	.sysret_exit:
 		SYSCALL_RESTORE
+		mov		rsp, [gs:CPUContext.stack_userspace]	; load userspace stack (no need to save the kernel stack)
+		swapgs											; restore userspace GS
 		o64	sysret
 	.kernel_exit:
-		mov		rdi, 0
-		call	gdt_get_ring0_stack
 		SYSCALL_RESTORE
-		mov		rsp, rax
+		swapgs
 		ret
