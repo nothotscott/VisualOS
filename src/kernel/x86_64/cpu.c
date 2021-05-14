@@ -62,7 +62,7 @@ void cpu_init(struct CPUContext* cpu_context) {
 	// Setup miscellaneous features
 	cpu_enable_features();
 	//paging_setup_pat();
-	syscall_enable_sce();
+	syscall_enable();
 	log("Processor %d successfully initialized\n", cpu_context->local_apic_id);
 
 	void* userspace_stack = pageframe_request();

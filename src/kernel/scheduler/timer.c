@@ -14,5 +14,5 @@
 void timer_handler(struct InterruptStack* stack, size_t num) {
 	void* local_apic_ptr = madt_get_info()->local_apic_ptr;
 	uint8_t local_apic_id = local_apic_get_id(local_apic_ptr);
-	log_to_screen("%d\n", local_apic_id);
+	//log_to_screen("%d\n", local_apic_id);
 }

@@ -7,6 +7,10 @@
 
 %include "cpu.inc"
 
+EXTERN	gdt_set_tss_ring
+EXTERN	syshandler_get
+EXTERN	sys_exit
+
 %define SYSCALL_EXIT	60
 
 %macro	SYSCALL_SAVE	0
@@ -38,12 +42,9 @@
 	pop	r15
 %endmacro
 
-EXTERN	syshandler_get
-EXTERN	sys_exit
 
-
-GLOBAL	syscall_enable_sce
-syscall_enable_sce:
+GLOBAL	syscall_enable
+syscall_enable:
 	; Load handler RIP into LSTAR MSR
 	mov		rax, syscall_entry
 	mov		rdx, rax
@@ -64,14 +65,22 @@ syscall_enable_sce:
 
 GLOBAL	syscall_goto_userspace
 syscall_goto_userspace:	; rdi=[code], rsi=[stack]
+	cli
 	; Save kernel stack
 	swapgs											; load in the CPU context
 	mov		QWORD [gs:CPUContext.stack_kernel], rsp	; save the kernel stack
+	push	rsi										; save the soon-to-be userspace stack
+	push 	rdi										; save the soon-to-be userspace code
+	mov		rdi, [gs:CPUContext.gdt_block]
+	mov		rsi, 0
+	mov		rdx, [gs:CPUContext.stack_kernel]
+	call	gdt_set_tss_ring
 	swapgs											; restore GS state
 	; Enter into userspace
-	mov		rcx, rdi								; locate the code in userspace
-	mov		rsp, rsi								; userspace stack
+	pop		rcx										; (formerly rdi on the stack) locate the code in userspace
+	pop		rsp										; (formerly rsi on the stack) userspace stack
 	mov		r11, 0x0202								; RFLAGS
+	sti												; assume interrupts used to be enabled
 	o64 sysret										; NASM weirdness, equivalent to sysretq
 
 syscall_entry:

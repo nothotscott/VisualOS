@@ -22,7 +22,7 @@ test_userspace:
 	mov		rdi, 0
 	syscall
 
-	jmp	$
+	jmp		$
 
 test_userspace_data:
 	db "Hello, userspace", 10,0
