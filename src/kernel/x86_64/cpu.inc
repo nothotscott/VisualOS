@@ -14,4 +14,6 @@ struc	CPUContext
 	.local_apic_id:	resb	1
 	.gdt_block:		resq	1
 	.idt_block:		resq	1
+	.stack_irq:		resq	1
+	.stack_lvt:		resq	1
 endstruc

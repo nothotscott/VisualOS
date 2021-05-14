@@ -45,7 +45,6 @@ void setup_memory() {
 	paging_init();
 	paging_load();
 	paging_identity_map(framebuffer->base, framebuffer_size);
-	//paging_setup_pat();
 }
 
 void setup_debugging() {

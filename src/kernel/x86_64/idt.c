@@ -10,8 +10,9 @@
 #include "isr.h"
 #include "idt.h"
 
-#define IDT_SET_ISR(num)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_TRAP)
-#define IDT_SET_IRQ(num)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_INTERRUPT)
+#define IDT_SET_ISR(num)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_TRAP, IDT_IST_ISR)
+#define IDT_SET_IRQ(num)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_INTERRUPT, IDT_IST_IRQ)
+#define IDT_SET_LVT(num)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_INTERRUPT, IDT_IST_LVT)
 
 void idt_init(struct IDTBlock* idt_block) {
 	size_t idt_total_size = IDT_SIZE * sizeof(struct IDTEntry);	// size of all IDT enteries in bytes
@@ -39,17 +40,17 @@ void idt_init(struct IDTBlock* idt_block) {
 	IDT_SET_IRQ(46);
 	IDT_SET_IRQ(47);
 	// Custom LVT
-	IDT_SET_IRQ(48);
+	IDT_SET_LVT(48);
 }
 
-void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum IDTGateType gate) {
+void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum IDTGateType gate, uint8_t ist) {
 	struct IDTEntry* idt = idt_block->idt;
 	idt[index] = (struct IDTEntry){
 		.zero = 0,
 		.offset_low = (uint16_t)(((uint64_t)isr_ptr & 0x000000000000ffff)),
 		.offset_mid = (uint16_t)(((uint64_t)isr_ptr & 0x00000000ffff0000) >> 16),
 		.offset_high = (uint32_t)(((uint64_t)isr_ptr & 0xffffffff00000000) >> 32),
-		.ist = 0,
+		.ist = ist,
 		.selector = 1 * sizeof(struct GDTEntry),									// code segment at index 1
 		.type_attr = IDT_TYPE_PRESENT << 7 | IDT_TYPE_PRIVILEGE << 5 | gate
 	};

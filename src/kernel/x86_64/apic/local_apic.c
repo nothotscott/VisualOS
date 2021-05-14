@@ -10,6 +10,7 @@
 #include "memory/memory.h"
 #include "memory/paging.h"
 #include "memory/pageframe.h"
+#include "scheduler/scheduler.h"
 #include "x86_64/pit.h"
 #include "x86_64/cpu.h"
 #include "madt.h"
@@ -95,8 +96,8 @@ void local_apic_start_smp() {
 			pit_sleep(LOCAL_APIC_SLEEP_DELAY_AP_STARTUP);
 		}
 		// Configure the AP, knowing it's responded and it's ready
-		void* ap_stack = pageframe_request();
-		size_t ap_stack_size = MEMORY_PAGE_SIZE;
+		size_t ap_stack_size = LOCAL_APIC_AP_STACK_PAGES * MEMORY_PAGE_SIZE;
+		void* ap_stack = pageframe_request_pages(LOCAL_APIC_AP_STACK_PAGES) + ap_stack_size;
 		processor->stack_ptr = ap_stack;
 		processor->stack_size = ap_stack_size;
 		// Give the AP the tools it needs to successfully start
@@ -104,6 +105,7 @@ void local_apic_start_smp() {
 		communicator->stack_size = (uint32_t)ap_stack_size;
 		communicator->ap_context = (uint64_t)ap_context;
 		communicator->cpu_init_ap = (uint64_t)&cpu_init_ap;
+		communicator->scheduler_entry = (uint64_t)scheduler_entry;
 		//paging_identity_map_page
 		communicator->pagetable_l4 = (uint32_t)((uint64_t)paging_get_pagetable_l4() & 0xffffffff);
 		// Give the AP the ok signal
@@ -122,10 +124,10 @@ void local_apic_start_smp() {
 
 void local_apic_start_lints() {
 	void* local_apic_ptr = madt_get_info()->local_apic_ptr;
-	uint8_t local_apic_id = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ID) >> 24;
-	// Set Spurious interrupts
+	uint8_t local_apic_id = local_apic_get_id(local_apic_ptr);
+	// Set Spurious interrupts and enable APIC software enabled
 	uint32_t spurious_reg = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_SPURIOUS_INT_VECTOR);
-	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_SPURIOUS_INT_VECTOR, spurious_reg | LOCAL_APIC_INTERRUPT_VECTOR_SPURIOUS);
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_SPURIOUS_INT_VECTOR, spurious_reg | LOCAL_APIC_INTERRUPT_VECTOR_SPURIOUS | 0x100);
 	// Set NMI from MADT
 	size_t nmis_num = madt_get_info()->nmis_num;
 	for(size_t i = 0; i < nmis_num; i++) {
@@ -167,6 +169,17 @@ void local_apic_eoi() {
 
 // *** Local APIC Register Functions *** //
 
+uint32_t local_apic_create_register_value(struct LocalAPICInterruptRegister reg) {
+	return (
+		(reg.vector << LOCAL_APIC_INTERRUPT_REGISTER_VECTOR) |
+		(reg.message_type << LOCAL_APIC_INTERRUPT_REGISTER_MESSAGE_TYPE) |
+		(reg.delivery_status << LOCAL_APIC_INTERRUPT_REGISTER_DELIVERY_STATUS) |
+		(reg.trigger_mode << LOCAL_APIC_INTERRUPT_REGISTER_TRIGGER_MODE) |
+		(reg.mask << LOCAL_APIC_INTERRUPT_REGISTER_MASK) |
+		(reg.timer_mode << LOCAL_APIC_INTERRUPT_REGISTER_TIMER_MODE)
+	);
+}
+
 static inline uint32_t local_apic_get_register(void* local_apic_ptr, size_t reg_offset) {
 	return *((volatile uint32_t*)(local_apic_ptr + reg_offset));
 }
@@ -181,16 +194,7 @@ __attribute__((always_inline)) static inline void local_apic_wait(void* local_ap
 	} while(*command_low & (1 << 12));	// delivery status bit
 }
 
-uint32_t local_apic_create_register_value(struct LocalAPICInterruptRegister reg) {
-	return (
-		(reg.vector << LOCAL_APIC_INTERRUPT_REGISTER_VECTOR) |
-		(reg.message_type << LOCAL_APIC_INTERRUPT_REGISTER_MESSAGE_TYPE) |
-		(reg.delivery_status << LOCAL_APIC_INTERRUPT_REGISTER_DELIVERY_STATUS) |
-		(reg.trigger_mode << LOCAL_APIC_INTERRUPT_REGISTER_TRIGGER_MODE) |
-		(reg.mask << LOCAL_APIC_INTERRUPT_REGISTER_MASK) |
-		(reg.timer_mode << LOCAL_APIC_INTERRUPT_REGISTER_TIMER_MODE)
-	);
-}
+
 
 void local_apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high) {
 	if(command_low != NULL) {
@@ -203,4 +207,8 @@ void local_apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uin
 void local_apic_ipi_set_command(void* local_apic_ptr, uint32_t command_low, uint32_t command_high) {
 	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x10, command_high);
 	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INTERRUPT_COMMAND + 0x00, command_low);
+}
+
+uint8_t local_apic_get_id(void* local_apic_ptr) {
+	return local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_ID) >> 24;
 }

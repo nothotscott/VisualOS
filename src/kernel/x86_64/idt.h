@@ -13,6 +13,10 @@
 #define IDT_TYPE_PRESENT	0b1
 #define IDT_TYPE_PRIVILEGE	0b00
 
+#define IDT_IST_ISR	0
+#define IDT_IST_IRQ	1
+#define IDT_IST_LVT	2
+
 enum IDTGateType {
 	IDT_TYPE_GATE_INTERRUPT	= 0b1110,
 	IDT_TYPE_GATE_TRAP		= 0b1111,
@@ -44,7 +48,7 @@ void idt_init(struct IDTBlock* idt_block);
 
 // Sets the [idt_block] idt entry at [index] to the [isr_ptr]
 // This should be done during idt_load
-void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum IDTGateType gate);
+void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum IDTGateType gate, uint8_t ist);
 
 
 // *** From idt.asm *** //

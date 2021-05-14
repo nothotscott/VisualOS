@@ -8,8 +8,8 @@
 
 #pragma once
 
-#define GDT_SIZE		8	// the null segment + 4 code / data segments + TSS descriptor is the size of 2 GDT entries
-#define GDT_TSS_SIZE	1	// only 1 TSS
+#define GDT_NUM		8	// the null segment + 4 code / data segments + TSS descriptor is the size of 2 GDT entries
+#define GDT_TSS_NUM	1	// only 1 TSS
 
 #define GDT_TSS_STACK_SIZE		4096
 #define GDT_TSS_RING_STACKS_NUM	3
@@ -43,19 +43,13 @@ enum GDTFlags {
 	GDT_FLAG_PAGE_GRANULARITY	= 0b10000000,
 };
 
-struct TSS {
+struct TSSEntry {
 	uint32_t	reserved0;
 	uint64_t	rsp0;		// ring stacks
 	uint64_t	rsp1;
 	uint64_t	rsp2;
 	uint64_t	reserved1;
-	uint64_t	ist1;		// interrupt stack tables
-	uint64_t	ist2;
-	uint64_t	ist3;
-	uint64_t	ist4;
-	uint64_t	ist5;
-	uint64_t	ist6;
-	uint64_t	ist7;
+	uint64_t	ist[7];		// interrupt stack tables
 	uint64_t	reserved2;
 	uint16_t	reserved3;
 	uint16_t	io_map_base;
@@ -75,8 +69,8 @@ struct TSSDescriptor {
 // Carrier for the gdt at runtime
 struct GDTBlock {
 	struct GDTDescriptor	gdt_descriptor;
-	struct GDTEntry			gdt[GDT_SIZE];
-	struct TSS				tss[GDT_TSS_SIZE];
+	struct GDTEntry			gdt[GDT_NUM];
+	struct TSSEntry			tss[GDT_TSS_NUM];
 };
 
 
@@ -91,6 +85,9 @@ void gdt_set_tss(struct GDTBlock* gdt_block, size_t gdt_offset);
 
 // Loads the gdt described at [gdt_descriptor], this will also clear interrupts.
 void gdt_load(struct GDTDescriptor* gdt_descriptor);
+
+// Sets the [ist_num] in [gdt_block]'s TSS to [stack]
+void gdt_set_tss_ist(struct GDTBlock* gdt_block, size_t ist_num, void* stack);
 
 // Sets the kernel stack to [stack] in [gdt_block]
 void gdt_set_ring0_stack(struct GDTBlock* gdt_block, void* stack);

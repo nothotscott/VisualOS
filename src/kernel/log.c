@@ -32,6 +32,16 @@ int log(char* restrict format, ...) {
 	va_end(args);
 	return ret;
 }
+int log_to_screen(char* restrict format, ...) {
+	int ret;
+	va_list args;
+	va_start(args, format);
+	struct LogOptions defaults = s_log_options_default;
+	defaults.to_screen = true;
+	ret = vlog(defaults, format, args);
+	va_end(args);
+	return ret;
+}
 int log_options(struct LogOptions options, char* restrict format, ...) {
 	int ret;
 	va_list args;

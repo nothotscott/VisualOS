@@ -18,10 +18,12 @@ paging_load:
 
 GLOBAL	paging_setup_pat
 paging_setup_pat:
+	push	rbx
 	wbinvd
 	mov		eax, 0x00010406
 	mov		edx, 0x00010406
 	mov		ecx, 0x277
 	wrmsr
 	wbinvd
+	pop		rbx
 	ret

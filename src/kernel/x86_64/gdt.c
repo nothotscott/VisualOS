@@ -12,8 +12,8 @@
 
 
 void gdt_init(struct GDTBlock* gdt_block) {
-	uint16_t gdt_total_size = GDT_SIZE * sizeof(struct GDTEntry);
-	memset(gdt_block->tss, 0, sizeof(struct TSS) * 1);
+	uint16_t gdt_total_size = GDT_NUM * sizeof(struct GDTEntry);
+	memset(gdt_block->tss, 0, sizeof(struct TSSEntry) * GDT_TSS_NUM);
 	// Set entries
 	memset(gdt_block->gdt, 0, gdt_total_size);									// implictly define null descriptor
 	gdt_set_entry(gdt_block, 1, GDT_ACCESS_EXECUTABLE, 0);						// kernel code segment
@@ -34,18 +34,27 @@ void gdt_set_entry(struct GDTBlock* gdt_block, size_t gdt_index, enum GDTAccess 
 
 void gdt_set_tss(struct GDTBlock* gdt_block, size_t gdt_index) {
 	size_t tss_index = 0;
-	struct TSS* tss = (struct TSS*)(gdt_block->gdt + tss_index);
-	tss->io_map_base = 0xffff;
+	struct TSSEntry* tss = (struct TSSEntry*)(gdt_block->tss + tss_index);
+	*tss = (struct TSSEntry){
+		.io_map_base = 0xffff
+	};
 	// Set TSS descriptor entry
 	struct TSSDescriptor* tss_descriptor = (struct TSSDescriptor*)(gdt_block->gdt + gdt_index);
-	memset(tss_descriptor, 0, sizeof(struct TSSDescriptor));
-	tss_descriptor->limit_low |= sizeof(struct TSS);
-	tss_descriptor->base_low |= (uint64_t)tss & 0xffff;
-	tss_descriptor->base_mid |= ((uint64_t)tss >> 16) & 0xff;
-	tss_descriptor->base_mid2 |= ((uint64_t)tss >> 24) & 0xff;
-	tss_descriptor->base_high |= ((uint64_t)tss >> 32) & 0xffffffff;
-	tss_descriptor->access |= 0b10000000 | 0b00001001;	// Present, Type (Intel Manual 3A 3.4.5.1) Execute-Only, accessed
-	tss_descriptor->flags |= 0b00010000;				// Available
+	*tss_descriptor = (struct TSSDescriptor){
+		.limit_low = sizeof(struct TSSEntry),
+		.base_low = (uint64_t)tss & 0xffff,
+		.base_mid = ((uint64_t)tss >> 16) & 0xff,
+		.base_mid2 = ((uint64_t)tss >> 24) & 0xff,
+		.base_high = ((uint64_t)tss >> 32) & 0xffffffff,
+		.access = 0b10000000 | 0b00001001,	// Present, Type (Intel Manual 3A 3.4.5.1) Execute-Only, accessed
+		.flags = 0b00010000					// Available
+	};
+}
+
+void gdt_set_tss_ist(struct GDTBlock* gdt_block, size_t ist_num, void* stack) {
+	size_t tss_index = 0;
+	struct TSSEntry* tss = (struct TSSEntry*)(gdt_block->tss + tss_index);
+	tss->ist[ist_num - 1] = (uint64_t)stack;
 }
 
 void gdt_set_ring0_stack(struct GDTBlock* gdt_block, void* stack) {

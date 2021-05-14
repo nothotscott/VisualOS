@@ -10,7 +10,7 @@
 #include "x86_64/cpu.h"
 #include "bootloader.h"
 
-void kernel_common() __attribute__((noreturn));
+void kernel_common();
 // From setup.c
 extern void setup_pre();
 extern void setup_post();
@@ -18,9 +18,7 @@ extern void setup_post();
 void kernel_common() {
 	setup_pre();
 	cpu_init_bsp();
-	//setup_post();
+	setup_post();
 
 	log_options((struct LogOptions){LOG_TYPE_NORMAL, true}, "Welcome to VisualOS!\n");
-
-	while (true);
 }

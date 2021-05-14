@@ -20,17 +20,23 @@
 
 static struct CPUContext s_cpu_bsp;
 static struct IDTBlock s_shared_idt __attribute__((aligned (8)));
+static bool s_idt_initialized = false;
 
-void cpu_create_blocks(struct CPUContext* cpu_context) {
-	size_t gdt_pages = NEAREST_PAGE(sizeof(struct GDTBlock));
-	//size_t idt_pages = NEAREST_PAGE(sizeof(struct IDTBlock));
-	struct GDTBlock* gdt_block = pageframe_request_pages(gdt_pages);
-	//struct IDTBlock* idt_block = pageframe_request_pages(idt_pages);
+void cpu_allocate(struct CPUContext* cpu_context) {
+	// Blocks
+	struct GDTBlock* gdt_block = pageframe_request_pages(NEAREST_PAGE(sizeof(struct GDTBlock)));
 	struct IDTBlock* idt_block = &s_shared_idt;
 	paging_identity_map(gdt_block, sizeof(struct GDTBlock));
 	paging_identity_map(idt_block, sizeof(struct IDTBlock));
 	cpu_context->gdt_block = gdt_block;
 	cpu_context->idt_block = idt_block;
+	// Stacks
+	void* stack_irq = pageframe_request_pages(CPU_STACK_IRQ_PAGES);
+	void* stack_lvt = pageframe_request_pages(CPU_STACK_LVT_PAGES);
+	paging_identity_map(stack_irq, CPU_STACK_IRQ_PAGES * MEMORY_PAGE_SIZE);
+	paging_identity_map(stack_lvt, CPU_STACK_LVT_PAGES * MEMORY_PAGE_SIZE);
+	cpu_context->stack_irq = stack_irq + CPU_STACK_IRQ_PAGES * MEMORY_PAGE_SIZE;
+	cpu_context->stack_lvt = stack_lvt + CPU_STACK_LVT_PAGES * MEMORY_PAGE_SIZE;
 }
 
 struct CPUContext* cpu_get_bsp() {
@@ -38,18 +44,21 @@ struct CPUContext* cpu_get_bsp() {
 }
 
 void cpu_init(struct CPUContext* cpu_context) {
-	cpu_create_blocks(cpu_context);
+	cpu_allocate(cpu_context);
 	// Setup GDT
 	gdt_init(cpu_context->gdt_block);
+	gdt_set_tss_ist(cpu_context->gdt_block, 1, cpu_context->stack_irq);
+	gdt_set_tss_ist(cpu_context->gdt_block, 2, cpu_context->stack_lvt);
 	gdt_load(&cpu_context->gdt_block->gdt_descriptor);
 	// Setup IDT
-	if(cpu_context->local_apic_id == s_cpu_bsp.local_apic_id) {
-		idt_init(cpu_context->idt_block);	// only need to initialize once
+	if(s_idt_initialized == false) {
+		idt_init(cpu_context->idt_block);
+		s_idt_initialized = true;
 	}
 	idt_load(&cpu_context->idt_block->idt_descriptor);
-	// Setup local interrupts
-	local_apic_start_lints();
-	// Setup syscalls
+	// Setup miscellaneous features
+	cpu_enable_features();
+	//paging_setup_pat();
 	syscall_enable_sce();
 	log("Processor %d successfully initialized\n", cpu_context->local_apic_id);
 }

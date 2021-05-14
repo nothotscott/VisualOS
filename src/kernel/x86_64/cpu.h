@@ -11,10 +11,15 @@
 #include "gdt.h"
 #include "idt.h"
 
+#define CPU_STACK_IRQ_PAGES	2
+#define CPU_STACK_LVT_PAGES	2
+
 struct CPUContext {
 	uint8_t				local_apic_id;
 	struct GDTBlock*	gdt_block;
 	struct IDTBlock*	idt_block;
+	void*				stack_irq;
+	void*				stack_lvt;
 } __attribute__((packed));
 
 
@@ -24,10 +29,13 @@ void cpu_init_bsp();
 void cpu_init_ap(struct CPUContext* cpu_context);
 
 // Allocates block of memory for CPU components and sets the result in [context]
-void cpu_create_blocks(struct CPUContext* cpu_context);
+void cpu_allocate(struct CPUContext* cpu_context);
 
 // Initializes the CPU components
 void cpu_init(struct CPUContext* cpu_context);
+
+// Enables Miscellaneous features for the calling processor
+void cpu_enable_features();
 
 // Getters
 struct CPUContext* cpu_get_bsp();

@@ -94,14 +94,6 @@ trampoline_longmode:
 	mov		es, ax
 	mov		fs, ax
 	mov		gs, ax
-	; Enable SSE
-	mov		rax, cr0
-	and		rax, 0xfffffffffffffffb	; disable FPU emulation
-	or		rax, 0x2				; enable monitoring coprocessor
-	mov		cr0, rax
-	mov		rax, cr4
-	or		rax, 0x600				; enable OSFXSR, OSXMMEXCPT
-	mov		cr4, rax
 	; Enable APIC
 	mov		ecx, 0x1b
 	rdmsr
@@ -115,10 +107,7 @@ trampoline_longmode:
 	call	QWORD [ebx + OFFSET_REL(trampoline_data.cpu_init_ap)]
 	; Finish up and begin scheduling work
 	mov		BYTE [ebx + OFFSET_REL(trampoline_data.ap_status)], 2
-	mov		rdi, QWORD [ebx + OFFSET_REL(trampoline_data.ap_context)]
-	push	QWORD 0
-	;jmp	QWORD [ebx + OFFSET_REL(trampoline_data.scheduler_start)]
-	hlt
+	jmp		QWORD [ebx + OFFSET_REL(trampoline_data.scheduler_entry)]
 
 ;;; Data ;;;
 BITS	64
@@ -135,7 +124,7 @@ trampoline_data:
 	.stack_size:		dd	0
 	.ap_context:		dq	0
 	.cpu_init_ap:		dq	0
-	.scheduler_start:	dq	0
+	.scheduler_entry:	dq	0
 
 
 ALIGN	16

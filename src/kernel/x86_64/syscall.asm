@@ -53,7 +53,7 @@ syscall_enable_sce:
 	; Enable syscall / sysret instruction
 	mov		rcx, 0xc0000080
 	rdmsr
-	or		eax, 1
+	or		rax, 1
 	wrmsr
 	; Load segments into STAR MSR
 	mov		rcx, 0xc0000081

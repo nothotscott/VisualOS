@@ -12,6 +12,7 @@
 
 #define LOCAL_APIC_TRAMPOLINE_TARGET		0x8000
 #define LOCAL_APIC_TRAMPOLINE_TARGET_SIZE	4096
+#define LOCAL_APIC_AP_STACK_PAGES			2
 
 #define LOCAL_APIC_SLEEP_DELAY_INIT			10	// miliseconds to sleep after INIT sequence
 #define LOCAL_APIC_SLEEP_DELAY_AP_STARTUP	1	// miliseconds to sleep after each AP STARTUP
@@ -106,7 +107,7 @@ struct LocalAPICApplicationProcessorCommunication {
 	uint32_t	stack_size;
 	uint64_t	ap_context;
 	uint64_t	cpu_init_ap;
-	uint64_t	scheduler_start;
+	uint64_t	scheduler_entry;
 } __attribute__((packed));
 
 struct LocalAPICProcessor {
@@ -135,3 +136,6 @@ uint32_t local_apic_create_register_value(struct LocalAPICInterruptRegister reg)
 void local_apic_ipi_get_command(void* local_apic_ptr, uint32_t* command_low, uint32_t* command_high);
 // Issues an interprocessor interrupt [command_low] and [command_high] to [local_apic_ptr]
 void local_apic_ipi_set_command(void* local_apic_ptr, uint32_t command_low, uint32_t command_high);
+
+// Gets the APIC ID of the processor calling this function
+uint8_t local_apic_get_id(void* local_apic_ptr);
