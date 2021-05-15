@@ -24,7 +24,7 @@ static struct LogOptions s_log_options_default = {
 };
 
 
-int log(char* restrict format, ...) {
+int log_default(char* restrict format, ...) {
 	int ret;
 	va_list args;
 	va_start(args, format);

@@ -17,9 +17,9 @@ I coined the term "microish-kernel" to mean: a hybrid kernel who, on a spectrum 
 
 ## Included dependencies
 The following are included and minimally modified to adapt to the build process and the VOS runtime
-- gnu-efi is included under the BSD license
-- PDCLib is included under the [Public domain](src/libraries/pdclib/COPYING.CC0)
-	- Though PDCLib is public domain, credit to the original authors can be found in [pdclib/Notes.txt](src/libraries/pdclib/Notes.txt)
+- [limine](https://github.com/limine-bootloader/limine) is distributed under the [BSD 2-Clause](https://github.com/limine-bootloader/limine/blob/trunk/LICENSE.md)
+- [musl](https://git.musl-libc.org/cgit/musl) is included under the [MIT License](src/libraries/musl/COPYRIGHT)
+	- Note: musl has been modified to work with VisualOS. 
 
 # Build
 A Unix-like environment is required to build VisualOS. The following systems have been tested: WSL, Linux, MacOS  
@@ -35,7 +35,7 @@ Note: `python3 main.py` can be executed natively on Windows if on PowerShell and
 
 # Features
 - stivale2 boot protocol kernel
-- [PDCLib](https://github.com/nothotscott/pdclib) libc for both kernel and userspace
+- Included [libc](src/libraries/musl) for both kernel and userspace
 
 ## Features in progress
 - Symmetric Multiprocessing

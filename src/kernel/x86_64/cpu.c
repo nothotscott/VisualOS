@@ -63,7 +63,7 @@ void cpu_init(struct CPUContext* cpu_context) {
 	cpu_enable_features();
 	//paging_setup_pat();
 	syscall_enable();
-	log("Processor %d successfully initialized\n", cpu_context->local_apic_id);
+	log_default("Processor %d successfully initialized\n", cpu_context->local_apic_id);
 
 	void* userspace_stack = pageframe_request();
 	paging_identity_map(userspace_stack, MEMORY_PAGE_SIZE);

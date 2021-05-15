@@ -8,7 +8,7 @@
 include Defaults.mk
 
 # The names of kernel libraries that need an explicit kernel version at link time
-KERNEL_LIBS			:= pdclib
+KERNEL_LIBS			:= musl
 
 SUBDIRS			:= $(shell find $(THIS)/* -maxdepth 0 -type d)
 
@@ -17,7 +17,7 @@ PRETARGETS				:= $(addprefix $(LIBS_DIR)/,$(call to_obj,$(SOURCES)))
 KERNEL_PRETARGETS		:= $(filter $(addprefix %$(KERNEL_SUFFIX),_c.o _asm.o _cpp.o),$(PRETARGETS))
 USERSPACE_PRETARGETS	:= $(filter $(addprefix %$(USERSPACE_SUFFIX),_c.o _asm.o _cpp.o),$(PRETARGETS))
 INDEPENDENT_PRETARGETS	:= $(filter-out $(USERSPACE_PRETARGETS) $(KERNEL_PRETARGETS),$(PRETARGETS))
-INCLUDE_DIRS			:= $(THIS)/ $(THIS)/$(LIBC)/include $(THIS)/$(LIBC)/vos/include
+INCLUDE_DIRS			:= $(THIS)/ $(THIS)/$(LIBC)/include $(THIS)/$(LIBC)/arch/generic $(THIS)/$(LIBC)/arch/x86_64 $(THIS)/$(LIBC)/obj/include
 
 SUBDIR_ROS		= $(shell find $(LIBS_DIR)/ -mindepth 2 -name *.ro -type f)
 SUBDIR_SPECIAL	= $(filter $(KERNEL_LIBS), $(basename $(notdir $(SUBDIR_ROS))))
@@ -28,7 +28,7 @@ TARGETS			= $(addprefix $(LIBS_DIR)/,																\
 				)
 
 CFLAGS	:= $(addprefix -I , $(INCLUDE_DIRS)) $(DEFAULT_CFLAGS) $(DEBUG_CFLAGS) -pedantic
-CFLAGS	+= -Wall -Wextra -Wno-unused-parameter -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-declarations -Wredundant-decls -Winline -Wno-long-long -Wuninitialized -Wnested-externs -Wdeclaration-after-statement
+CFLAGS	+= -Wall -Wextra -Wno-unused-parameter -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wmissing-declarations -Wredundant-decls -Winline -Wuninitialized -Wnested-externs -Wdeclaration-after-statement
 ifeq ($(CC), gcc)
 	CFLAGS	+= -fvar-tracking
 endif

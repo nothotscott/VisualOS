@@ -15,8 +15,8 @@
 
 #pragma once
 
-#include "stdint.h"
-#include "stddef.h"
+#include <stdint.h>
+#include <stddef.h>
 
 #define SYSCALL_VOS_OFFSET	512
 
@@ -27,24 +27,13 @@
 
 #define	_VOS_SYSCALL(num,...)	(_vos_syscall(num,_VOS_SYSCALL_NARGS(__VA_ARGS__),##__VA_ARGS__))
 
-typedef	uint64_t	syscallret_t;
-typedef	uint64_t	syscallarg_t;
-typedef	uint64_t	syscallnum_t;
+typedef	uint64_t	_vos_syscallret_t;
+typedef	uint64_t	_vos_syscallarg_t;
+typedef	uint64_t	_vos_syscallnum_t;
 
-enum SyscallNumber {
-	// Linux syscalls
-	SYSCALL_NUM_READ			= 0,
-	SYSCALL_NUM_WRITE			= 1,
-	SYSCALL_NUM_OPEN			= 2,
-	SYSCALL_NUM_CLOSE			= 3,
-	SYSCALL_NUM_EXIT			= 60,
-	SYSCALL_NUM_TIMEOFDAY		= 96,
-	// VOS syscalls
-	SYSCALL_NUM_VOS_SOMETHING	= SYSCALL_VOS_OFFSET + 0,
-};
 
 
 // Performs a syscall indexed by [num] with [...] as args and [argc] count
 // This is so there's an actual symbol to link to for things that may need it
 // The implementation should just call the inline function _vos_syscall
-syscallret_t _vos_syscall(enum SyscallNumber num, size_t argc, ...);
+_vos_syscallret_t _vos_syscall(_vos_syscallnum_t num, size_t argc, ...);

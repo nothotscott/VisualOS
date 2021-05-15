@@ -2,7 +2,7 @@ define mkdir_subtarget
 	@mkdir -p $(dir $@)
 endef
 
-.PRECIOUS:	$(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o $(TARGET_DIR)/%_cpp.o $(TARGET_DIR)/%_asm.o
+.PRECIOUS:	$(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o $(TARGET_DIR)/%_cpp.o $(TARGET_DIR)/%_asm.o $(TARGET_DIR)/%_s.o
 
 MACROS	= $(if $(MACRO_FILENAME_ENABLE),-D__FILENAME__="\"$<\"")\
 		$(if $(MACRO_MODULENAME_ENABLE),-D__MODULE__="\"$(notdir $(basename $<))\"")\
@@ -10,7 +10,7 @@ MACROS	= $(if $(MACRO_FILENAME_ENABLE),-D__FILENAME__="\"$<\"")\
 
 $(TARGET_DIR)/%.o $(TARGET_DIR)/%_c.o:		$(THIS)/%.c
 											$(call mkdir_subtarget)
-											$(CC) $(CFLAGS) $(MACROS) -c -MD $< -o $@
+											$(CC) $(strip $(CFLAGS) $(MACROS)) -c -MD $< -o $@
 
 $(TARGET_DIR)/%.o $(TARGET_DIR)/%_cpp.o:	$(THIS)/%.cpp
 											$(call mkdir_subtarget)
@@ -19,6 +19,10 @@ $(TARGET_DIR)/%.o $(TARGET_DIR)/%_cpp.o:	$(THIS)/%.cpp
 $(TARGET_DIR)/%.o $(TARGET_DIR)/%_asm.o:	$(THIS)/%.asm
 											$(call mkdir_subtarget)
 											$(AS) $(ASFLAGS) -i $(dir $<) $< -o $@ -MD $(basename $@).d
+
+$(TARGET_DIR)/%.o $(TARGET_DIR)/%_s.o:		$(THIS)/%.s
+											$(call mkdir_subtarget)
+											$(CAS) $(CASFLAGS) -c -MD $< -o $@
 
 #######################################
 

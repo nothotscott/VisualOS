@@ -61,7 +61,7 @@ void madt_init(struct MADTHeader* madt) {
 				struct MADTNonMaskableInterrupt* nmi = (struct MADTNonMaskableInterrupt*)record;
 				s_madt_info.nmis[s_madt_info.nmis_num] = nmi;
 				s_madt_info.nmis_num++;
-				log("Non-Maskable Interrupt ID: %d\n", nmi->local_apic_id);
+				log_default("Non-Maskable Interrupt ID: %d\n", nmi->local_apic_id);
 				break;
 			}
 			case MADT_TYPE_LOCAL_APIC_ADDRESS_OVERRIDE: {
@@ -75,7 +75,7 @@ void madt_init(struct MADTHeader* madt) {
 	paging_identity_map_page(local_apic_ptr);
 	pageframe_reserve(local_apic_ptr, 1);
 	s_madt_info.local_apic_ptr = local_apic_ptr;
-	log("Bootstrap processor APIC Address: 0x%x\n", local_apic_ptr);
+	log_default("Bootstrap processor APIC Address: 0x%x\n", local_apic_ptr);
 }
 
 struct MADTHeader* madt_get() {

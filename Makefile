@@ -6,7 +6,7 @@ TARGET_DIR	= $(BUILD_DIR)
 KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 VOS_BIN			:= $(BUILD_DIR)/vos.elf
 
-LDFLAGS	:= -T $(SRC_DIR)/vos.ld -static -pie --no-dynamic-linker --gc-sections -nostdlib
+LDFLAGS	:= -T $(SRC_DIR)/vos.ld -nostdlib -static -pie --no-dynamic-linker --gc-sections
 LDLIBS	= $(filter-out %$(USERSPACE_SUFFIX).a, $(shell find $(LIBS_DIR)/ -maxdepth 1 -type f -name '*.a') $(shell find $(LIBS_DIR)/ -maxdepth 1 -type f -name '*.ro'))
 
 ###############################################################################

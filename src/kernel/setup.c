@@ -76,18 +76,18 @@ void setup_interrupt_prep() {
 
 void setup_pre() {
 	setup_shell();
-	log("Setup shell\n");
+	log_default("Setup shell\n");
 	setup_memory();
-	log("Setup memory\n");
+	log_default("Setup memory\n");
 	setup_debugging();
-	log("Setup debugging\n");
+	log_default("Setup debugging\n");
 	setup_acpi();
-	log("Setup ACPI/PCI\n");
+	log_default("Setup ACPI/PCI\n");
 	setup_interrupt_prep();
-	log("Setup interrupt preperation\n");
+	log_default("Setup interrupt preperation\n");
 }
 
 void setup_post() {
 	local_apic_start_smp();
-	log("Setup SMP\n");
+	log_default("Setup SMP\n");
 }

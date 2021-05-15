@@ -14,6 +14,9 @@
 static struct SysHandler s_handlers[] = {
 	{ SYS_NUM_READ,		sys_read },
 	{ SYS_NUM_WRITE,	sys_write },
+	{ SYS_NUM_IOCTL,	sys_ioctl },
+	{ SYS_NUM_READV,	sys_readv },
+	{ SYS_NUM_WRITEV,	sys_writev },
 	{ SYS_NUM_EXIT,		sys_exit }
 };
 
@@ -26,10 +29,10 @@ __attribute__((no_caller_saved_registers)) uint64_t (*syshandler_get(uint64_t nu
 			return s_handlers[i].handler;
 		}
 	}
+	log_options((struct LogOptions){LOG_TYPE_WARNING, false}, "Sys stub reached: %d\n", num);
 	return syshandler_stub;
 }
 
 uint64_t syshandler_stub(){
-	log_options((struct LogOptions){LOG_TYPE_WARNING, false}, "Sys stub reached\n");
 	return 0;
 }

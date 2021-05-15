@@ -29,7 +29,7 @@ struct LogOptions {
 
 
 // Writes [format] with the log information with optional [options] to stderr
-int log(char* restrict format, ...);
+int log_default(char* restrict format, ...);
 int log_to_screen(char* restrict format, ...);
 int log_options(struct LogOptions options, char* restrict format, ...);
 

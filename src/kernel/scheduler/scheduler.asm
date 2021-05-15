@@ -9,7 +9,7 @@ EXTERN	local_apic_start_lints
 SECTION	.text
 
 GLOBAL	scheduler_entry
-scheduler_entry;
+scheduler_entry:
 	mov		rbp, 0
 	call	local_apic_start_lints
 	.idle:

@@ -6,7 +6,7 @@ BIN_DIR		:= bin
 # Build procedures
 KERNEL		:= kernel
 LIBS		:= libraries
-LIBC		:= pdclib
+LIBC		:= musl
 
 # Explicit kernel linking directive
 KERNEL_SUFFIX		:= _k
@@ -33,9 +33,10 @@ CC		:= clang
 CXX		:= clang++
 LD		:= lld
 endif
+CAS		:= $(CC)
 
 # Flags
-DEFAULT_CFLAGS	:= -fno-pic -fpie -m64 -ffreestanding -fno-builtin -nostdinc -fshort-wchar -std=c11 -fno-omit-frame-pointer -D__STDC_NO_THREADS__
+DEFAULT_CFLAGS	:= -fno-pic -fpie -m64 -ffreestanding -fno-builtin -nostdinc -fno-omit-frame-pointer
 DEFAULT_ASFLAGS	:= -f elf64
 ifdef DEBUG_MODE
 	DEBUG_CFLAGS	:= -O0 -gdwarf

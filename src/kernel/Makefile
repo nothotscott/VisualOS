@@ -8,9 +8,10 @@ SOURCES				:= $(call find_many,$(THIS),c cpp asm)
 PRETARGETS			:= $(patsubst $(THIS)/%.o,$(KERNEL_DIR)/%.o,$(call to_obj,$(SOURCES)))
 TARGETS				:= $(KERNEL_DIR)/$(KERNEL).ro
 INCLUDE_DIRS		:= $(THIS)/
-INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBS)/$(LIBC)/include $(SRC_DIR)/$(LIBS)/$(LIBC)/vos/include 
+INCLUDE_LIB_DIRS	:= $(SRC_DIR)/$(LIBS)/$(LIBC)/include $(SRC_DIR)/$(LIBS)/$(LIBC)/arch/generic $(SRC_DIR)/$(LIBS)/$(LIBC)/arch/x86_64 $(SRC_DIR)/$(LIBS)/$(LIBC)/obj/include
 
 CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I ,$(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS)) $(DEFAULT_CFLAGS) $(DEBUG_CFLAGS)
+CFLAGS	+= -std=c11 -fshort-wchar 
 ifeq ($(CC), gcc)
 	CFLAGS	+= -mgeneral-regs-only
 endif

@@ -39,7 +39,7 @@ void ioapic_init() {
 				.mask = IOAPIC_REDIRECTION_ENTRY_MASK_ENABLE,
 			});
 		}
-		log("IOAPIC %d:%d Initialized\n", ioapic->ioapic->ioapic_id, max_interrupts);
+		log_default("IOAPIC %d:%d Initialized\n", ioapic->ioapic->ioapic_id, max_interrupts);
 	}
 }
 

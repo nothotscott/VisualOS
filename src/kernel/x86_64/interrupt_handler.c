@@ -80,5 +80,5 @@ void keyboard_handler(struct InterruptStack* stack, size_t num) {
 }
 
 void spurious_interrupt_handler(struct InterruptStack* stack, size_t num) {
-	log("Spurious interrupt\n");
+	log_default("Spurious interrupt\n");
 }

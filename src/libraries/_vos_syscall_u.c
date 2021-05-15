@@ -7,33 +7,33 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
-#include "stdint.h"
-#include "stddef.h"
-#include "stdarg.h"
-#include "stdio.h"
-#include "_vos_sys.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdarg.h>
+#include <stdio.h>
+
 #include "_vos_syscall.h"
 
 
 // Inline assembly for fast syscalls
-static inline syscallret_t _vos_syscall0(syscallnum_t n);
-static inline syscallret_t _vos_syscall1(syscallnum_t n, syscallarg_t a1);
-static inline syscallret_t _vos_syscall2(syscallnum_t n, syscallarg_t a1, syscallarg_t a2);
-static inline syscallret_t _vos_syscall3(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3);
-static inline syscallret_t _vos_syscall4(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3, syscallarg_t a4);
-static inline syscallret_t _vos_syscall5(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3, syscallarg_t a4, syscallarg_t a5);
-static inline syscallret_t _vos_syscall6(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3, syscallarg_t a4, syscallarg_t a5, syscallarg_t a6);
+static inline _vos_syscallret_t _vos_syscall0(_vos_syscallnum_t n);
+static inline _vos_syscallret_t _vos_syscall1(_vos_syscallnum_t n, _vos_syscallarg_t a1);
+static inline _vos_syscallret_t _vos_syscall2(_vos_syscallnum_t n, _vos_syscallarg_t a1, _vos_syscallarg_t a2);
+static inline _vos_syscallret_t _vos_syscall3(_vos_syscallnum_t n, _vos_syscallarg_t a1, _vos_syscallarg_t a2, _vos_syscallarg_t a3);
+static inline _vos_syscallret_t _vos_syscall4(_vos_syscallnum_t n, _vos_syscallarg_t a1, _vos_syscallarg_t a2, _vos_syscallarg_t a3, _vos_syscallarg_t a4);
+static inline _vos_syscallret_t _vos_syscall5(_vos_syscallnum_t n, _vos_syscallarg_t a1, _vos_syscallarg_t a2, _vos_syscallarg_t a3, _vos_syscallarg_t a4, _vos_syscallarg_t a5);
+static inline _vos_syscallret_t _vos_syscall6(_vos_syscallnum_t n, _vos_syscallarg_t a1, _vos_syscallarg_t a2, _vos_syscallarg_t a3, _vos_syscallarg_t a4, _vos_syscallarg_t a5, _vos_syscallarg_t a6);
 
-syscallret_t _vos_syscall(enum SyscallNumber num, size_t argc, ...) {
+_vos_syscallret_t _vos_syscall(_vos_syscallnum_t num, size_t argc, ...) {
 	va_list args;
-	syscallarg_t a1, a2, a3, a4, a5, a6;
+	_vos_syscallarg_t a1, a2, a3, a4, a5, a6;
 	va_start(args, argc);
-	a1 = va_arg(args, syscallarg_t);
-	a2 = va_arg(args, syscallarg_t);
-	a3 = va_arg(args, syscallarg_t);
-	a4 = va_arg(args, syscallarg_t);
-	a5 = va_arg(args, syscallarg_t);
-	a6 = va_arg(args, syscallarg_t);
+	a1 = va_arg(args, _vos_syscallarg_t);
+	a2 = va_arg(args, _vos_syscallarg_t);
+	a3 = va_arg(args, _vos_syscallarg_t);
+	a4 = va_arg(args, _vos_syscallarg_t);
+	a5 = va_arg(args, _vos_syscallarg_t);
+	a6 = va_arg(args, _vos_syscallarg_t);
 	va_end(args);
 	switch(argc) {
 		case 0:
@@ -54,45 +54,45 @@ syscallret_t _vos_syscall(enum SyscallNumber num, size_t argc, ...) {
 	return -1;
 }
 
-__attribute__((always_inline)) static inline syscallret_t _vos_syscall0(syscallnum_t n) {
-	syscallret_t ret;
+__attribute__((always_inline)) static inline _vos_syscallret_t _vos_syscall0(_vos_syscallnum_t n) {
+	_vos_syscallret_t ret;
 	__asm__ volatile ("syscall" : "=a"(ret) : "a"(n) : "rcx", "r11", "memory");
 	return ret;
 }
-__attribute__((always_inline)) static inline syscallret_t _vos_syscall1(syscallnum_t n, syscallarg_t a1) {
-	syscallret_t ret;
+__attribute__((always_inline)) static inline _vos_syscallret_t _vos_syscall1(_vos_syscallnum_t n, _vos_syscallarg_t a1) {
+	_vos_syscallret_t ret;
 	__asm__ volatile ("syscall" : "=a"(ret) : "a"(n), "D"(a1) : "rcx", "r11", "memory");
 	return ret;
 }
-__attribute__((always_inline)) static inline syscallret_t _vos_syscall2(syscallnum_t n, syscallarg_t a1, syscallarg_t a2) {
-	syscallret_t ret;
+__attribute__((always_inline)) static inline _vos_syscallret_t _vos_syscall2(_vos_syscallnum_t n, _vos_syscallarg_t a1, _vos_syscallarg_t a2) {
+	_vos_syscallret_t ret;
 	__asm__ volatile ("syscall" : "=a"(ret) : "a"(n), "D"(a1), "S"(a2)
 						  : "rcx", "r11", "memory");
 	return ret;
 }
-__attribute__((always_inline)) static inline syscallret_t _vos_syscall3(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3) {
-	syscallret_t ret;
+__attribute__((always_inline)) static inline _vos_syscallret_t _vos_syscall3(_vos_syscallnum_t n, _vos_syscallarg_t a1, _vos_syscallarg_t a2, _vos_syscallarg_t a3) {
+	_vos_syscallret_t ret;
 	__asm__ volatile ("syscall" : "=a"(ret) : "a"(n), "D"(a1), "S"(a2),
 						  "d"(a3) : "rcx", "r11", "memory");
 	return ret;
 }
-__attribute__((always_inline)) static inline syscallret_t _vos_syscall4(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3, syscallarg_t a4) {
-	syscallret_t ret;
+__attribute__((always_inline)) static inline _vos_syscallret_t _vos_syscall4(_vos_syscallnum_t n, _vos_syscallarg_t a1, _vos_syscallarg_t a2, _vos_syscallarg_t a3, _vos_syscallarg_t a4) {
+	_vos_syscallret_t ret;
 	register uint64_t r10 __asm__("r10") = a4;
 	__asm__ volatile ("syscall" : "=a"(ret) : "a"(n), "D"(a1), "S"(a2),
 						  "d"(a3), "r"(r10): "rcx", "r11", "memory");
 	return ret;
 }
-__attribute__((always_inline)) static inline syscallret_t _vos_syscall5(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3, syscallarg_t a4, syscallarg_t a5) {
-	syscallret_t ret;
+__attribute__((always_inline)) static inline _vos_syscallret_t _vos_syscall5(_vos_syscallnum_t n, _vos_syscallarg_t a1, _vos_syscallarg_t a2, _vos_syscallarg_t a3, _vos_syscallarg_t a4, _vos_syscallarg_t a5) {
+	_vos_syscallret_t ret;
 	register uint64_t r10 __asm__("r10") = a4;
 	register uint64_t r8 __asm__("r8") = a5;
 	__asm__ volatile ("syscall" : "=a"(ret) : "a"(n), "D"(a1), "S"(a2),
 						  "d"(a3), "r"(r10), "r"(r8) : "rcx", "r11", "memory");
 	return ret;
 }
-__attribute__((always_inline)) static inline syscallret_t _vos_syscall6(syscallnum_t n, syscallarg_t a1, syscallarg_t a2, syscallarg_t a3, syscallarg_t a4, syscallarg_t a5, syscallarg_t a6) {
-	syscallret_t ret;
+__attribute__((always_inline)) static inline _vos_syscallret_t _vos_syscall6(_vos_syscallnum_t n, _vos_syscallarg_t a1, _vos_syscallarg_t a2, _vos_syscallarg_t a3, _vos_syscallarg_t a4, _vos_syscallarg_t a5, _vos_syscallarg_t a6) {
+	_vos_syscallret_t ret;
 	register uint64_t r10 __asm__("r10") = a4;
 	register uint64_t r8 __asm__("r8") = a5;
 	register uint64_t r9 __asm__("r9") = a6;
