@@ -10,6 +10,7 @@
 #include "memory/memory.h"
 #include "memory/paging.h"
 #include "memory/pageframe.h"
+#include "scheduler/timer.h"
 #include "scheduler/scheduler.h"
 #include "x86_64/pit.h"
 #include "x86_64/cpu.h"
@@ -154,7 +155,7 @@ void local_apic_start_lints() {
 		}
 	}
 	// Setup Local APIC timer
-	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INITIAL_COUNT, 0x100000);
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INITIAL_COUNT, TIMER_TICKS_DEFAULT);
 	uint32_t divide_reg = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_DIVIDE_CONFIG);
 	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_DIVIDE_CONFIG, (divide_reg & 0xfffffff4) | 0b1010);
 	uint32_t timer_reg = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_LVT_TIMER);
@@ -163,6 +164,11 @@ void local_apic_start_lints() {
 		.mask = LOCAL_APIC_INTERRUPT_REGISTER_MASK_ENABLE,
 		.timer_mode = LOCAL_APIC_INTERRUPT_REGISTER_TIMER_MODE_PERIODIC
 	}) | (timer_reg & 0xfffcef00));
+}
+
+void local_apic_set_timer_count(uint32_t value) {
+	void* local_apic_ptr = madt_get_info()->local_apic_ptr;
+	local_apic_set_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_INITIAL_COUNT, value);
 }
 
 void local_apic_eoi() {

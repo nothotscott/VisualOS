@@ -122,11 +122,14 @@ struct LocalAPICProcessor {
 // Initializes the bootstrap processor
 void local_apic_init();
 
-// Starts local interrupts for the calling processor(NMIs and timer)
-void local_apic_start_lints();
-
 // Launches all application processors to be ready for symmetric multiprocessing
 void local_apic_start_smp();
+
+// Starts local interrupts for the calling processor(Spurious, NMIs and timer)
+void local_apic_start_lints();
+
+// Sets the initial count register to [value]
+void local_apic_set_timer_count(uint32_t value);
 
 // Sends the end of interrupt signal for the calling APIC
 void local_apic_eoi();

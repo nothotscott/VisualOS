@@ -32,11 +32,8 @@ void cpu_allocate(struct CPUContext* cpu_context) {
 	cpu_context->idt_block = idt_block;
 	// Stacks
 	void* stack_irq = pageframe_request_pages(CPU_STACK_IRQ_PAGES);
-	void* stack_lvt = pageframe_request_pages(CPU_STACK_LVT_PAGES);
 	paging_identity_map(stack_irq, CPU_STACK_IRQ_PAGES * MEMORY_PAGE_SIZE);
-	paging_identity_map(stack_lvt, CPU_STACK_LVT_PAGES * MEMORY_PAGE_SIZE);
 	cpu_context->stack_irq = stack_irq + CPU_STACK_IRQ_PAGES * MEMORY_PAGE_SIZE;
-	cpu_context->stack_lvt = stack_lvt + CPU_STACK_LVT_PAGES * MEMORY_PAGE_SIZE;
 }
 
 struct CPUContext* cpu_get_bsp() {
@@ -51,7 +48,6 @@ void cpu_init(struct CPUContext* cpu_context) {
 	// Setup GDT
 	gdt_init(cpu_context->gdt_block);
 	gdt_set_tss_ist(cpu_context->gdt_block, 1, cpu_context->stack_irq);
-	gdt_set_tss_ist(cpu_context->gdt_block, 2, cpu_context->stack_lvt);
 	gdt_load(&cpu_context->gdt_block->gdt_descriptor);
 	// Setup IDT
 	if(s_idt_initialized == false) {

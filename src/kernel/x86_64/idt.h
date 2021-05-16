@@ -15,7 +15,6 @@
 
 #define IDT_IST_ISR	0
 #define IDT_IST_IRQ	1
-#define IDT_IST_LVT	2
 
 enum IDTGateType {
 	IDT_TYPE_GATE_INTERRUPT	= 0b1110,

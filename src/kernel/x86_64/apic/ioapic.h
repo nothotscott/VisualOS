@@ -91,6 +91,9 @@ void ioapic_init();
 // Sets the the ISRs from the IDT
 void ioapic_set_from_isrs();
 
+// Sets the [mask] the interrupt of [isr_num] (also known as the source plus 32)
+void ioapic_entry_set_mask(size_t isr_num, enum IOAPICRedirectionEntryMask mask);
+
 // Sets the redirection entry in [ioapic_ptr] to [entry] at [index]
 void ioapic_set_redirection_entry(void* ioapic_ptr, size_t index, struct IOAPICRedirectionEntry entry);
 // Transforms and writes the redirection [entry] in [ioapic_ptr] at [index] 

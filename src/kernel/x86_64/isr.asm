@@ -26,9 +26,7 @@ EXTERN	local_apic_eoi
 		call	rax
 		%%.finish:
 			POP_REG
-			%if	%2 == 0
-				add		rsp, 8
-			%endif
+			add		rsp, 8
 			sti
 			iretq
 %endmacro

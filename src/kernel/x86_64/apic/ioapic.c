@@ -13,6 +13,7 @@
 #include "ioapic.h"
 
 
+static inline void _ioapic_entry_set_mask(void* ioapic_ptr, size_t index, enum IOAPICRedirectionEntryMask mask);
 // Inline functions to get/set IOAPIC registers
 static inline volatile uint32_t ioapic_get_register(void* ioapic_ptr, uint8_t reg_offset);
 static inline void ioapic_set_register(void* ioapic_ptr, uint8_t reg_offset, uint32_t value);
@@ -20,59 +21,81 @@ static inline void ioapic_set_register(void* ioapic_ptr, uint8_t reg_offset, uin
 void ioapic_init() {
 	size_t ioapics_num = madt_get_info()->ioapics_num;
 	size_t isos_num = madt_get_info()->isos_num;
-	for(size_t i = 0; i < ioapics_num; i++) {
-		// Configure IOAPIC
-		struct IOAPIC* ioapic = madt_get_info()->ioapics + i;
-		void* ioapic_ptr = (void*)(uint64_t)ioapic->ioapic->ioapic_address;
-		uint8_t max_interrupts = ((ioapic_get_register(ioapic_ptr, IOAPIC_REG_OFFSET_VERSION) >> 16) & 0xff) + 1;
-		ioapic->max_interrupts = max_interrupts;
-		// Set the entries
-		uint32_t base = ioapic->ioapic->global_interrupt_base;
-		for(size_t j = 0; j < isos_num; j++) {
-			struct MADTInterruptSourceOverride* iso = madt_get_info()->isos[j];
-			ioapic_set_redirection_entry(ioapic_ptr, iso->global_interrupt, (struct IOAPICRedirectionEntry){
-				.vector = iso->source + ISR_IRQ_START,
-				.delivery_mode = IOAPIC_REDIRECTION_ENTRY_DELIVERY_MODE_FIXED,
-				.destination_mode = IOAPIC_REDIRECTION_ENTRY_DESTINATION_MODE_PHYSICAL,
-				.pin_polarity = (iso->flags & 0x03) == 0x03 ? IOAPIC_REDIRECTION_ENTRY_PIN_POLARITY_ACTIVELOW : IOAPIC_REDIRECTION_ENTRY_PIN_POLARITY_ACTIVEHIGH,
-				.trigger_mode = (iso->flags & 0x0c) == 0x0c ? IOAPIC_REDIRECTION_ENTRY_TRIGGER_MODE_LEVEL : IOAPIC_REDIRECTION_ENTRY_TRIGGER_MODE_EDGE,
-				.mask = IOAPIC_REDIRECTION_ENTRY_MASK_ENABLE,
-			});
-		}
-		log_default("IOAPIC %d:%d Initialized\n", ioapic->ioapic->ioapic_id, max_interrupts);
+	// Configure first IOAPIC
+	struct IOAPIC* ioapic = madt_get_info()->ioapics + 0;
+	void* ioapic_ptr = (void*)(uint64_t)ioapic->ioapic->ioapic_address;
+	uint8_t max_interrupts = ((ioapic_get_register(ioapic_ptr, IOAPIC_REG_OFFSET_VERSION) >> 16) & 0xff) + 1;
+	ioapic->max_interrupts = max_interrupts;
+	// Set the entries
+	uint32_t base = ioapic->ioapic->global_interrupt_base;
+	for(size_t j = 0; j < isos_num; j++) {
+		struct MADTInterruptSourceOverride* iso = madt_get_info()->isos[j];
+		ioapic_set_redirection_entry(ioapic_ptr, iso->global_interrupt, (struct IOAPICRedirectionEntry){
+			.vector = iso->source + ISR_IRQ_START,
+			.delivery_mode = IOAPIC_REDIRECTION_ENTRY_DELIVERY_MODE_FIXED,
+			.destination_mode = IOAPIC_REDIRECTION_ENTRY_DESTINATION_MODE_PHYSICAL,
+			.pin_polarity = (iso->flags & 0x03) == 0x03 ? IOAPIC_REDIRECTION_ENTRY_PIN_POLARITY_ACTIVELOW : IOAPIC_REDIRECTION_ENTRY_PIN_POLARITY_ACTIVEHIGH,
+			.trigger_mode = (iso->flags & 0x0c) == 0x0c ? IOAPIC_REDIRECTION_ENTRY_TRIGGER_MODE_LEVEL : IOAPIC_REDIRECTION_ENTRY_TRIGGER_MODE_EDGE,
+			.mask = IOAPIC_REDIRECTION_ENTRY_MASK_ENABLE,
+		});
+	}
+	log_default("IOAPIC %d:%d Initialized\n", ioapic->ioapic->ioapic_id, max_interrupts);
+	// Configure other IOAPICs
+	for(size_t i = 1; i < ioapics_num; i++) {
+		// TODO Configure other IOAPICs
 	}
 }
 
 void ioapic_set_from_isrs() {
 	size_t ioapics_num = madt_get_info()->ioapics_num;
 	size_t isos_num = madt_get_info()->isos_num;
-	for(size_t i = 0; i < ioapics_num; i++) {
-		struct IOAPIC* ioapic = madt_get_info()->ioapics + i;
-		void* ioapic_ptr = (void*)(uint64_t)ioapic->ioapic->ioapic_address;
-		for(size_t isr_num = ISR_IRQ_START; isr_num < ISR_MAX; isr_num++) {
-			if(!isr_exists(isr_num)) {
-				continue;
-			}
-			for(size_t j = 0; j < isos_num; j++) {
-				struct MADTInterruptSourceOverride* iso = madt_get_info()->isos[j];
-				if(iso->source + ISR_IRQ_START == isr_num) {	// already redirected
-					goto next;
-				}
-			}
-			ioapic_set_redirection_entry(ioapic_ptr, isr_num - ISR_IRQ_START, (struct IOAPICRedirectionEntry){
-				.vector = isr_num,
-				.delivery_mode = IOAPIC_REDIRECTION_ENTRY_DELIVERY_MODE_LOW_PRIORITY,
-				.destination_mode = IOAPIC_REDIRECTION_ENTRY_DESTINATION_MODE_PHYSICAL,
-				.pin_polarity = IOAPIC_REDIRECTION_ENTRY_PIN_POLARITY_ACTIVEHIGH,
-				.trigger_mode = IOAPIC_REDIRECTION_ENTRY_TRIGGER_MODE_EDGE,
-				.mask = IOAPIC_REDIRECTION_ENTRY_MASK_ENABLE
-			});
-			next:
-				continue;
+	struct IOAPIC* ioapic = madt_get_info()->ioapics + 0;
+	void* ioapic_ptr = (void*)(uint64_t)ioapic->ioapic->ioapic_address;
+	for(size_t isr_num = ISR_IRQ_START; isr_num < ISR_MAX; isr_num++) {
+		if(!isr_exists(isr_num)) {
+			continue;
 		}
+		for(size_t j = 0; j < isos_num; j++) {
+			struct MADTInterruptSourceOverride* iso = madt_get_info()->isos[j];
+			if(iso->source + ISR_IRQ_START == isr_num) {	// already redirected
+				goto next;
+			}
+		}
+		ioapic_set_redirection_entry(ioapic_ptr, isr_num - ISR_IRQ_START, (struct IOAPICRedirectionEntry){
+			.vector = isr_num,
+			.delivery_mode = IOAPIC_REDIRECTION_ENTRY_DELIVERY_MODE_LOW_PRIORITY,
+			.destination_mode = IOAPIC_REDIRECTION_ENTRY_DESTINATION_MODE_PHYSICAL,
+			.pin_polarity = IOAPIC_REDIRECTION_ENTRY_PIN_POLARITY_ACTIVEHIGH,
+			.trigger_mode = IOAPIC_REDIRECTION_ENTRY_TRIGGER_MODE_EDGE,
+			.mask = IOAPIC_REDIRECTION_ENTRY_MASK_ENABLE
+		});
+		next:
+			continue;
 	}
 }
 
+__attribute__((always_inline)) static inline void _ioapic_entry_set_mask(void* ioapic_ptr, size_t index, enum IOAPICRedirectionEntryMask mask) {
+	volatile uint32_t low = ioapic_get_register(ioapic_ptr, IOAPIC_REG_OFFSET_REDIRECTION_TABLE + 2 * index + 0);
+	low = SET_BIT(low, IOAPIC_REDIRECTION_BITS_LOW_MASK, mask);
+	ioapic_set_register(ioapic_ptr, IOAPIC_REG_OFFSET_REDIRECTION_TABLE + 2 * index + 0, low);
+}
+void ioapic_entry_set_mask(size_t isr_num, enum IOAPICRedirectionEntryMask mask) {
+	size_t source = isr_num - ISR_IRQ_START;
+	size_t ioapics_num = madt_get_info()->ioapics_num;
+	size_t isos_num = madt_get_info()->isos_num;
+	// TODO Support multi IOAPICs
+	struct IOAPIC* ioapic = madt_get_info()->ioapics + 0;
+	void* ioapic_ptr = (void*)(uint64_t)ioapic->ioapic->ioapic_address;
+	for(size_t i = 0; i < isos_num; i++) {
+		struct MADTInterruptSourceOverride* iso = madt_get_info()->isos[i];
+		if(iso->source == source) {
+			_ioapic_entry_set_mask(ioapic_ptr, iso->global_interrupt, mask);
+			return;
+		}
+	}
+	// Assume the redirection is located at the source
+	_ioapic_entry_set_mask(ioapic_ptr, source, mask);
+}
 
 // *** IOAPIC Register Functions *** //
 

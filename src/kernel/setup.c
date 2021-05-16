@@ -18,13 +18,13 @@
 #include "memory/paging.h"
 #include "symbols/symbol.h"
 #include "x86_64/io.h"
+#include "x86_64/apic/ioapic.h"
 #include "x86_64/isr.h"
 #include "x86_64/pit.h"
 #include "x86_64/acpi.h"
 #include "x86_64/pci.h"
 #include "x86_64/apic/madt.h"
 #include "x86_64/apic/local_apic.h"
-#include "x86_64/apic/ioapic.h"
 #include "x86_64/syscall.h"
 
 
@@ -89,5 +89,6 @@ void setup_pre() {
 
 void setup_post() {
 	local_apic_start_smp();
+	ioapic_entry_set_mask(32, IOAPIC_REDIRECTION_ENTRY_MASK_DISABLE);
 	log_default("Setup SMP\n");
 }

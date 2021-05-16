@@ -12,6 +12,8 @@ GLOBAL	scheduler_entry
 scheduler_entry:
 	mov		rbp, 0
 	call	local_apic_start_lints
-	.idle:
-		hlt
-		jmp	.idle
+	jmp		scheduler_idle
+
+scheduler_idle:
+	hlt
+	jmp	scheduler_idle

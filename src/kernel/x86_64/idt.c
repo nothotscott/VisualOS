@@ -10,9 +10,9 @@
 #include "isr.h"
 #include "idt.h"
 
-#define IDT_SET_ISR(num)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_TRAP, IDT_IST_ISR)
-#define IDT_SET_IRQ(num)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_INTERRUPT, IDT_IST_IRQ)
-#define IDT_SET_LVT(num)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_INTERRUPT, IDT_IST_LVT)
+#define IDT_SET_ISR(num)		idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_TRAP, IDT_IST_ISR)
+#define IDT_SET_IRQ(num)		idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_INTERRUPT, IDT_IST_IRQ)
+#define IDT_SET_LVT(num,ist)	idt_set_isr(idt_block, num, isr##num, IDT_TYPE_GATE_INTERRUPT, ist)
 
 void idt_init(struct IDTBlock* idt_block) {
 	size_t idt_total_size = IDT_SIZE * sizeof(struct IDTEntry);	// size of all IDT enteries in bytes
@@ -40,7 +40,7 @@ void idt_init(struct IDTBlock* idt_block) {
 	IDT_SET_IRQ(46);
 	IDT_SET_IRQ(47);
 	// Custom LVT
-	IDT_SET_LVT(48);
+	IDT_SET_LVT(48, 0);
 }
 
 void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum IDTGateType gate, uint8_t ist) {

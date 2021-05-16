@@ -7,3 +7,6 @@
 
 #include "scheduler.h"
 
+struct SchedulerContext* scheduler_next_task(struct SchedulerContext* context) {
+	return 0;
+}
