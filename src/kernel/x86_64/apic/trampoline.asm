@@ -11,9 +11,10 @@
 DEFAULT	ABS
 
 %define	OFFSET_REL(abs)	(abs - $$)
-GDT_CODE_SEG	equ	trampoline_gdt_start.code - trampoline_gdt_start
-GDT_DATA_SEG	equ	trampoline_gdt_start.data - trampoline_gdt_start
-GDT_SYSTEM_SEG	equ	trampoline_gdt_start.system - trampoline_gdt_start
+
+%define	GDT_CODE_SEG	(trampoline_gdt_start.code - trampoline_gdt_start)
+%define	GDT_DATA_SEG	(trampoline_gdt_start.data - trampoline_gdt_start)
+%define	GDT_SYSTEM_SEG	(trampoline_gdt_start.system - trampoline_gdt_start)
 
 ;;; 16-bit code ;;;
 BITS	16
@@ -104,7 +105,9 @@ trampoline_longmode:
 	mov		rbp, 0					; null base pointer for stack unwinding
 	; Continue BSP initialization
 	mov		rdi, QWORD [ebx + OFFSET_REL(trampoline_data.ap_context)]
+	push	rbx
 	call	QWORD [ebx + OFFSET_REL(trampoline_data.cpu_init_ap)]
+	pop		rbx
 	; Finish up and begin scheduling work
 	mov		BYTE [ebx + OFFSET_REL(trampoline_data.ap_status)], 2
 	jmp		QWORD [ebx + OFFSET_REL(trampoline_data.scheduler_entry)]

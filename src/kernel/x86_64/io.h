@@ -25,10 +25,6 @@
 
 #define IO_PIC_EOI		0x20
 
-// Disables/enables interrupts
-void io_interrupts_disable();
-void io_interrupts_enable();
-
 // Enables APIC
 void io_apic_enable();
 

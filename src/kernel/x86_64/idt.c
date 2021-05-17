@@ -40,7 +40,7 @@ void idt_init(struct IDTBlock* idt_block) {
 	IDT_SET_IRQ(46);
 	IDT_SET_IRQ(47);
 	// Custom LVT
-	IDT_SET_LVT(48, 0);
+	IDT_SET_LVT(48, IDT_IST_TIMER);
 }
 
 void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum IDTGateType gate, uint8_t ist) {
@@ -50,7 +50,7 @@ void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum I
 		.offset_low = (uint16_t)(((uint64_t)isr_ptr & 0x000000000000ffff)),
 		.offset_mid = (uint16_t)(((uint64_t)isr_ptr & 0x00000000ffff0000) >> 16),
 		.offset_high = (uint32_t)(((uint64_t)isr_ptr & 0xffffffff00000000) >> 32),
-		.ist = ist,
+		.ist = ist & 0x7,
 		.selector = 1 * sizeof(struct GDTEntry),									// code segment at index 1
 		.type_attr = IDT_TYPE_PRESENT << 7 | IDT_TYPE_PRIVILEGE << 5 | gate
 	};

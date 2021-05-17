@@ -11,8 +11,11 @@ SECTION .text
 
 
 GLOBAL	idt_load
-idt_load:	; rdi = [idt_descriptor]
+idt_load:	; rdi = [idt_descriptor], rsi = [enable_interrupts]
 	cli
 	lidt	[rdi]
+	cmp		rsi, 0
+	jz		.exit
 	sti
-	ret
+	.exit:
+		ret

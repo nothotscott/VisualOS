@@ -8,12 +8,17 @@
 
 #pragma once
 
-#define GDT_NUM		8	// the null segment + 4 code / data segments + TSS descriptor is the size of 2 GDT entries
+#define GDT_NUM		9	// 2 null segments + 2 code + 2 data data segments + TSS descriptor is the size of 2 GDT entries
 #define GDT_TSS_NUM	1	// only 1 TSS
 
 #define GDT_TSS_STACK_SIZE		4096
 #define GDT_TSS_RING_STACKS_NUM	3
 #define GDT_TSS_IST_STACKS_NUM	7
+
+#define GDT_OFFSET_KERNEL_CODE	0x08
+#define GDT_OFFSET_KERNEL_DATA	0x10
+#define GDT_OFFSET_USER_DATA	0x20
+#define GDT_OFFSET_USER_CODE	0x28
 
 
 struct GDTEntry {

@@ -5,14 +5,6 @@
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-GLOBAL	io_interrupts_disable
-io_interrupts_disable:
-	cli
-	ret
-GLOBAL	io_interrupts_enable
-io_interrupts_enable:
-	sti
-	ret
 
 GLOBAL	io_apic_enable
 io_apic_enable:

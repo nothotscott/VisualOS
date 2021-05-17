@@ -17,8 +17,8 @@ void gdt_init(struct GDTBlock* gdt_block) {
 	// Set entries
 	memset(gdt_block->gdt, 0, gdt_total_size);									// implictly define null descriptor
 	gdt_set_entry(gdt_block, 1, GDT_ACCESS_EXECUTABLE, 0);						// kernel code segment
-	gdt_set_entry(gdt_block, 2, 0, 0);											// kernel data segment
-	gdt_set_entry(gdt_block, 4, GDT_ACCESS_DPL, 0);								// user data segment
+	gdt_set_entry(gdt_block, 2, GDT_ACCESS_WRITABLE, 0);						// kernel data segment
+	gdt_set_entry(gdt_block, 4, GDT_ACCESS_DPL | GDT_ACCESS_WRITABLE, 0);		// user data segment
 	gdt_set_entry(gdt_block, 5, GDT_ACCESS_DPL | GDT_ACCESS_EXECUTABLE, 0);		// user code segment
 	gdt_set_tss(gdt_block, 6);													// task state segment
 	// Set descriptor
@@ -28,7 +28,7 @@ void gdt_init(struct GDTBlock* gdt_block) {
 
 void gdt_set_entry(struct GDTBlock* gdt_block, size_t gdt_index, enum GDTAccess access, enum GDTFlags flags) {
 	gdt_block->gdt[gdt_index].limit_low = 0xffff;
-	gdt_block->gdt[gdt_index].access = GDT_ACCESS_WRITABLE | GDT_ACCESS_TYPE | GDT_ACCESS_PRESENT | access;
+	gdt_block->gdt[gdt_index].access = GDT_ACCESS_TYPE | GDT_ACCESS_PRESENT | access;
 	gdt_block->gdt[gdt_index].flags = GDT_FLAG_LONG_MODE | GDT_FLAG_PAGE_GRANULARITY | flags;
 }
 

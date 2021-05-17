@@ -13,8 +13,9 @@
 #define IDT_TYPE_PRESENT	0b1
 #define IDT_TYPE_PRIVILEGE	0b00
 
-#define IDT_IST_ISR	0
-#define IDT_IST_IRQ	1
+#define IDT_IST_ISR		0
+#define IDT_IST_IRQ		1
+#define IDT_IST_TIMER	2
 
 enum IDTGateType {
 	IDT_TYPE_GATE_INTERRUPT	= 0b1110,
@@ -53,5 +54,5 @@ void idt_set_isr(struct IDTBlock* idt_block, size_t index, void* isr_ptr, enum I
 // *** From idt.asm *** //
 
 
-// Loads the [idt_descriptor]
-void idt_load(struct IDTDescriptor* idt_descriptor);
+// Loads the [idt_descriptor] and enables interrupts if [enable_interrupts] is true
+void idt_load(struct IDTDescriptor* idt_descriptor, bool enable_interrupts);

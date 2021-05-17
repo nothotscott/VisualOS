@@ -18,4 +18,5 @@ struc	CPUContext
 	.gdt_block:			resq	1
 	.idt_block:			resq	1
 	.stack_irq:			resq	1
+	.stack_timer:		resq	1
 endstruc

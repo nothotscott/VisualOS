@@ -7,8 +7,18 @@
 
 %include "x86_64/cpu.inc"
 
+%define	SCHEDULER_CONTEXT_FRAME_GENERAL_NUM		15
+%define	SCHEDULER_CONTEXT_FRAME_INTERRUPT_NUM	5
+%define SCHEDULER_CONTEXT_FRAME_COPY_NUM		(SCHEDULER_CONTEXT_FRAME_GENERAL_NUM + SCHEDULER_CONTEXT_FRAME_INTERRUPT_NUM)
+%define	SCHEDULER_CONTEXT_OFFSET(n)				(n - SchedulerContext.context_frame)
+
 struc	SchedulerContext
-	.rsp_task:		resq	1
+	.context_frame:
+		.context_frame_general:			resq	SCHEDULER_CONTEXT_FRAME_GENERAL_NUM
+		.context_frame_interrupt:		resq	SCHEDULER_CONTEXT_FRAME_INTERRUPT_NUM
+		.context_frame_interrupt_end:
+		.context_frame_self:			resq	1
+	.context_frame_end:
 	; Not important past this point
 endstruc
 

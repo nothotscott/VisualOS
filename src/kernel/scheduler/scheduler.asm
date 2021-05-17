@@ -10,10 +10,13 @@ SECTION	.text
 
 GLOBAL	scheduler_entry
 scheduler_entry:
+	cli
 	mov		rbp, 0
 	call	local_apic_start_lints
+	sti
 	jmp		scheduler_idle
 
+GLOBAL	scheduler_idle
 scheduler_idle:
 	hlt
 	jmp	scheduler_idle

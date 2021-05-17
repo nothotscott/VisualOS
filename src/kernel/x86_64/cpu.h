@@ -11,8 +11,8 @@
 #include "gdt.h"
 #include "idt.h"
 
-#define CPU_STACK_IRQ_PAGES	2
-#define CPU_STACK_LVT_PAGES	2
+#define CPU_STACK_PAGES_IRQ		2
+#define CPU_STACK_PAGES_TIMER	1
 
 struct CPUContext {
 	uint8_t				local_apic_id;
@@ -22,6 +22,7 @@ struct CPUContext {
 	struct GDTBlock*	gdt_block;
 	struct IDTBlock*	idt_block;
 	void*				stack_irq;
+	void*				stack_timer;
 } __attribute__((packed));
 
 

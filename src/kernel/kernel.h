@@ -12,6 +12,8 @@
 #define KERNEL
 #endif
 
+#define RFLAGS	0x0202
+
 // Rounds up [n] to the nearest [multiple]
 #define ROUND_UP(n, multiple)	((n) % (multiple) == 0 ? (n) : (n) - (n) % (multiple) + (multiple))
 

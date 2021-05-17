@@ -8,9 +8,8 @@
 
 #pragma once
 
-
 // Enable system call extensions and sets the STAR
 void syscall_enable();
 
 // Enters [code] with [stack] in usermode
-void syscall_goto_userspace(void* code, void* stack);
+void syscall_goto_userspace(void* code, void* stack) __attribute__((deprecated));

@@ -11,18 +11,19 @@ EXTERN	g_isr_handlers
 EXTERN	local_apic_eoi
 
 %macro	ISR_DEFINE	2
-	GLOBAL	isr%1
-	isr%1:
+	%assign	ISR_NUM	%1
+	GLOBAL	isr%+ISR_NUM
+	isr%+ISR_NUM:
 		cli
 		%if	%2 == 0
 			push	QWORD 0				; push for so the stack size is consistent
 		%endif
 		PUSH_REG
-		mov		rax, [g_isr_handlers + 8 * %1]
+		mov		rax, [g_isr_handlers + 8 * ISR_NUM]
 		cmp		rax, 0					; avoid null handlers
 		jz		%%.finish
 		mov		rdi, rsp				; we'll create a struct out of the stack pointer
-		mov		rsi, %1
+		mov		rsi, ISR_NUM
 		call	rax
 		%%.finish:
 			POP_REG
@@ -30,7 +31,8 @@ EXTERN	local_apic_eoi
 			sti
 			iretq
 %endmacro
-%macro	ISR_IRQ_DEFINE	1
+
+%macro	ISR_DEFINE_IRQ	1
 	%assign	ISR_NUM	%1
 	GLOBAL	isr%+ISR_NUM
 	isr%+ISR_NUM:
@@ -45,6 +47,13 @@ EXTERN	local_apic_eoi
 		%%.finish:
 			POP_REG
 			iretq
+%endmacro
+
+%macro	ISR_DEFINE_DIRECT	1
+	%assign	ISR_NUM	%1
+	GLOBAL	isr%+ISR_NUM
+	isr%+ISR_NUM:
+		jmp	[g_isr_handlers + 8 * ISR_NUM]
 %endmacro
 
 SECTION .text
@@ -72,21 +81,21 @@ ISR_DEFINE	14, 1	; Page Fault Exception
 ;ISR_DEFINE	20, 0	; Virtualization Exception
 ;ISR_DEFINE	30, 1	; Security Exception
 ; Interrupt requests
-ISR_IRQ_DEFINE	32	; PIT
-ISR_IRQ_DEFINE	33	; Keyboard Interrupt
-;ISR_IRQ_DEFINE	34	; Cascade
-ISR_IRQ_DEFINE	35	; COM2
-ISR_IRQ_DEFINE	36	; COM1
-ISR_IRQ_DEFINE	37	; LPT2
-ISR_IRQ_DEFINE	38	; Floppy disk
-ISR_IRQ_DEFINE	39	; LPT (spurious interrupt)
-ISR_IRQ_DEFINE	40	; CMOS
-ISR_IRQ_DEFINE	41	; Peripherals 1 (legacy SCSI/NIC)
-ISR_IRQ_DEFINE	42	; Peripherals 2 (SCSI/NIC)
-ISR_IRQ_DEFINE	43	; Peripherals 3 (SCSI/NIC)
-ISR_IRQ_DEFINE	44	; PS2 Mouse
-ISR_IRQ_DEFINE	45	; Coprocessor/interprocessor
-ISR_IRQ_DEFINE	46	; Primary ATA Hard disk
-ISR_IRQ_DEFINE	47	; Secondary ATA Hard disk
+ISR_DEFINE_IRQ	32	; PIT
+ISR_DEFINE_IRQ	33	; Keyboard Interrupt
+;ISR_DEFINE_IRQ	34	; Cascade
+ISR_DEFINE_IRQ	35	; COM2
+ISR_DEFINE_IRQ	36	; COM1
+ISR_DEFINE_IRQ	37	; LPT2
+ISR_DEFINE_IRQ	38	; Floppy disk
+ISR_DEFINE_IRQ	39	; LPT (spurious interrupt)
+ISR_DEFINE_IRQ	40	; CMOS
+ISR_DEFINE_IRQ	41	; Peripherals 1 (legacy SCSI/NIC)
+ISR_DEFINE_IRQ	42	; Peripherals 2 (SCSI/NIC)
+ISR_DEFINE_IRQ	43	; Peripherals 3 (SCSI/NIC)
+ISR_DEFINE_IRQ	44	; PS2 Mouse
+ISR_DEFINE_IRQ	45	; Coprocessor/interprocessor
+ISR_DEFINE_IRQ	46	; Primary ATA Hard disk
+ISR_DEFINE_IRQ	47	; Secondary ATA Hard disk
 ; Custom LVT IRQs
-ISR_IRQ_DEFINE	48	; Timer
+ISR_DEFINE_DIRECT	48	; Timer
