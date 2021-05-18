@@ -27,6 +27,7 @@ GLOBAL	cpu_init_ap
 cpu_init_ap:
 	push	rbp
 	mov		rbp, rsp
+	mov		QWORD [rdi + CPUContext.stack_kernel], rsi
 	jmp		cpu_init_common
 
 cpu_init_common:	; rdi=[cpu_context]

@@ -12,8 +12,6 @@
 #include "memory/memory.h"
 #include "module.h"
 
-#define STIVALE2_STACK_PAGES	1
-
 // *** Miscellaneous datatypes *** //
 
 enum Stivale2HeaderTagIdentifier {

@@ -13,10 +13,11 @@
 struc	CPUContext
 	.local_apic_id:		resb	1
 	.reserved:			resb	3
-	.rsp_kernel:		resq	1
 	.rsp_userspace:		resq	1
 	.gdt_block:			resq	1
 	.idt_block:			resq	1
+	.stack_kernel:		resq	1
+	.stack_isr:			resq	1
 	.stack_irq:			resq	1
 	.stack_timer:		resq	1
 endstruc

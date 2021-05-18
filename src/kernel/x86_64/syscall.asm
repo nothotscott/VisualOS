@@ -69,12 +69,12 @@ syscall_goto_userspace:	; rdi=[code], rsi=[stack]
 	cli
 	; Save kernel stack
 	swapgs											; load in the KernelGSBase CPU context
-	mov		QWORD [gs:CPUContext.rsp_kernel], rsp	; save the kernel stack
+	mov		QWORD [gs:CPUContext.stack_kernel], rsp	; save the kernel stack
 	push	rsi										; save the soon-to-be userspace stack
 	push 	rdi										; save the soon-to-be userspace code
 	mov		rdi, [gs:CPUContext.gdt_block]
 	mov		rsi, 0
-	mov		rdx, [gs:CPUContext.rsp_kernel]
+	mov		rdx, [gs:CPUContext.stack_kernel]
 	call	gdt_set_tss_ring
 	swapgs											; restore GS state
 	; Enter into userspace
@@ -88,7 +88,7 @@ syscall_entry:
 	; Save and switch context
 	swapgs															; load in the KernelGSBase CPU context
 	mov		QWORD [gs:CPUContext.rsp_userspace], rsp				; save userspace stack
-	mov		rsp, [gs:CPUContext.rsp_kernel]							; load kernel stack
+	mov		rsp, [gs:CPUContext.stack_kernel]						; load kernel stack
 	SYSCALL_SAVE
 	push	r11
 	push	rcx

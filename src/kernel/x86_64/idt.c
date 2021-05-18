@@ -21,6 +21,8 @@ void idt_init(struct IDTBlock* idt_block) {
 	idt_block->idt_descriptor.base = idt_block->idt;
 	// Internal ISRs
 	IDT_SET_ISR(8);
+	IDT_SET_ISR(10);
+	IDT_SET_ISR(11);
 	IDT_SET_ISR(13);
 	IDT_SET_ISR(14);
 	// IRQs

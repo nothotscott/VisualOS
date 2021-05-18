@@ -13,9 +13,9 @@
 #define IDT_TYPE_PRESENT	0b1
 #define IDT_TYPE_PRIVILEGE	0b00
 
-#define IDT_IST_ISR		0
-#define IDT_IST_IRQ		1
-#define IDT_IST_TIMER	2
+#define IDT_IST_ISR		1
+#define IDT_IST_IRQ		2
+#define IDT_IST_TIMER	3
 
 enum IDTGateType {
 	IDT_TYPE_GATE_INTERRUPT	= 0b1110,

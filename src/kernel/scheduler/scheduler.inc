@@ -17,7 +17,6 @@ struc	SchedulerNode
 	.context_frame:
 		.context_frame_general:			resq	SCHEDULER_CONTEXT_FRAME_GENERAL_NUM
 		.context_frame_interrupt:		resq	SCHEDULER_CONTEXT_FRAME_INTERRUPT_NUM
-		.context_frame_interrupt_end:
 		.context_frame_self:			resq	1
 	.context_frame_end:
 	.context_flags:						resq	1

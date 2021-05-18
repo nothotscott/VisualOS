@@ -16,7 +16,7 @@ EXTERN	log_default
 
 SECTION	.data
 
-string:	db "hi",10,0
+string:	db "rip: 0x%x",10,0
 
 SECTION	.text
 
@@ -24,6 +24,7 @@ GLOBAL	timer_handler
 timer_handler:
 	PUSH_REG
 	mov		rbp, rsp
+	cld
 	; Set kernel data segments
 	mov		ax, GDT_OFFSET_KERNEL_DATA
 	mov		ds, ax
@@ -34,12 +35,13 @@ timer_handler:
 	cmp		rbx, 0
 	je		.next
 	; Copy context
-	std																										; move backwards
-	mov		rdi, [rbp + SCHEDULER_CONTEXT_FRAME_OFFSET(SchedulerNode.context_frame_interrupt_end)]			; the destination is the context frame
-	mov		rax, rbp																						; the source is the current stack
+	lea		rsi, [rbp + SchedulerNode.context_frame]														; the source is the stack
+	lea		rdi, [rbx + SchedulerNode.context_frame]														; the destination is the self's context frame
 	mov		rcx, SCHEDULER_CONTEXT_FRAME_COPY_NUM															; number of times to repeat
-	rep stosq
-	cld
+	.copy:
+		lodsq
+		stosq
+		loop	.copy
 	.next:
 		mov		rdi, rbx
 		call	scheduler_next_task
@@ -49,10 +51,10 @@ timer_handler:
 		lea		rbp, [rax + SchedulerNode.context_frame]													; save the context frame's stack
 		WRITE_GSBASE	rax																					; save the context to GSBase
 	.exit:
-		call	local_apic_eoi
 		mov		rax, [rbp + SCHEDULER_CONTEXT_FRAME_OFFSET(SchedulerNode.context_frame_interrupt + 0x20)]	; get ss
 		mov		ds, ax																						; set other segments to ss
 		mov		es, ax
+		call	local_apic_eoi
 		mov		rsp, rbp
 		POP_REG
 		iretq

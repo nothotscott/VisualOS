@@ -105,6 +105,7 @@ trampoline_longmode:
 	mov		rbp, 0					; null base pointer for stack unwinding
 	; Continue BSP initialization
 	mov		rdi, QWORD [ebx + OFFSET_REL(trampoline_data.ap_context)]
+	mov		rsi, QWORD [ebx + OFFSET_REL(trampoline_data.stack_ptr)]
 	push	rbx
 	call	QWORD [ebx + OFFSET_REL(trampoline_data.cpu_init_ap)]
 	pop		rbx

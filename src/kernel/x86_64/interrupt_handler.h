@@ -16,6 +16,10 @@
 
 // ISR 8
 void double_fault_handler(struct InterruptStack* stack, size_t num);
+// ISR 10
+void tss_fault_handler(struct InterruptStack* stack, size_t num);
+// ISR 11
+void segment_fault_handler(struct InterruptStack* stack, size_t num);
 // ISR 13
 void general_protection_fault_handler(struct InterruptStack* stack, size_t num);
 // ISR 14

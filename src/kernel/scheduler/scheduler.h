@@ -68,7 +68,7 @@ struct SchedulerNode* scheduler_next_task(struct SchedulerNode* current);
 // Adds the task with [initial_state] to the queue of [queue_num]
 struct SchedulerNode* scheduler_add_task(struct SchedulerTaskInitialState* initial_state, enum SchedulerQueueNumber queue_num);
 // Adds a task with default initial state and [entry] start point into the queue of [queue_num]
-struct SchedulerNode* scheduler_add_task_default(void* entry, enum SchedulerQueueNumber queue_num);
+struct SchedulerNode* scheduler_add_task_default(void* entry, size_t code_pages, enum SchedulerQueueNumber queue_num);
 
 
 // *** From scheduler.asm *** //

@@ -69,22 +69,23 @@ struct SchedulerNode* scheduler_add_task(struct SchedulerTaskInitialState* initi
 	_scheduler_enqueue_task(node, s_queues + queue_num);
 	return node;
 }
-struct SchedulerNode* scheduler_add_task_default(void* entry, enum SchedulerQueueNumber queue_num) {
+struct SchedulerNode* scheduler_add_task_default(void* entry, size_t code_pages, enum SchedulerQueueNumber queue_num) {
 	size_t stack_size = DEFAULT_STACK_PAGES * MEMORY_PAGE_SIZE;
 	void* stack = pageframe_request_pages(DEFAULT_STACK_PAGES);
 	paging_identity_map(stack, stack_size);
+	for(size_t i = 0; i < DEFAULT_STACK_PAGES; i++){
+		paging_set_userspace_access(stack + (i * MEMORY_PAGE_SIZE), true);
+	}
 	paging_set_userspace_access(stack, true);
-	struct SchedulerNode* node = malloc(sizeof(struct SchedulerNode));
-	*node = (struct SchedulerNode){
-		.queue_num = queue_num,
-		.context.context_frame.rip = (uint64_t)entry,
-		.context.context_frame.cs = GDT_OFFSET_USER_CODE | DEFAULT_RPL,
-		.context.context_frame.rflags = RFLAGS,
-		.context.context_frame.rsp = (uint64_t)stack + stack_size,
-		.context.context_frame.ss = GDT_OFFSET_USER_DATA | DEFAULT_RPL
+	for(size_t i = 0; i < code_pages; i++){
+		paging_set_userspace_access(entry + (i * MEMORY_PAGE_SIZE), true);
+	}
+	struct SchedulerTaskInitialState default_state = (struct SchedulerTaskInitialState){
+		.entry = entry,
+		.stack = stack + stack_size,
+		.rpl = DEFAULT_RPL
 	};
-	_scheduler_enqueue_task(node, s_queues + queue_num);
-	return node;
+	return scheduler_add_task(&default_state, queue_num);
 }
 
 // TODO thread safety
@@ -113,7 +114,9 @@ __attribute__((hot)) struct SchedulerNode* scheduler_next_task(struct SchedulerN
 			node = node->next;
 		}
 	}
-	if(next == NULL) {
+	if(next != NULL) {
+		next->context.flags |= 1 << SCHEDULER_CONTEXT_FLAG_LOCKED;
+	} else {
 		next = &s_idle_node;
 	}
 	exit:

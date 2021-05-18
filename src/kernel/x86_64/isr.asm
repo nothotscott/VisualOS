@@ -69,8 +69,8 @@ SECTION .text
 ;ISR_DEFINE	7, 0	; No Coprocessor Exception
 ISR_DEFINE	8, 1	; Double Fault Exception
 ;ISR_DEFINE	9, 0	; Coprocessor Segment Overrun Exception
-;ISR_DEFINE	10, 1	; Invalid Task State Segment
-;ISR_DEFINE	11, 1	; Segment Not Present Exception
+ISR_DEFINE	10, 1	; Invalid Task State Segment
+ISR_DEFINE	11, 1	; Segment Not Present Exception
 ;ISR_DEFINE	12, 1	; Stack Fault Exception
 ISR_DEFINE	13, 1	; General Protection Fault Exception
 ISR_DEFINE	14, 1	; Page Fault Exception

@@ -28,14 +28,14 @@ static const char s_keyboard_scancodes[] ={
 
 // *** Exceptions *** //
 
-static void stack_trace_callbackee(size_t frame_num, uint64_t rip) {
+static void _stack_trace_callbackee(size_t frame_num, uint64_t rip) {
 	char* symbol_str;
 	char* section_str;
 	symbol_lookup((void*)rip, &symbol_str, &section_str);
 	log_options((struct LogOptions){LOG_TYPE_ERROR, true}, "  %s:%s\n", section_str, symbol_str);
 }
 
-static inline void general_handler(struct InterruptErrorStack* stack, size_t num, char* fault_type) {
+static inline void _general_handler(struct InterruptErrorStack* stack, size_t num, char* fault_type) {
 	char* symbol_str;
 	char* section_str;
 	symbol_lookup((void*)stack->rip, &symbol_str, &section_str);
@@ -43,21 +43,31 @@ static inline void general_handler(struct InterruptErrorStack* stack, size_t num
 		fault_type, cpuid_get_local_apic_id(), stack->error_code, stack->rip, stack->rsp, stack->general.rbp, section_str
 	);
 	log_options((struct LogOptions){LOG_TYPE_ERROR, true}, "STACK TRACE:\n  %s:%s\n", section_str, symbol_str);
-	unwind(stack->general.rbp, stack_trace_callbackee);
+	unwind(stack->general.rbp, _stack_trace_callbackee);
 }
 
 void double_fault_handler(struct InterruptStack* stack, size_t num) {
-	general_handler((struct InterruptErrorStack*)stack, num, "DOUBLE FAULT");
+	_general_handler((struct InterruptErrorStack*)stack, num, "DOUBLE FAULT");
+	while(true);
+}
+
+void tss_fault_handler(struct InterruptStack* stack, size_t num) {
+	_general_handler((struct InterruptErrorStack*)stack, num, "INVALID TASK STATE SEGMENT");
+	while(true);
+}
+
+void segment_fault_handler(struct InterruptStack* stack, size_t num) {
+	_general_handler((struct InterruptErrorStack*)stack, num, "SEGMENT NOT PRESENT EXCEPTION");
 	while(true);
 }
 
 void general_protection_fault_handler(struct InterruptStack* stack, size_t num) {
-	general_handler((struct InterruptErrorStack*)stack, num, "GENERAL PROTECTION FAULT");
+	_general_handler((struct InterruptErrorStack*)stack, num, "GENERAL PROTECTION FAULT");
 	while(true);
 }
 
 void paging_fault_handler(struct InterruptStack* stack, size_t num) {
-	general_handler((struct InterruptErrorStack*)stack, num, "PAGE FAULT");
+	_general_handler((struct InterruptErrorStack*)stack, num, "PAGE FAULT");
 	while(true);
 }
 

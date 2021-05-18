@@ -82,16 +82,9 @@ void setup_smp() {
 
 extern void test_userspace();
 
-extern void test_userspace2();
-
 void setup_tasks() {
 	// TODO load up some modules for the scheduler
-	//scheduler_add_task_default(test_userspace2, SCHEDULER_QUEUE_PRIORITY);
-	struct SchedulerTaskInitialState test_state = (struct SchedulerTaskInitialState){
-		.entry = test_userspace2,
-		.rpl = 3
-	};
-	//scheduler_add_task(&test_state, SCHEDULER_QUEUE_PRIORITY);
+	scheduler_add_task_default(test_userspace, 1, SCHEDULER_QUEUE_PRIORITY);
 }
 
 // *** ORDERED SETUP FUNCTIONS *** //
