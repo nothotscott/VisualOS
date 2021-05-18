@@ -26,6 +26,7 @@
 #include "x86_64/apic/madt.h"
 #include "x86_64/apic/local_apic.h"
 #include "x86_64/syscall.h"
+#include "scheduler/scheduler.h"
 
 
 // *** PRE BSP INIT *** //
@@ -72,6 +73,27 @@ void setup_interrupt_prep() {
 	ioapic_set_from_isrs();
 }
 
+// *** POST BSP INIT *** //
+
+void setup_smp() {
+	local_apic_start_smp();
+	ioapic_entry_set_mask(32, IOAPIC_REDIRECTION_ENTRY_MASK_DISABLE);
+}
+
+extern void test_userspace();
+
+extern void test_userspace2();
+
+void setup_tasks() {
+	// TODO load up some modules for the scheduler
+	//scheduler_add_task_default(test_userspace2, SCHEDULER_QUEUE_PRIORITY);
+	struct SchedulerTaskInitialState test_state = (struct SchedulerTaskInitialState){
+		.entry = test_userspace2,
+		.rpl = 3
+	};
+	//scheduler_add_task(&test_state, SCHEDULER_QUEUE_PRIORITY);
+}
+
 // *** ORDERED SETUP FUNCTIONS *** //
 
 void setup_pre() {
@@ -88,7 +110,8 @@ void setup_pre() {
 }
 
 void setup_post() {
-	local_apic_start_smp();
-	ioapic_entry_set_mask(32, IOAPIC_REDIRECTION_ENTRY_MASK_DISABLE);
+	setup_smp();
 	log_default("Setup SMP\n");
+	setup_tasks();
+	//log_default("Setup tasks\n");
 }

@@ -17,12 +17,18 @@ test_userspace:
 	mov		rdx, 17
 	syscall
 	
+	jmp		$
+
 	; Exit syscall test
 	mov		rax, 60
 	mov		rdi, 0
 	syscall
 
 	jmp		$
+
+GLOBAL	test_userspace2
+test_userspace2:
+	jmp	$
 
 test_userspace_data:
 	db "Hello, userspace", 10,0

@@ -5,6 +5,7 @@
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+%include "scheduler/scheduler.inc"
 %include "cpu.inc"
 
 EXTERN	gdt_set_tss_ring
@@ -46,10 +47,10 @@ EXTERN	sys_exit
 GLOBAL	syscall_enable
 syscall_enable:
 	; Load handler RIP into LSTAR MSR
+	mov		rcx, 0xc0000082
 	mov		rax, syscall_entry
 	mov		rdx, rax
-	shr		rdx, 0x20
-	mov		rcx, 0xc0000082
+	shr		rdx, 32
 	wrmsr
 	; Enable syscall / sysret instruction
 	mov		rcx, 0xc0000080
@@ -67,7 +68,7 @@ GLOBAL	syscall_goto_userspace
 syscall_goto_userspace:	; rdi=[code], rsi=[stack]
 	cli
 	; Save kernel stack
-	swapgs											; load in the CPU context
+	swapgs											; load in the KernelGSBase CPU context
 	mov		QWORD [gs:CPUContext.rsp_kernel], rsp	; save the kernel stack
 	push	rsi										; save the soon-to-be userspace stack
 	push 	rdi										; save the soon-to-be userspace code
@@ -85,18 +86,18 @@ syscall_goto_userspace:	; rdi=[code], rsi=[stack]
 
 syscall_entry:
 	; Save and switch context
-	swapgs												; load in the CPU context from the kernel GS
-	mov		QWORD [gs:CPUContext.rsp_userspace], rsp	; save userspace stack
-	mov		rsp, [gs:CPUContext.rsp_kernel]				; load kernel stack
+	swapgs															; load in the KernelGSBase CPU context
+	mov		QWORD [gs:CPUContext.rsp_userspace], rsp				; save userspace stack
+	mov		rsp, [gs:CPUContext.rsp_kernel]							; load kernel stack
 	SYSCALL_SAVE
 	push	r11
 	push	rcx
 	; Get syscall handler and call the routine
 	mov		rdi, rax
 	call	syshandler_get
-	mov		rbx, rax									; save the function pointer
-	mov		rcx, r10									; syscall's 4th param and System V abi's 4th param are the only misaligned parameters
-	call	rbx											; call the returned function pointer
+	mov		rbx, rax												; save the function pointer
+	mov		rcx, r10												; syscall's 4th param and System V abi's 4th param are the only misaligned parameters
+	call	rbx														; call the returned function pointer
 	; Restore state-sensitive information and exit
 	pop		rcx
 	pop		r11
@@ -105,10 +106,12 @@ syscall_entry:
 	je		.kernel_exit
 	.sysret_exit:
 		SYSCALL_RESTORE
-		mov		rsp, [gs:CPUContext.rsp_userspace]		; load userspace stack (no need to save the kernel stack)
-		swapgs											; restore userspace GS
+		mov		rsp, [gs:CPUContext.rsp_userspace]					; load userspace stack (no need to save the kernel stack)
+		swapgs														; restore userspace GS
 		o64	sysret
 	.kernel_exit:
 		SYSCALL_RESTORE
-		swapgs
-		ret
+		swapgs														; swap back to GSBase
+		or		QWORD [gs:SchedulerNode.context_flags], 0b10		; finished flag
+		mov		QWORD [gs:SchedulerNode.context_error_code], rdi	; error code
+		hlt

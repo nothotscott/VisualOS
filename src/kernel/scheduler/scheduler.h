@@ -10,25 +10,68 @@
 
 #include "x86_64/isr.h"
 
+#define SCHEDULER_QUEUES_NUM	_SCHEDULER_QUEUES_NUM
+
 struct Process {
 	uint64_t	id;
-};
+} __attribute__((packed));
+
+struct Thread {
+	uint64_t	tid;
+	void*		parent;
+} __attribute__((packed));
 
 struct SchedulerContextFrame {
-	uint64_t	rax, rbx, rcx, rdx, rsi, rdi, rbp, r8, r9, r10, r11, r12, r13, r14, r15;
+	struct SchedulerContextFrameRegisters {
+		uint64_t	rax, rbx, rcx, rdx, rsi, rdi, rbp, r8, r9, r10, r11, r12, r13, r14, r15;
+	}			general;
 	uint64_t	rip, cs, rflags, rsp, ss;
 	uint64_t	self;
-};
+} __attribute__((packed));
 struct SchedulerContext {
 	struct SchedulerContextFrame	context_frame;
+	uint64_t						flags;
+	uint64_t						error_code;
 	// Not needed in assembly past this point
-	struct Process					task;
+	struct Thread					task;
 } __attribute__((packed));
 
 struct SchedulerNode {
 	struct SchedulerContext	context;
-	struct SchedulerTask*	next;
+	size_t					queue_num;
+	struct SchedulerNode*	previous;
+	struct SchedulerNode*	next;
+} __attribute__((packed));
+
+
+struct SchedulerTaskInitialState {
+	struct SchedulerContextFrameRegisters	general;	// general purpose registers
+	void*									entry;		// start point
+	void*									stack;		// initial stack pointer
+	uint8_t									rpl;		// requested privilege level
 };
+
+enum SchedulerQueueNumber {
+	SCHEDULER_QUEUE_PRIORITY,
+	SCHEDULER_QUEUE_REGULAR,
+	_SCHEDULER_QUEUES_NUM
+};
+
+enum SchedulerContextFlagBits {
+	SCHEDULER_CONTEXT_FLAG_LOCKED	= 1,
+	SCHEDULER_CONTEXT_FLAG_FINISHED	= 0,
+};
+
+// Gets the next task and advances the task ring
+struct SchedulerNode* scheduler_next_task(struct SchedulerNode* current);
+
+// Adds the task with [initial_state] to the queue of [queue_num]
+struct SchedulerNode* scheduler_add_task(struct SchedulerTaskInitialState* initial_state, enum SchedulerQueueNumber queue_num);
+// Adds a task with default initial state and [entry] start point into the queue of [queue_num]
+struct SchedulerNode* scheduler_add_task_default(void* entry, enum SchedulerQueueNumber queue_num);
+
+
+// *** From scheduler.asm *** //
 
 // Begins scheduling tasks to the processor calling this
 // There is no going back once the scheduler has been entered
@@ -36,6 +79,3 @@ void scheduler_entry();
 
 // Causes the processor to halt until it's interrupted
 void scheduler_idle();
-
-// Gets the next task and advances the task ring
-struct SchedulerContext* scheduler_next_task(struct SchedulerContext* context);

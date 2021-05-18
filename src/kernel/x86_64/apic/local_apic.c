@@ -54,7 +54,9 @@ void local_apic_start_smp() {
 	// INIT each AP
 	size_t processors_num = madt_get_info()->processors_num;
 	size_t cpu_context_size = ROUND_UP(sizeof(struct CPUContext), LOCAL_APIC_AP_CPU_CONTEXT_ALIGNMENT);
-	void* ap_contexts = pageframe_request_pages(NEAREST_PAGE(cpu_context_size * (processors_num - 1)));
+	size_t ap_context_pages = NEAREST_PAGE(cpu_context_size * (processors_num - 1));
+	void* ap_contexts = pageframe_request_pages(ap_context_pages);
+	paging_identity_map(ap_contexts, ap_context_pages * MEMORY_PAGE_SIZE);
 	size_t ai = 0;	// adjusted i
 	for(size_t i = 0; i < processors_num; i++) {
 		struct LocalAPICProcessor* processor = madt_get_info()->processors + i;
@@ -124,6 +126,8 @@ void local_apic_start_smp() {
 		// Finish this iteration
 		ai++;
 	}
+	// Free AP contexts
+	pageframe_free(ap_contexts, ap_context_pages);
 }
 
 void local_apic_start_lints() {

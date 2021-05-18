@@ -4,6 +4,7 @@ ENTRY(kernel_start_default)
 
 SECTIONS {
 	. = 2M;
+	/* . = 0xffffffff80000000 + 2M; */
 	_kernel_start = .;
 
     .stivale2hdr : {

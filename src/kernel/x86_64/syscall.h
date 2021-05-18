@@ -12,4 +12,5 @@
 void syscall_enable();
 
 // Enters [code] with [stack] in usermode
+// This function is deprecated, use the scheduler instead
 void syscall_goto_userspace(void* code, void* stack) __attribute__((deprecated));

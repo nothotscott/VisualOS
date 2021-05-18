@@ -47,16 +47,11 @@ void cpu_allocate(struct CPUContext* cpu_context) {
 	cpu_context->stack_irq = _cpu_allocate_stack(CPU_STACK_PAGES_IRQ, false);
 	cpu_context->stack_timer = _cpu_allocate_stack(CPU_STACK_PAGES_TIMER, true);
 	cpu_context->stack_timer -= 16;	// stack must be 16-byte aligned for some reason
-	//*(uint64_t*)(cpu_context->stack_timer) = 0x123;
-	log_default("stack: 0x%x\n", cpu_context->stack_timer);
 }
 
 struct CPUContext* cpu_get_bsp() {
 	return &s_cpu_bsp;
 }
-
-#include "syscall.h"
-extern void test_userspace();
 
 void cpu_init(struct CPUContext* cpu_context) {
 	cpu_allocate(cpu_context);
@@ -77,10 +72,4 @@ void cpu_init(struct CPUContext* cpu_context) {
 	//paging_setup_pat();
 	syscall_enable();
 	log_default("Processor %d successfully initialized\n", cpu_context->local_apic_id);
-
-	void* userspace_stack = pageframe_request();
-	paging_identity_map(userspace_stack, MEMORY_PAGE_SIZE);
-	paging_set_userspace_access(test_userspace, true);
-	paging_set_userspace_access(userspace_stack, true);
-	syscall_goto_userspace(test_userspace, userspace_stack + MEMORY_PAGE_SIZE);
 }
