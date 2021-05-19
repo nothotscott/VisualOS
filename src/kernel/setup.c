@@ -45,7 +45,8 @@ void setup_memory() {
 	// TODO reserve framebuffer shadow buffer here
 	paging_init();
 	paging_load();
-	paging_identity_map(framebuffer->base, framebuffer_size);
+	paging_identity_map_size(framebuffer->base, framebuffer_size);
+	paging_set_writable_size(framebuffer->base, framebuffer_size);
 }
 
 void setup_debugging() {

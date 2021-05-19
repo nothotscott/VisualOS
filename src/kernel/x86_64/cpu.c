@@ -32,10 +32,8 @@ static struct CPUContext s_cpu_bsp = {
 	.stack_kernel = (void*)g_bsp_stack + sizeof(g_bsp_stack)
 };
 
-
 static inline void* _cpu_allocate_stack(size_t pages, bool clear) {
 	void* stack = pageframe_request_pages(pages);
-	paging_identity_map(stack, pages * MEMORY_PAGE_SIZE);
 	if(clear){
 		memset(stack, 0, pages * MEMORY_PAGE_SIZE);
 	}
@@ -45,8 +43,6 @@ void cpu_allocate(struct CPUContext* cpu_context) {
 	// Blocks
 	struct GDTBlock* gdt_block = pageframe_request_pages(NEAREST_PAGE(sizeof(struct GDTBlock)));
 	struct IDTBlock* idt_block = &s_shared_idt;
-	paging_identity_map(gdt_block, sizeof(struct GDTBlock));
-	paging_identity_map(idt_block, sizeof(struct IDTBlock));
 	cpu_context->gdt_block = gdt_block;
 	cpu_context->idt_block = idt_block;
 	// Stacks
@@ -61,6 +57,7 @@ void cpu_init(struct CPUContext* cpu_context) {
 	bool is_bsp = cpu_context->local_apic_id == s_cpu_bsp.local_apic_id;
 	// Setup GDT
 	gdt_init(cpu_context->gdt_block);
+	gdt_set_tss_ring(cpu_context->gdt_block, 0, cpu_context->stack_kernel);
 	gdt_set_tss_ist(cpu_context->gdt_block, IDT_IST_ISR, cpu_context->stack_isr);
 	gdt_set_tss_ist(cpu_context->gdt_block, IDT_IST_IRQ, cpu_context->stack_irq);
 	gdt_set_tss_ist(cpu_context->gdt_block, IDT_IST_TIMER, cpu_context->stack_timer);

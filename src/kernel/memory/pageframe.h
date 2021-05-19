@@ -14,7 +14,6 @@
 
 #define PAGEFRAME_INITIAL_RESERVE_PAGES	256
 
-
 // Initalizes pageframes by discovering useable memory segments passed by the bootloader
 void pageframe_init();
 
@@ -26,16 +25,16 @@ bool pageframe_manipulate(uint64_t index, bool state);
 void* pageframe_request();
 void* pageframe_request_pages(size_t pages);
 
-// Free pages at [address] and thereafter [pages] times and track used
-void pageframe_free(void* address, size_t pages);
+// Free pages at [virtual_address] and thereafter [pages] times and track used
+void pageframe_free(void* physical_address, size_t pages);
 
-// Make pages in-use at [address] and therafter [pages] times and track used
-void pageframe_lock(void* address, size_t pages);
+// Make pages in-use at [physical_address] and therafter [pages] times and track used
+void pageframe_lock(void* physical_address, size_t pages);
 
-// Free pages at [address] and thereafter [pages] times and track reserved
-void pageframe_unreserve(void* address, size_t pages);
+// Free pages at [physical_address] and thereafter [pages] times and track reserved
+void pageframe_unreserve(void* physical_address, size_t pages);
 
-// Make pages in-use at [address] and therafter [pages] times and track reserved
-void pageframe_reserve(void* address, size_t pages);
-// Shortcut for reserving a page at [address] of [size]
-void pageframe_reserve_size(void* address, size_t size);
+// Make pages in-use at [physical_address] and therafter [pages] times and track reserved
+void pageframe_reserve(void* physical_address, size_t pages);
+// Shortcut for reserving a page at [physical_address] of [size]
+void pageframe_reserve_size(void* physical_address, size_t size);

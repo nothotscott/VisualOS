@@ -3,29 +3,36 @@ ENTRY(kernel_start_default)
 
 
 SECTIONS {
-	. = 2M;
-	/* . = 0xffffffff80000000 + 2M; */
+	_virtual_base = 0xffffffff80000000;
+	. = _virtual_base + 2M;
 	_kernel_start = .;
-
-    .stivale2hdr : {
-        KEEP(*(.stivale2hdr))
-    }
-
+	
+	.stivale2hdr : {
+		KEEP(*(.stivale2hdr))
+	}
 	.text : ALIGN(4K)
 	{
 		*(.text)
 		*(.text.rel) *(.text.rel.*)
 	}
-	.data :
+	.rodata : ALIGN(4K)
 	{
-		*(.data .data.*) *(.rodata .rodata.*)
+		*(.rodata .rodata.*)
 	}
+
+	_kernel_writable_start = .;
 	.bss : ALIGN(4K)
 	{
 		*(COMMON)
 		*(.bss .bss.*)
 		*(.bss.rel .bss.rel.*)
 	}
+	.data : ALIGN(4K)
+	{
+		*(.data .data.*)
+	}
+	_kernel_writable_end = .;
+
 	_kernel_end = .;
 	/DISCARD/ : { *(.eh_frame) }
 }

@@ -22,11 +22,11 @@ static struct SymbolTableInformation s_symbol_table;
 
 void symbol_init() {
 	struct ELF64Header* header = bootloader_get_info()->kernel_header;
-	MEMORY_MAP_RESERVE(header, header->e_ehsize);
+	pageframe_reserve_size(header, header->e_ehsize);
 	struct ELF64SectionHeader* section_headers = (struct ELF64SectionHeader*)((void*)header + header->e_shoff);
 	size_t section_headers_num = header->e_shnum;
 	size_t section_string_index = header->e_shstrndx;
-	MEMORY_MAP_RESERVE(section_headers, section_headers_num * header->e_shentsize);
+	pageframe_reserve_size(section_headers, section_headers_num * header->e_shentsize);
 	s_symbol_table.section_headers = section_headers;
 	s_symbol_table.section_headers_num = section_headers_num;
 	// Get the symbol table info
@@ -35,13 +35,13 @@ void symbol_init() {
 		if(section_header->sh_type == ELF_SECTION_HEADER_TYPE_SYMTAB) {
 			void* symbol_table = ((void*)header + section_header->sh_offset);
 			size_t symbol_table_entries_num = section_header->sh_size / section_header->sh_entsize;
-			MEMORY_MAP_RESERVE(symbol_table, section_header->sh_size);
+			pageframe_reserve_size(symbol_table, section_header->sh_size);
 			s_symbol_table.symbol_entries = symbol_table;
 			s_symbol_table.symbol_entries_num = symbol_table_entries_num;
 		} else if(section_header->sh_type == ELF_SECTION_HEADER_TYPE_STRTAB) {
 			void* string_table = ((void*)header + section_header->sh_offset);
 			size_t string_table_size = section_header->sh_size;
-			MEMORY_MAP_RESERVE(string_table, string_table_size);
+			pageframe_reserve_size(string_table, string_table_size);
 			if(section_string_index == i) {
 				//log_default("Section string table located, offset: 0x%x\n", section_header->sh_offset);
 				s_symbol_table.section_strings = string_table;
@@ -64,7 +64,6 @@ void symbol_init() {
 	}
 	size_t symbol_map_size = symbol_map_num * sizeof(struct SymbolMap);
 	struct SymbolMap* symbol_map = pageframe_request_pages(NEAREST_PAGE(symbol_map_size));
-	paging_identity_map(symbol_map, symbol_map_size);
 	// Filter and order symbol map (insertion sort)
 	size_t ai = 0;	// adjusted i
 	for(size_t i = 0; i < s_symbol_table.symbol_entries_num; i++) {

@@ -5,6 +5,7 @@
  * Check the LICENSE file that came with this program for licensing terms
  */
 
+#include "bootloader.h"
 #include "bitmap.h"
 #include "memory.h"
 #include "paging.h"
@@ -55,7 +56,7 @@ void pageframe_init() {
 	// Lock kernel space
 	size_t kernel_size = (size_t)&_kernel_end - (size_t)&_kernel_start;
 	size_t kernel_pages = NEAREST_PAGE(kernel_size);
-	pageframe_lock(&_kernel_start, kernel_pages);
+	pageframe_lock(PHYSICAL_ADDRESS(&_kernel_start), kernel_pages);
 	// Reserve first 256 pages
 	pageframe_reserve(0, PAGEFRAME_INITIAL_RESERVE_PAGES);
 }
@@ -93,7 +94,7 @@ void* pageframe_request_pages(size_t pages) {
 		not_free:
 			continue;
 		exit: {
-			void* page = (void*)(s_current_index * MEMORY_PAGE_SIZE);	// transform the index into the page address
+			void* page = (void*)(s_current_index * MEMORY_PAGE_SIZE);	// transform the index into the physical page address
 			s_current_index += pages;
 			pageframe_lock(page, pages);
 			return page;
@@ -102,8 +103,8 @@ void* pageframe_request_pages(size_t pages) {
 	return NULL;
 }
 
-void pageframe_free(void* address, size_t pages) {
-	uint64_t start = (uint64_t)address / MEMORY_PAGE_SIZE;
+void pageframe_free(void* physical_address, size_t pages) {
+	uint64_t start = (uint64_t)physical_address / MEMORY_PAGE_SIZE;
 	for(uint64_t i = start; i < start + pages; i++){
 		if(pageframe_manipulate(i, false)){
 			if(s_memory_used_size >= MEMORY_PAGE_SIZE) {		// prevent overflow
@@ -116,8 +117,8 @@ void pageframe_free(void* address, size_t pages) {
 	}
 }
 
-void pageframe_lock(void* address, size_t pages) {
-	uint64_t start = (uint64_t)address / MEMORY_PAGE_SIZE;
+void pageframe_lock(void* physical_address, size_t pages) {
+	uint64_t start = (uint64_t)physical_address / MEMORY_PAGE_SIZE;
 	for(uint64_t i = start; i < start + pages; i++){
 		if(pageframe_manipulate(i, true)){
 			s_memory_used_size += MEMORY_PAGE_SIZE;
@@ -125,8 +126,8 @@ void pageframe_lock(void* address, size_t pages) {
 	}
 }
 
-void pageframe_unreserve(void* address, size_t pages) {
-	uint64_t start = (uint64_t)address / MEMORY_PAGE_SIZE;
+void pageframe_unreserve(void* physical_address, size_t pages) {
+	uint64_t start = (uint64_t)physical_address / MEMORY_PAGE_SIZE;
 	for(uint64_t i = start; i < start + pages; i++){
 		if(pageframe_manipulate(i, false)){
 			if(s_memory_reserved_size >= MEMORY_PAGE_SIZE) {	// prevent overflow

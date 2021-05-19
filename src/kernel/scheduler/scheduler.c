@@ -41,12 +41,12 @@ static void* malloc(size_t size) {
 }
 
 static inline void _scheduler_enqueue_task(struct SchedulerNode* node, struct SchedulerQueue* queue) {
-	struct SchedulerNode* first = queue->first;
 	if(queue->num == 0) {
 		node->previous = node;
 		node->next = node;
 		queue->first = node;
 	} else {
+		struct SchedulerNode* first = queue->first;
 		node->previous = first->previous;
 		node->next = first;
 		first->previous->next = node;
@@ -72,14 +72,8 @@ struct SchedulerNode* scheduler_add_task(struct SchedulerTaskInitialState* initi
 struct SchedulerNode* scheduler_add_task_default(void* entry, size_t code_pages, enum SchedulerQueueNumber queue_num) {
 	size_t stack_size = DEFAULT_STACK_PAGES * MEMORY_PAGE_SIZE;
 	void* stack = pageframe_request_pages(DEFAULT_STACK_PAGES);
-	paging_identity_map(stack, stack_size);
-	for(size_t i = 0; i < DEFAULT_STACK_PAGES; i++){
-		paging_set_userspace_access(stack + (i * MEMORY_PAGE_SIZE), true);
-	}
-	paging_set_userspace_access(stack, true);
-	for(size_t i = 0; i < code_pages; i++){
-		paging_set_userspace_access(entry + (i * MEMORY_PAGE_SIZE), true);
-	}
+	paging_set_attribute(paging_get_pagetable_l4(), stack, DEFAULT_STACK_PAGES, PAGE_USERSPACE, true);
+	paging_set_attribute(paging_get_pagetable_l4(), entry, code_pages, PAGE_USERSPACE, true);
 	struct SchedulerTaskInitialState default_state = (struct SchedulerTaskInitialState){
 		.entry = entry,
 		.stack = stack + stack_size,

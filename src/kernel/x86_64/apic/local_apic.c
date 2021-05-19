@@ -37,7 +37,8 @@ static void* s_trampoline_data_ptr = &trampoline_data;
 
 void local_apic_init() {
 	void* trampoline_target = (void*)LOCAL_APIC_TRAMPOLINE_TARGET;
-	paging_identity_map(trampoline_target, LOCAL_APIC_TRAMPOLINE_TARGET_SIZE);
+	pageframe_lock(trampoline_target, NEAREST_PAGE(LOCAL_APIC_TRAMPOLINE_TARGET_SIZE));
+	paging_set_writable_size(trampoline_target, LOCAL_APIC_TRAMPOLINE_TARGET_SIZE);
 	// Enable APIC software enabled
 	void* local_apic_ptr = madt_get_info()->local_apic_ptr;
 	uint32_t spurious_reg = local_apic_get_register(local_apic_ptr, LOCAL_APIC_REG_OFFSET_SPURIOUS_INT_VECTOR);
@@ -56,7 +57,6 @@ void local_apic_start_smp() {
 	size_t cpu_context_size = ROUND_UP(sizeof(struct CPUContext), LOCAL_APIC_AP_CPU_CONTEXT_ALIGNMENT);
 	size_t ap_context_pages = NEAREST_PAGE(cpu_context_size * (processors_num - 1));
 	void* ap_contexts = pageframe_request_pages(ap_context_pages);
-	paging_identity_map(ap_contexts, ap_context_pages * MEMORY_PAGE_SIZE);
 	size_t ai = 0;	// adjusted i
 	for(size_t i = 0; i < processors_num; i++) {
 		struct LocalAPICProcessor* processor = madt_get_info()->processors + i;

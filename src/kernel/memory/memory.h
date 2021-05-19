@@ -16,12 +16,6 @@
 
 #define MEMORY_MEMORYMAP_MAX_ENTRIES	256
 
-// Maps and reserves the page
-#define MEMORY_MAP_RESERVE(address, size)											\
-										{											\
-											paging_identity_map(address, size);		\
-											pageframe_reserve_size(address, size);	\
-										}
 
 enum MemoryType {
 	MEMORY_TYPE_UNUSABLE,

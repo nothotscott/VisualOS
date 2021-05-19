@@ -42,6 +42,7 @@ timer_handler:
 		lodsq
 		stosq
 		loop	.copy
+	; Get next task
 	.next:
 		mov		rdi, rbx
 		call	scheduler_next_task

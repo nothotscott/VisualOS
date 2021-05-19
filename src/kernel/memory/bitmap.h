@@ -12,7 +12,7 @@
 
 struct Bitmap {
 	uint8_t*	buffer;	
-	size_t	size;	// Real size
+	size_t		size;	// Real size
 };
 
 // *** Class functions  *** //

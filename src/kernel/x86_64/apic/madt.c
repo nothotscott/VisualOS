@@ -26,7 +26,7 @@ static struct MADTInformation s_madt_info = (struct MADTInformation){
 
 void madt_init(struct MADTHeader* madt) {
 	s_madt = madt;
-	MEMORY_MAP_RESERVE(madt, madt->header.length);
+	pageframe_reserve_size(madt, madt->header.length);
 	void* local_apic_ptr = (void*)(uint64_t)madt->local_apic_address;
 	size_t t = 0;
 	while(t < madt->header.length - sizeof(struct MADTHeader)) {
@@ -44,8 +44,10 @@ void madt_init(struct MADTHeader* madt) {
 			case MADT_TYPE_IOAPIC: {
 				struct MADTIOAPIC* ioapic = (struct MADTIOAPIC*)record;
 				void* ioapic_ptr = (void*)(uint64_t)ioapic->ioapic_address;
-				paging_identity_map_page(ioapic_ptr);
-				s_madt_info.ioapics[s_madt_info.ioapics_num] = (struct IOAPIC) {
+				pageframe_reserve(ioapic_ptr, 1);
+				paging_identity_map(ioapic_ptr, 1);
+				paging_set_writable(ioapic_ptr, 1);
+				s_madt_info.ioapics[s_madt_info.ioapics_num] = (struct IOAPIC){
 					.ioapic = ioapic
 				};
 				s_madt_info.ioapics_num++;
@@ -72,8 +74,9 @@ void madt_init(struct MADTHeader* madt) {
 			}
 		}
 	}
-	paging_identity_map_page(local_apic_ptr);
 	pageframe_reserve(local_apic_ptr, 1);
+	paging_identity_map(local_apic_ptr, 1);
+	paging_set_writable(local_apic_ptr, 1);
 	s_madt_info.local_apic_ptr = local_apic_ptr;
 	log_default("Bootstrap processor APIC Address: 0x%x\n", local_apic_ptr);
 }

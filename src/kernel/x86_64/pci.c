@@ -6,7 +6,9 @@
  */
 
 #include <stdio.h>
+#include "memory/memory.h"
 #include "memory/paging.h"
+#include "memory/pageframe.h"
 #include "acpi.h"
 #include "pci.h"
 
@@ -22,7 +24,9 @@ void pci_init(struct MCFGHeader* mcfg) {
 		struct PCIDeviceConfigurationDescriptor* descriptor = (struct PCIDeviceConfigurationDescriptor*)((uint64_t)mcfg + sizeof(struct MCFGHeader) + t);
 		for(uint8_t bus_i = descriptor->bus_start; bus_i < descriptor->bus_end; bus_i++) {
 			void* bus = (void*)descriptor->base + ((uint64_t)bus_i << 20);
-			paging_identity_map_page(bus);
+			pageframe_reserve(bus, 1);
+			paging_identity_map(bus, 1);
+			//paging_set_writable(bus, 1);
 			struct PCIDeviceHeader* pci_header = (struct PCIDeviceHeader*)bus;
 			if(pci_header->device_id == 0 || pci_header->device_id == 0xffff) {
 				// Invalid device
@@ -30,14 +34,18 @@ void pci_init(struct MCFGHeader* mcfg) {
 			}
 			for(uint8_t device_i = 0; device_i < PCI_MAX_DEVICES; device_i++) {
 				void* device = bus + ((uint64_t)device_i << 15);
-				paging_identity_map_page(device);
+				pageframe_reserve(device, 1);
+				paging_identity_map(device, 1);
+				//paging_set_writable(device, 1);
 				struct PCIDeviceHeader* pci_header = (struct PCIDeviceHeader*)device;
 				if(pci_header->device_id == 0 || pci_header->device_id == 0xffff) {
 					continue;
 				}
 				for(uint8_t function_i = 0; function_i < PCI_MAX_FUNCTIONS; function_i++) {
 					void* function = device + ((uint64_t)function_i << 12);
-					paging_identity_map_page(function);
+					pageframe_reserve(function, 1);
+					paging_identity_map(function, 1);
+					//paging_set_writable(function, 1);
 					struct PCIDeviceHeader* pci_header = (struct PCIDeviceHeader*)function;
 					if(pci_header->device_id == 0 || pci_header->device_id == 0xffff) {
 						continue;
