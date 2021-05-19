@@ -72,8 +72,8 @@ struct SchedulerNode* scheduler_add_task(struct SchedulerTaskInitialState* initi
 struct SchedulerNode* scheduler_add_task_default(void* entry, size_t code_pages, enum SchedulerQueueNumber queue_num) {
 	size_t stack_size = DEFAULT_STACK_PAGES * MEMORY_PAGE_SIZE;
 	void* stack = pageframe_request_pages(DEFAULT_STACK_PAGES);
-	paging_set_attribute(paging_get_pagetable_l4(), stack, DEFAULT_STACK_PAGES, PAGE_USERSPACE, true);
-	paging_set_attribute(paging_get_pagetable_l4(), entry, code_pages, PAGE_USERSPACE, true);
+	paging_set_attribute(paging_get_pagetable_l4(), stack, DEFAULT_STACK_PAGES, PAGE_DIRECTORY_USERSPACE, true);
+	paging_set_attribute(paging_get_pagetable_l4(), entry, code_pages, PAGE_DIRECTORY_USERSPACE, true);
 	struct SchedulerTaskInitialState default_state = (struct SchedulerTaskInitialState){
 		.entry = entry,
 		.stack = stack + stack_size,

@@ -68,9 +68,12 @@ void cpu_init(struct CPUContext* cpu_context) {
 		s_idt_initialized = true;
 	}
 	idt_load(&cpu_context->idt_block->idt_descriptor, is_bsp);
+	// Setup caching
+	paging_load_pat();
+	paging_init_pat();
+	paging_set_cache_size(cpu_context, sizeof(struct CPUContext), PAGE_PAT_WRITE_COMBINE);
 	// Setup miscellaneous features
 	cpu_enable_features();
-	//paging_setup_pat();
 	syscall_enable();
 	log_default("Processor %d successfully initialized\n", cpu_context->local_apic_id);
 }

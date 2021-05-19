@@ -8,6 +8,7 @@
 #include <string.h>
 #include "log.h"
 #include "bootloader.h"
+#include "framebuffer.h"
 #include "bitmap.h"
 #include "pageframe.h"
 #include "paging.h"
@@ -83,20 +84,25 @@ void paging_init() {
 	}
 }
 
+void paging_init_pat() {
+	struct Framebuffer* framebuffer = bootloader_get_info()->framebuffer;
+	paging_set_cache_size(framebuffer->base, framebuffer->pitch * framebuffer->height, PAGE_PAT_UNCACHED);
+}
+
 void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address) {
 	struct PageTable* pagetable_l3;
 	struct PageTable* pagetable_l2;
 	struct PageTable* pagetable_l1;
 	page_directory_entry_t entry;
 	size_t index;
-	page_directory_entry_t present_attribute = (1 << PAGE_PRESENT);
+	page_directory_entry_t present_attribute = (1 << PAGE_DIRECTORY_PRESENT);
 	// Break virtual address into it's level index components
 	struct PageLevelIndexes indexes;
 	paging_get_indexes(virtual_address, &indexes);
 	// Index page table map level 4 to get the page directory pointer table (L3)
 	index = indexes.L4_i;
 	entry = pagetable_l4->entries[index];
-	if(!GET_BIT(entry, PAGE_PRESENT)) {	// create page directory pointer table if it's not present
+	if(!GET_BIT(entry, PAGE_DIRECTORY_PRESENT)) {	// create page directory pointer table if it's not present
 		pagetable_l3 = (struct PageTable*)pageframe_request();
 		memset(pagetable_l3, 0, MEMORY_PAGE_SIZE);
 		entry = paging_set_entry_address(entry, (void*)((uint64_t)pagetable_l3 >> 12));
@@ -108,7 +114,7 @@ void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* phy
 	// Index page table map level 3 to get the page directory table (L2)
 	index = indexes.L3_i;
 	entry = pagetable_l3->entries[index];
-	if(!GET_BIT(entry, PAGE_PRESENT)) {
+	if(!GET_BIT(entry, PAGE_DIRECTORY_PRESENT)) {
 		pagetable_l2 = (struct PageTable*)pageframe_request();
 		memset(pagetable_l2, 0, MEMORY_PAGE_SIZE);
 		entry = paging_set_entry_address(entry, (void*)((uint64_t)pagetable_l2 >> 12));
@@ -120,7 +126,7 @@ void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* phy
 	// Index page table map level 2 to get the page table (L1)
 	index = indexes.L2_i;
 	entry = pagetable_l2->entries[index];
-	if(!GET_BIT(entry, PAGE_PRESENT)) {
+	if(!GET_BIT(entry, PAGE_DIRECTORY_PRESENT)) {
 		pagetable_l1 = (struct PageTable*)pageframe_request();
 		memset(pagetable_l1, 0, MEMORY_PAGE_SIZE);
 		entry = paging_set_entry_address(entry, (void*)((uint64_t)pagetable_l1 >> 12));
@@ -133,7 +139,7 @@ void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* phy
 	index = indexes.L1_i;
 	entry = pagetable_l1->entries[index];
 	entry = paging_set_entry_address(entry, (void*)((uint64_t)physical_address >> 12));	// offset is irrelvant, just mapping the page levels
-	entry |= present_attribute;
+	entry |= (1 << PAGE_TABLE_PRESENT);
 	pagetable_l1->entries[index] = entry;
 }
 
@@ -152,7 +158,7 @@ void paging_set_attribute(struct PageTable* pagetable_l4, void* virtual_address,
 		page_directory_entry_t entry;
 		struct PageLevelIndexes indexes;
 		paging_get_indexes(virtual_address + (i * MEMORY_PAGE_SIZE), &indexes);
-		// Go through page tables and set userspace flag
+		// Go through page tables and set the attribute flag
 		entry = pagetable_l4->entries[indexes.L4_i];
 		entry = SET_BIT(entry, attribute, enabled);
 		pagetable_l4->entries[indexes.L4_i] = entry;
@@ -171,8 +177,40 @@ void paging_set_attribute(struct PageTable* pagetable_l4, void* virtual_address,
 	}
 }
 
+void paging_set_cache(void* virtual_address, size_t pages, enum PagePATMode mode) {
+	struct PageTable* pagetable_l4 = s_pagetable_l4;
+	// Linear correspondence to the PA register field
+	bool bit_pat = (mode >> 2) & 0x1;
+	bool bit_pcd = (mode >> 1) & 0x1;
+	bool bit_pwt = (mode >> 0) & 0x1;
+	for(size_t i = 0; i < pages; i++){
+		page_directory_entry_t entry;
+		struct PageLevelIndexes indexes;
+		paging_get_indexes(virtual_address + (i * MEMORY_PAGE_SIZE), &indexes);
+		entry = pagetable_l4->entries[indexes.L4_i];
+		pagetable_l4->entries[indexes.L4_i] = entry;
+		struct PageTable* pagetable_l3 = (struct PageTable*)((uint64_t)paging_get_entry_address(entry) << 12);
+		entry = pagetable_l3->entries[indexes.L3_i];
+		pagetable_l3->entries[indexes.L3_i] = entry;
+		struct PageTable* pagetable_l2 = (struct PageTable*)((uint64_t)paging_get_entry_address(entry) << 12);
+		entry = pagetable_l2->entries[indexes.L2_i];
+		pagetable_l2->entries[indexes.L2_i] = entry;
+		struct PageTable* pagetable_l1 = (struct PageTable*)((uint64_t)paging_get_entry_address(entry) << 12);
+		entry = pagetable_l1->entries[indexes.L1_i];
+		// Set the page table entry
+		entry = SET_BIT(entry, PAGE_TABLE_PAT, bit_pat);
+		entry = SET_BIT(entry, PAGE_TABLE_NOCACHE, bit_pcd);
+		entry = SET_BIT(entry, PAGE_TABLE_WRITETHROUGH, bit_pwt);
+		pagetable_l1->entries[indexes.L1_i] = entry;
+	}
+}
+void paging_set_cache_size(void* virtual_address, size_t size, enum PagePATMode mode) {
+	paging_set_cache(virtual_address, NEAREST_PAGE(size), mode);
+}
+
+
 void paging_set_writable(void* virtual_address, size_t pages) {
-	paging_set_attribute(s_pagetable_l4, virtual_address, pages, PAGE_WRITABLE, true);
+	paging_set_attribute(s_pagetable_l4, virtual_address, pages, PAGE_DIRECTORY_WRITABLE, true);
 }
 void paging_set_writable_size(void* virtual_address, size_t size) {
 	paging_set_writable(virtual_address, NEAREST_PAGE(size));
