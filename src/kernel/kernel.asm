@@ -16,6 +16,7 @@ EXTERN	scheduler_entry
 
 %macro KERNEL_BEGIN	0
 	call	kernel_common
+	mov		rdi, 1
 	jmp		scheduler_entry
 %endmacro
 

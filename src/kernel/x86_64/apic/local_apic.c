@@ -98,6 +98,7 @@ void local_apic_start_smp() {
 		// Check on the status of the AP
 		uint8_t ap_status = communicator->ap_status;
 		while(communicator->ap_status == 0) {
+			PAUSE();
 			pit_sleep(LOCAL_APIC_SLEEP_DELAY_AP_STARTUP);
 		}
 		// Configure the AP, knowing it's responded and it's ready

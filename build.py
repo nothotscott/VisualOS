@@ -19,7 +19,7 @@ IMG_SIZE_MB		= 16
 # Qemu configuration
 QEMU_CPU		= "qemu64"
 QEMU_MEMORY		= "512M"
-QEMU_CORES		= 1
+QEMU_CORES		= 2
 QEMU_MISC		= "-machine type=q35 -net none -serial stdio -no-reboot"
 
 # Internal configuration

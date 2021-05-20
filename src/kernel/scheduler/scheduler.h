@@ -58,8 +58,8 @@ enum SchedulerQueueNumber {
 };
 
 enum SchedulerContextFlagBits {
-	SCHEDULER_CONTEXT_FLAG_LOCKED	= 1,
-	SCHEDULER_CONTEXT_FLAG_FINISHED	= 0,
+	SCHEDULER_CONTEXT_FLAG_LOCKED	= 0,
+	SCHEDULER_CONTEXT_FLAG_FINISHED	= 1,
 };
 
 // Gets the next task and advances the task ring
@@ -73,9 +73,15 @@ struct SchedulerNode* scheduler_add_task_default(void* entry, size_t code_pages,
 
 // *** From scheduler.asm *** //
 
-// Begins scheduling tasks to the processor calling this
+// Begins scheduling tasks once unlocked for the processor calling this
 // There is no going back once the scheduler has been entered
-void scheduler_entry();
+// [should_unlock] will unlock a spin loop
+void scheduler_entry(bool should_unlock);
 
 // Causes the processor to halt until it's interrupted
 void scheduler_idle();
+
+// Locks/unlocks the [node]'s context using the SCHEDULER_CONTEXT_FLAG_LOCKED bit as the mutex.
+// Returns true on successful lock/unlock
+bool scheduler_node_lock(struct SchedulerNode* node);
+void scheduler_node_unlock(struct SchedulerNode* node);

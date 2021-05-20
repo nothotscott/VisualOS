@@ -111,6 +111,7 @@ trampoline_longmode:
 	pop		rbx
 	; Finish up and begin scheduling work
 	mov		BYTE [ebx + OFFSET_REL(trampoline_data.ap_status)], 2
+	mov		rdi, 0
 	jmp		QWORD [ebx + OFFSET_REL(trampoline_data.scheduler_entry)]
 
 ;;; Data ;;;

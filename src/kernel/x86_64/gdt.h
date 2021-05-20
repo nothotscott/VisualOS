@@ -8,7 +8,7 @@
 
 #pragma once
 
-#define GDT_NUM		9	// 2 null segments + 2 code + 2 data data segments + TSS descriptor is the size of 2 GDT entries
+#define GDT_NUM		8	// 2 null segments + 2 code + 2 data data segments + TSS descriptor is the size of 2 GDT entries
 #define GDT_TSS_NUM	1	// only 1 TSS
 
 #define GDT_TSS_STACK_SIZE		4096
