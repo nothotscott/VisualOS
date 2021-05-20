@@ -41,20 +41,3 @@ GLOBAL	scheduler_idle
 scheduler_idle:
 	hlt
 	jmp	scheduler_idle
-
-
-GLOBAL	scheduler_node_lock
-scheduler_node_lock:	; rdi=[node]
-	lock bts	QWORD [rdi + SchedulerNode.context_flags], 0
-	mov			rcx, 1
-	mov			rax, 0
-	cmovnc		rax, rcx										; conditional mov if carry
-	ret
-
-GLOBAL	scheduler_node_unlock
-scheduler_node_unlock:	; rdi=[node]
-	lock btr	QWORD [rdi + SchedulerNode.context_flags], 0
-	mov			rcx, 1
-	mov			rax, 1
-	cmovnc		rax, rcx
-	ret	

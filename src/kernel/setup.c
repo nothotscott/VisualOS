@@ -84,6 +84,7 @@ void setup_smp() {
 extern void test_userspace();
 
 void setup_tasks() {
+	scheduler_init();
 	// TODO load up some modules for the scheduler
 	scheduler_add_task_default(test_userspace, 1, SCHEDULER_QUEUE_PRIORITY);
 }

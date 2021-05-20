@@ -57,10 +57,19 @@ enum SchedulerQueueNumber {
 	_SCHEDULER_QUEUES_NUM
 };
 
+enum SchedulerQueueFlagBits {
+	SCHEDULER_QUEUE_FLAG_LOCKED	= 0,
+};
+
+
 enum SchedulerContextFlagBits {
 	SCHEDULER_CONTEXT_FLAG_LOCKED	= 0,
 	SCHEDULER_CONTEXT_FLAG_FINISHED	= 1,
 };
+
+
+// Initializes scheduler
+void scheduler_init();
 
 // Gets the next task and advances the task ring
 struct SchedulerNode* scheduler_next_task(struct SchedulerNode* current);
@@ -70,6 +79,8 @@ struct SchedulerNode* scheduler_add_task(struct SchedulerTaskInitialState* initi
 // Adds a task with default initial state and [entry] start point into the queue of [queue_num]
 struct SchedulerNode* scheduler_add_task_default(void* entry, size_t code_pages, enum SchedulerQueueNumber queue_num);
 
+// Frees the resources of task [node] and dequeues it from its queue. Assumes [node] has already acquired a lock.
+void scheduler_free_task(struct SchedulerNode* node);
 
 // *** From scheduler.asm *** //
 
@@ -80,8 +91,3 @@ void scheduler_entry(bool should_unlock);
 
 // Causes the processor to halt until it's interrupted
 void scheduler_idle();
-
-// Locks/unlocks the [node]'s context using the SCHEDULER_CONTEXT_FLAG_LOCKED bit as the mutex.
-// Returns true on successful lock/unlock
-bool scheduler_node_lock(struct SchedulerNode* node);
-void scheduler_node_unlock(struct SchedulerNode* node);
