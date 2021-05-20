@@ -13,7 +13,7 @@
 #define SCHEDULER_QUEUES_NUM	_SCHEDULER_QUEUES_NUM
 
 struct Process {
-	uint64_t	id;
+	uint64_t	pid;
 } __attribute__((packed));
 
 struct Thread {
@@ -54,6 +54,7 @@ struct SchedulerTaskInitialState {
 enum SchedulerQueueNumber {
 	SCHEDULER_QUEUE_PRIORITY,
 	SCHEDULER_QUEUE_REGULAR,
+	SCHEDULER_QUEUE_BATCH,
 	_SCHEDULER_QUEUES_NUM
 };
 

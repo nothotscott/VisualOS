@@ -13,6 +13,7 @@
 #include "memory/pageframe.h"
 #include "x86_64/atomic.h"
 #include "x86_64/gdt.h"
+#include "timer.h"
 #include "scheduler.h"
 
 #define DEFAULT_RPL			3
@@ -49,6 +50,13 @@ static struct SchedulerNode s_idle_node = {
 	.previous = &s_idle_node,
 	.next = &s_idle_node
 };
+static timer_ticks_t s_ticks_table[SCHEDULER_QUEUES_NUM] = {
+	[SCHEDULER_QUEUE_PRIORITY]	= 0x100000,
+	[SCHEDULER_QUEUE_REGULAR]	= 0x200000,
+	[SCHEDULER_QUEUE_BATCH]		= 0x400000,
+};
+static uint64_t s_tid_accumulator = 1;
+static uint64_t s_pid_accumulator = 1;
 static struct SchedulerQueue s_queues[SCHEDULER_QUEUES_NUM];
 
 
@@ -108,9 +116,11 @@ void scheduler_init() {
 struct SchedulerNode* scheduler_add_task(struct SchedulerTaskInitialState* initial_state, enum SchedulerQueueNumber queue_num) {
 	struct SchedulerNode* node = malloc(sizeof(struct SchedulerNode));
 	struct SchedulerQueue* queue = s_queues + queue_num;
+	uint64_t tid = atomic_accumulate(&s_tid_accumulator, 1);
+	log_default("tid: %d\n", tid);
 	*node = (struct SchedulerNode){
 		.queue_num = queue_num,
-		.context.task.tid = 1, // TODO real thread ID
+		.context.task.tid = tid, // TODO real thread ID
 		.context.context_frame.general = initial_state->general,
 		.context.context_frame.rip = (uint64_t)initial_state->entry,
 		.context.context_frame.cs = (initial_state->rpl == 3 ? GDT_OFFSET_USER_CODE : GDT_OFFSET_KERNEL_CODE) | initial_state->rpl,
@@ -123,6 +133,7 @@ struct SchedulerNode* scheduler_add_task(struct SchedulerTaskInitialState* initi
 	_scheduler_queue_unlock(queue);
 	return node;
 }
+// TODO replace with something better somewhere else
 struct SchedulerNode* scheduler_add_task_default(void* entry, size_t code_pages, enum SchedulerQueueNumber queue_num) {
 	size_t stack_size = DEFAULT_STACK_PAGES * MEMORY_PAGE_SIZE;
 	void* stack = pageframe_request_pages(DEFAULT_STACK_PAGES);
@@ -144,11 +155,12 @@ void scheduler_free_task(struct SchedulerNode* node) {
 	free(node);
 }
 
-#include "x86_64/cpuid.h"
+#include "x86_64/cpuid.h" // TODO remove
 
 __attribute__((hot)) struct SchedulerNode* scheduler_next_task(struct SchedulerNode* current) {
 	uint8_t lapic = cpuid_get_local_apic_id();
 	struct SchedulerNode* next = NULL;
+	size_t current_queue_num = -1;
 	// Mutate current
 	if(current != 0 && current != &s_idle_node) {
 		if(!(current->context.flags & (1 << SCHEDULER_CONTEXT_FLAG_LOCKED))) {
@@ -156,7 +168,8 @@ __attribute__((hot)) struct SchedulerNode* scheduler_next_task(struct SchedulerN
 			_scheduler_node_lock(current);
 		}
 		// Rotate queue and perform necessary operations
-		struct SchedulerQueue* queue = s_queues + current->queue_num;
+		current_queue_num = current->queue_num;
+		struct SchedulerQueue* queue = s_queues + current_queue_num;
 		_scheduler_queue_spinlock(queue);
 		queue->first = current->next;	// rotate queue
 		if(current->context.flags & (1 << SCHEDULER_CONTEXT_FLAG_FINISHED)) {
@@ -175,16 +188,17 @@ __attribute__((hot)) struct SchedulerNode* scheduler_next_task(struct SchedulerN
 			continue;
 		}
 		if(queue->flags & SCHEDULER_CONTEXT_FLAG_LOCKED) {
-			log_default("queue %d locked\n", i);
 			continue;
 		}
 		for(size_t j = 0; j < queue->num; j++) {
 			if(!(node->context.flags & pass_flags)) {
 				if(_scheduler_node_lock(node)){
+					if(current_queue_num != j) {
+						timer_set_ticks(s_ticks_table[j]);
+					}
+					//log_default("%d: grabbed %d\n", lapic, node->context.task.tid);
 					next = node;
 					goto exit;
-				} else {
-					log_default("%d: failed: 0x%x\n", lapic, node->context.task.tid);
 				}
 			}
 			node = node->next;
