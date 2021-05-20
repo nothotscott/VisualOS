@@ -7,6 +7,7 @@ BIN_DIR		:= bin
 KERNEL		:= kernel
 LIBS		:= libraries
 LIBC		:= musl
+VOSLIB		:= voslib
 
 # Explicit kernel linking directive
 KERNEL_SUFFIX		:= _k
@@ -48,6 +49,10 @@ else
 	DEBUG_CFLAGS	:= -O1
 	DEBUG_ASFLAGS	:= -g -F dwarf
 endif
+FRAGMENT_CFLAGS	:= -fvisibility=default -fdata-sections -ffunction-sections
+
+# Includes
+DEFAULT_LIBC_INCLUDES	:= $(SRC_DIR)/$(LIBS)/$(LIBC)/include $(SRC_DIR)/$(LIBS)/$(LIBC)/arch/generic $(SRC_DIR)/$(LIBS)/$(LIBC)/arch/x86_64 $(SRC_DIR)/$(LIBS)/$(LIBC)/obj/include
 
 # Shell configurations
 NORMAL	:= $(shell tput sgr0)

@@ -140,16 +140,16 @@ void pageframe_unreserve(void* physical_address, size_t pages) {
 	}
 }
 
-void pageframe_reserve(void* address, size_t pages) {
-	uint64_t start = (uint64_t)address / MEMORY_PAGE_SIZE;
+void pageframe_reserve(void* physical_address, size_t pages) {
+	uint64_t start = (uint64_t)physical_address / MEMORY_PAGE_SIZE;
 	for(uint64_t i = start; i < start + pages; i++){
 		if(pageframe_manipulate(i, true)){
 			s_memory_reserved_size += MEMORY_PAGE_SIZE;
 		}
 	}
 }
-void pageframe_reserve_size(void* address, size_t size) {
-	pageframe_reserve(address, NEAREST_PAGE(size));
+void pageframe_reserve_size(void* physical_address, size_t size) {
+	pageframe_reserve(physical_address, NEAREST_PAGE(size));
 }
 
 

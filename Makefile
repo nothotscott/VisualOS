@@ -7,7 +7,10 @@ KERNEL_BIN		:= $(KERNEL_DIR)/kernel.elf
 VOS_BIN			:= $(BUILD_DIR)/vos.elf
 
 LDFLAGS	:= -T $(SRC_DIR)/vos.ld -nostdlib -static -pie --no-dynamic-linker --gc-sections
-LDLIBS	= $(filter-out %$(USERSPACE_SUFFIX).a, $(shell find $(LIBS_DIR)/ -maxdepth 1 -type f -name '*.a') $(shell find $(LIBS_DIR)/ -maxdepth 1 -type f -name '*.ro'))
+LDLIBS	= $(filter-out %$(USERSPACE_SUFFIX)_c.o,						\
+			$(shell find $(LIBS_DIR)/ -maxdepth 1 -type f -name '*.o')	\
+			$(shell find $(LIBS_DIR)/ -maxdepth 1 -type f -name '*.ro')	\
+		)
 
 ###############################################################################
 

@@ -20,6 +20,7 @@ The following are included and minimally modified to adapt to the build process 
 - [limine](https://github.com/limine-bootloader/limine) is distributed under the [BSD 2-Clause](https://github.com/limine-bootloader/limine/blob/trunk/LICENSE.md)
 - [musl](https://git.musl-libc.org/cgit/musl) is included under the [MIT License](src/libraries/musl/COPYRIGHT)
 	- Note: musl has been modified to work with VisualOS. 
+- [dlmalloc](http://g.oswego.edu/dl/html/malloc.html) is distributed under [CC0-1.0](src/libraries/dlmalloc/LICENSE)
 
 # Build
 A Unix-like environment is required to build VisualOS. The following systems have been tested: WSL, Linux, MacOS  
@@ -36,6 +37,7 @@ Note: `python3 main.py` can be executed natively on Windows if on PowerShell and
 # Features
 - stivale2 boot protocol kernel
 - Included [libc](src/libraries/musl) for both kernel and userspace
+- Kernel and Userspace syscall translation layer. [Read more here.](LIBC.md)
 
 ## Features in progress
 - Symmetric Multiprocessing

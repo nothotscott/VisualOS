@@ -10,6 +10,8 @@
 #include "x86_64/cpu.h"
 #include "bootloader.h"
 
+#include <stdlib.h>
+
 void kernel_common();
 // From setup.c
 extern void setup_pre();

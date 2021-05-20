@@ -17,7 +17,7 @@ PRETARGETS		:= $(patsubst $(THIS)/%.o,$(TARGET_DIR)/%.o,$(call to_obj,$(SOURCES)
 TARGETS			:= $(TARGET_DIR)/$(LIBC).ro
 INCLUDE_DIRS	:= $(SUPER)/ $(THIS)/arch/$(ARCH) $(THIS)/arch/generic $(THIS)/obj/src/internal $(THIS)/src/include $(THIS)/src/internal $(THIS)/obj/include $(THIS)/include
 
-CFLAGS		:= $(addprefix -I ,$(INCLUDE_DIRS)) $(DEFAULT_CFLAGS) $(DEBUG_CFLAGS) -fvisibility=default -fdata-sections -ffunction-sections
+CFLAGS		:= $(addprefix -I ,$(INCLUDE_DIRS)) $(DEFAULT_CFLAGS) $(DEBUG_CFLAGS) $(FRAGMENT_CFLAGS)
 CFLAGS		+= -std=c99 -pipe -D_XOPEN_SOURCE=700
 CASFLAGS	:= $(CFLAGS)
 LDFLAGS		:= -nostdlib

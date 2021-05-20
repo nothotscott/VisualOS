@@ -12,12 +12,19 @@
 #include "log.h"
 
 static struct SysHandler s_handlers[] = {
-	{ SYS_NUM_READ,		sys_read },
-	{ SYS_NUM_WRITE,	sys_write },
-	{ SYS_NUM_IOCTL,	sys_ioctl },
-	{ SYS_NUM_READV,	sys_readv },
-	{ SYS_NUM_WRITEV,	sys_writev },
-	{ SYS_NUM_EXIT,		sys_exit }
+	{ SYS_NUM_READ,					sys_read },
+	{ SYS_NUM_WRITE,				sys_write },
+	{ SYS_NUM_MMAP,					sys_mmap },
+	{ SYS_NUM_MUNMAP,				sys_munmap },
+	{ SYS_NUM_IOCTL,				sys_ioctl },
+	{ SYS_NUM_READV,				sys_readv },
+	{ SYS_NUM_WRITEV,				sys_writev },
+	{ SYS_NUM_EXIT,					sys_exit },
+	
+	{ SYS_NUM_GETRLIMIT,			sys_getrlimit },
+	{ SYS_NUM_SYSINFO,				sys_sysinfo },
+	{ SYS_NUM_SCHED_GETAFFINITY,	sys_sched_getaffinity },
+	{ SYS_NUM_PRLIMIT64,			sys_prlimit64 },
 };
 
 
