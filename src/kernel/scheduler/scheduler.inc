@@ -10,18 +10,27 @@
 %define	SCHEDULER_CONTEXT_FRAME_GENERAL_NUM		15
 %define	SCHEDULER_CONTEXT_FRAME_INTERRUPT_NUM	5
 %define SCHEDULER_CONTEXT_FRAME_COPY_NUM		(SCHEDULER_CONTEXT_FRAME_GENERAL_NUM + SCHEDULER_CONTEXT_FRAME_INTERRUPT_NUM)
-%define	SCHEDULER_CONTEXT_FRAME_OFFSET(n)		(n - SchedulerNode.context_frame)
+%define	SCHEDULER_KERNEL_PML4_OFFSET			(SchedulerContextFrame_size + 0x00)
+%define	SCHEDULER_CONTEXT_FRAME_OFFSET			(SchedulerNode.context + SchedulerContext.context_frame)
 
+struc	Thread
+	.tid:		resq	1
+	.process:	resq	1
+	.next:		resq	1
+endstruc
+struc	SchedulerContextFrame
+	.general:		resq	SCHEDULER_CONTEXT_FRAME_GENERAL_NUM
+	.interrupt:		resq	SCHEDULER_CONTEXT_FRAME_INTERRUPT_NUM
+	.self:			resq	1
+endstruc
+struc	SchedulerContext
+	.context_frame:	resb	SchedulerContextFrame_size
+	.flags:			resq	1
+	.error_code:	resq	1
+	.task:			resb	Thread_size
+endstruc
 struc	SchedulerNode
-	.scheduler_context:
-	.context_frame:
-		.context_frame_general:			resq	SCHEDULER_CONTEXT_FRAME_GENERAL_NUM
-		.context_frame_interrupt:		resq	SCHEDULER_CONTEXT_FRAME_INTERRUPT_NUM
-		.context_frame_self:			resq	1
-	.context_frame_end:
-	.context_flags:						resq	1
-	.context_error_code:				resq	1
-	; Not important past this point
+	.context:		resb	SchedulerContext_size
 endstruc
 
 ; Write the value [%1] to GSBase MSR. If [%1] is not given, it assumes rdi 

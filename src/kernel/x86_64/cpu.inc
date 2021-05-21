@@ -19,5 +19,6 @@ struc	CPUContext
 	.stack_kernel:		resq	1
 	.stack_isr:			resq	1
 	.stack_irq:			resq	1
+	.stack_timer_begin:	resq	1
 	.stack_timer:		resq	1
 endstruc

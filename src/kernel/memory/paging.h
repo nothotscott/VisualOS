@@ -80,18 +80,17 @@ void paging_load_pat();
 
 // *** Class functions *** //
 
-// Initializes paging by creating the page table level 4 and sets the 
-// initial mapping between virtual and physical memory.
-// Must call pageframe_init before calling
+// Initializes paging by creating the kernel's page table level 4 and sets the initial mapping between virtual and physical memory.
 void paging_init();
 
 // Initializes the PAT by preparing MMIO OS-preferred caches (does not load the PAT and this should be called after doing so)
 void paging_init_pat();
 
 // Maps [virtual_address] to [physical_address]
-void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address);
+void paging_map_page(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address);
+void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address, size_t pages);
 
-// Identity maps [address]. Is not write protected. Should only be used with MMIO.
+// Identity maps [address] for the kernel's page table Is not write protected. Should only be used with MMIO.
 void paging_identity_map(void* address, size_t pages);
 void paging_identity_map_size(void* address, size_t size);
 
@@ -99,11 +98,11 @@ void paging_identity_map_size(void* address, size_t size);
 // Also assumes [attribute] is the same for the page table attributes
 void paging_set_attribute(struct PageTable* pagetable_l4, void* virtual_address, size_t pages, enum PageDirectoryFlagBit attribute, bool enabled);
 
-// Sets the page table corresponding to [virtual_address] for [pages] to have a cache policy of [mode] 
+// Sets the page table corresponding to [virtual_address] for [pages] for the kernel's page table to have a cache policy of [mode] 
 void paging_set_cache(void* virtual_address, size_t pages, enum PagePATMode mode);
 void paging_set_cache_size(void* virtual_address, size_t size, enum PagePATMode mode);
 
-// Sets [pages] (or [size] rounded up to the nearest page) at [virtual_address] to be writable
+// Sets [pages] (or [size] rounded up to the nearest page) at [virtual_address] for the kernel's page table to be writable
 // Assumes the page has been mapped previously
 void paging_set_writable(void* virtual_address, size_t pages);
 void paging_set_writable_size(void* virtual_address, size_t size);

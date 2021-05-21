@@ -19,6 +19,7 @@ static struct SysHandler s_handlers[] = {
 	{ SYS_NUM_IOCTL,				sys_ioctl },
 	{ SYS_NUM_READV,				sys_readv },
 	{ SYS_NUM_WRITEV,				sys_writev },
+	{ SYS_NUM_EXECVE,				sys_execve },
 	{ SYS_NUM_EXIT,					sys_exit },
 	
 	{ SYS_NUM_GETRLIMIT,			sys_getrlimit },

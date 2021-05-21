@@ -26,7 +26,7 @@
 #include "x86_64/apic/madt.h"
 #include "x86_64/apic/local_apic.h"
 #include "x86_64/syscall.h"
-#include "scheduler/scheduler.h"
+#include "scheduler/process.h"
 
 
 // *** PRE BSP INIT *** //
@@ -85,10 +85,11 @@ extern void test_userspace();
 extern void test_userspace2();
 
 void setup_tasks() {
+	process_init();
 	scheduler_init();
 	// TODO load up some modules for the scheduler
-	scheduler_add_task_default(test_userspace, 1, SCHEDULER_QUEUE_PRIORITY);
-	scheduler_add_task_default(test_userspace2, 1, SCHEDULER_QUEUE_PRIORITY);
+	//process_create(test_userspace, 1);
+	//process_create(test_userspace2, 1);
 }
 
 // *** ORDERED SETUP FUNCTIONS *** //

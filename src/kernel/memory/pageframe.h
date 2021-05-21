@@ -14,6 +14,12 @@
 
 #define PAGEFRAME_INITIAL_RESERVE_PAGES	256
 
+enum PageframeMutexBit {
+	PAGEFRAME_MUTEX_REQUEST,
+	PAGEFRAME_MUTEX_LOCK,
+	PAGEFRAME_MUTEX_FREE
+};
+
 // Initalizes pageframes by discovering useable memory segments passed by the bootloader
 void pageframe_init();
 

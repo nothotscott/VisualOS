@@ -27,6 +27,7 @@ struct CPUContext {
 	void*				stack_kernel;
 	void*				stack_isr;
 	void*				stack_irq;
+	void*				stack_timer_begin;
 	void*				stack_timer;
 } __attribute__((packed));
 

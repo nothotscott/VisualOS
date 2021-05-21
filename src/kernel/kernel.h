@@ -24,7 +24,7 @@
 #define GET_BIT(n, bit)			((1 << (bit) & (n)) > 0)
 
 // Returns the physical address of the kernel [virtual_address] from link time
-#define PHYSICAL_ADDRESS(virtual_address)	((void*)((unsigned long long)(virtual_address) - ((unsigned long long)&_virtual_base)))
+#define KERNEL_PHYSICAL_ADDRESS(virtual_address)	((void*)((unsigned long long)(virtual_address) - ((unsigned long long)&_virtual_base)))
 
 // From kernel.ld linker script
 extern void** _virtual_base;

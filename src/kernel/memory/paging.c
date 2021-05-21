@@ -53,15 +53,15 @@ struct PageTable* paging_get_pagetable_l4() {
 void paging_init() {
 	s_pagetable_l4 = (struct PageTable*)pageframe_request();
 	memset(s_pagetable_l4, 0, MEMORY_PAGE_SIZE);
-	void* kernel_physical_start = PHYSICAL_ADDRESS(&_kernel_start);
-	void* kernel_physical_end = PHYSICAL_ADDRESS(&_kernel_end);
-	void* kernel_writable_physical_start = PHYSICAL_ADDRESS(&_kernel_writable_start);
-	void* kernel_writable_physical_end = PHYSICAL_ADDRESS(&_kernel_writable_end);
+	void* kernel_physical_start = KERNEL_PHYSICAL_ADDRESS(&_kernel_start);
+	void* kernel_physical_end = KERNEL_PHYSICAL_ADDRESS(&_kernel_end);
+	void* kernel_writable_physical_start = KERNEL_PHYSICAL_ADDRESS(&_kernel_writable_start);
+	void* kernel_writable_physical_end = KERNEL_PHYSICAL_ADDRESS(&_kernel_writable_end);
 	uint64_t kernel_virtual_base = (uint64_t)&_virtual_base;
 	// Map kernel
 	for(void* ptr = kernel_physical_start; (uint64_t)ptr < (uint64_t)kernel_physical_end; ptr += MEMORY_PAGE_SIZE) {
 		void* virtual_address = (void*)((uint64_t)ptr + kernel_virtual_base);
-		paging_map(s_pagetable_l4, virtual_address, ptr);
+		paging_map_page(s_pagetable_l4, virtual_address, ptr);
 		if(ptr >= kernel_writable_physical_start && ptr < kernel_writable_physical_end) {
 			paging_set_writable(virtual_address, 1);
 		}
@@ -78,10 +78,7 @@ void paging_init() {
 		paging_set_writable(memorymap_entry->physical_base, memorymap_entry->num_pages);
 	}
 	// Map the rest of the memory regions
-	size_t mem_size = memory_get_total_size();
-	for(void* ptr = 0; (uint64_t)ptr < mem_size; ptr += MEMORY_PAGE_SIZE) {
-		paging_map(s_pagetable_l4, ptr, ptr);
-	}
+	paging_identity_map_size((void*)0, memory_get_total_size());
 }
 
 void paging_init_pat() {
@@ -89,7 +86,7 @@ void paging_init_pat() {
 	paging_set_cache_size(framebuffer->base, framebuffer->pitch * framebuffer->height, PAGE_PAT_UNCACHED);
 }
 
-void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address) {
+void paging_map_page(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address) {
 	struct PageTable* pagetable_l3;
 	struct PageTable* pagetable_l2;
 	struct PageTable* pagetable_l1;
@@ -142,10 +139,16 @@ void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* phy
 	entry |= (1 << PAGE_TABLE_PRESENT);
 	pagetable_l1->entries[index] = entry;
 }
+void paging_map(struct PageTable* pagetable_l4, void* virtual_address, void* physical_address, size_t pages) {
+	for(int i = 0; i < pages; i++){
+		size_t offset = i * MEMORY_PAGE_SIZE;
+		paging_map_page(pagetable_l4, virtual_address + offset, physical_address + offset);
+	}
+}
 
 void paging_identity_map(void* address, size_t pages) {
 	for(void* ptr = address; (uint64_t)ptr < (uint64_t)address + pages * MEMORY_PAGE_SIZE; ptr += MEMORY_PAGE_SIZE) {
-		paging_map(s_pagetable_l4, ptr, ptr);
+		paging_map_page(s_pagetable_l4, ptr, ptr);
 	}
 }
 void paging_identity_map_size(void* address, size_t size) {

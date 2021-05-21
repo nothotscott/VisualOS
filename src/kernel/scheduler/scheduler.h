@@ -12,13 +12,11 @@
 
 #define SCHEDULER_QUEUES_NUM	_SCHEDULER_QUEUES_NUM
 
-struct Process {
-	uint64_t	pid;
-} __attribute__((packed));
 
 struct Thread {
-	uint64_t	tid;
-	void*		parent;
+	uint64_t		tid;
+	struct Process*	process;
+	struct Thread*	next;
 } __attribute__((packed));
 
 struct SchedulerContextFrame {
@@ -32,7 +30,6 @@ struct SchedulerContext {
 	struct SchedulerContextFrame	context_frame;
 	uint64_t						flags;
 	uint64_t						error_code;
-	// Not needed in assembly past this point
 	struct Thread					task;
 } __attribute__((packed));
 
@@ -77,8 +74,6 @@ struct SchedulerNode* scheduler_next_task(struct SchedulerNode* current);
 
 // Adds the task with [initial_state] to the queue of [queue_num]
 struct SchedulerNode* scheduler_add_task(struct SchedulerTaskInitialState* initial_state, enum SchedulerQueueNumber queue_num);
-// Adds a task with default initial state and [entry] start point into the queue of [queue_num]
-struct SchedulerNode* scheduler_add_task_default(void* entry, size_t code_pages, enum SchedulerQueueNumber queue_num);
 
 // Frees the resources of task [node] and dequeues it from its queue. Assumes [node] has already acquired a lock.
 void scheduler_free_task(struct SchedulerNode* node);

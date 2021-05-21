@@ -65,44 +65,44 @@ enum ELFSymbolVisibility {	// in the st_other
 };
 
 struct ELF64Header {
-	uint8_t		e_ident[16];
-	uint16_t	e_type;
-	uint16_t	e_machine;
-	uint32_t	e_version;
-	uint64_t	e_entry;
-	uint64_t	e_phoff;
-	uint64_t	e_shoff;
-	uint32_t	e_flags;
-	uint16_t	e_ehsize;
-	uint16_t	e_phentsize;
-	uint16_t	e_phnum;
-	uint16_t	e_shentsize;
-	uint16_t	e_shnum;
-	uint16_t	e_shstrndx;
+	uint8_t		e_ident[16];	// magic
+	uint16_t	e_type;			// object type
+	uint16_t	e_machine;		// machine ISA
+	uint32_t	e_version;		// version
+	uint64_t	e_entry;		// memory address of the entry point from where the process starts executing
+	uint64_t	e_phoff;		// points to the start of the program header table
+	uint64_t	e_shoff;		// points to the start of the section header table
+	uint32_t	e_flags;		// interpretation of this field depends on the target architecture
+	uint16_t	e_ehsize;		// size of this header
+	uint16_t	e_phentsize;	// size of program header table entry
+	uint16_t	e_phnum;		// number of entries in the program header table
+	uint16_t	e_shentsize;	// size of section header table entry
+	uint16_t	e_shnum;		// number of entries in the section header table
+	uint16_t	e_shstrndx;		// Index of the section header table entry that contains the section names
 } __attribute__((packed));
 
 struct ELF64ProgramHeader {
-	uint32_t	p_type;
-	uint32_t	p_flags;
-	uint64_t	p_offset;
-	uint64_t	p_vaddr;
-	uint64_t	p_paddr;
-	uint64_t	p_filesz;
-	uint64_t	p_memsz;
-	uint64_t	p_align;
+	uint32_t	p_type;		// type of the segment
+	uint32_t	p_flags;	// segment-dependent flags (position)
+	uint64_t	p_offset;	// offset of the segment in the file image
+	uint64_t	p_vaddr;	// virtual address of the segment in memory
+	uint64_t	p_paddr;	// on systems where physical address is relevant, reserved for segment's physical address.
+	uint64_t	p_filesz;	// size in bytes of the segment in the file image
+	uint64_t	p_memsz;	// size in bytes of the segment in memory.
+	uint64_t	p_align;	// 0 and 1 specify no alignment, else a integral power of 2, with p_vaddr equating p_offset modulus p_align
 } __attribute__((packed));
 
 struct ELF64SectionHeader {
-    uint32_t	sh_name;
-    uint32_t	sh_type;
-    uint64_t	sh_flags;
-    uint64_t	sh_addr;
-    uint64_t 	sh_offset;
-    uint64_t	sh_size;
-    uint32_t	sh_link;
-    uint32_t	sh_info;
-    uint64_t	sh_addralign;
-    uint64_t	sh_entsize;
+    uint32_t	sh_name;		// offset to a string in the .shstrtab section that represents the name of this section
+    uint32_t	sh_type;		// type of heeader (ELFSectionHeaderType)
+    uint64_t	sh_flags;		// identifies the attributes of the section
+    uint64_t	sh_addr;		// virtual address of the section in memory, for sections that are loaded
+    uint64_t 	sh_offset;		// offset of the section in the file image
+    uint64_t	sh_size;		// size in bytes of the section in the file image
+    uint32_t	sh_link;		// contains the section index of an associated section
+    uint32_t	sh_info;		// extra info
+    uint64_t	sh_addralign;	// contains the required alignment of the section. This field must be a power of two
+    uint64_t	sh_entsize;		// size, in bytes, of each entry, for sections that contain fixed-size entries else 0
 } __attribute__((packed));
 
 struct ELF64Symbol {

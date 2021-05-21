@@ -8,18 +8,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include "log.h"
-#include "memory/memory.h"
-#include "memory/paging.h"
-#include "memory/pageframe.h"
 #include "x86_64/atomic.h"
 #include "x86_64/gdt.h"
 #include "timer.h"
 #include "scheduler.h"
-
-#define DEFAULT_RPL			3
-#define DEFAULT_STACK_PAGES	4
-
-#define PAUSE()	__asm__ __volatile__ ("pause" : : : "memory")
 
 
 struct SchedulerQueue {
@@ -47,6 +39,11 @@ static struct SchedulerNode s_idle_node = {
 	.context.context_frame.cs = GDT_OFFSET_KERNEL_CODE,
 	.context.context_frame.rflags = RFLAGS,
 	.context.context_frame.ss = GDT_OFFSET_KERNEL_DATA,
+	.context.task = {
+		.tid = 0,
+		.process = NULL,
+		.next = NULL
+	},
 	.previous = &s_idle_node,
 	.next = &s_idle_node
 };
@@ -56,7 +53,6 @@ static timer_ticks_t s_ticks_table[SCHEDULER_QUEUES_NUM] = {
 	[SCHEDULER_QUEUE_BATCH]		= 0x400000,
 };
 static uint64_t s_tid_accumulator = 1;
-static uint64_t s_pid_accumulator = 1;
 static struct SchedulerQueue s_queues[SCHEDULER_QUEUES_NUM];
 
 
@@ -75,10 +71,7 @@ static inline bool _scheduler_queue_unlock(struct SchedulerQueue* queue) {
 	return atomic_unlock(&queue->flags, SCHEDULER_QUEUE_FLAG_LOCKED);
 }
 static inline void _scheduler_queue_spinlock(struct SchedulerQueue* queue) {
-	while(!_scheduler_queue_lock(queue)) {
-		PAUSE();
-		log_default("queue lock\n");
-	}
+	atomic_spinlock(&queue->flags, SCHEDULER_QUEUE_FLAG_LOCKED);
 }
 
 static inline void _scheduler_enqueue_task(struct SchedulerNode* node) {
@@ -132,19 +125,6 @@ struct SchedulerNode* scheduler_add_task(struct SchedulerTaskInitialState* initi
 	_scheduler_enqueue_task(node);
 	_scheduler_queue_unlock(queue);
 	return node;
-}
-// TODO replace with something better somewhere else
-struct SchedulerNode* scheduler_add_task_default(void* entry, size_t code_pages, enum SchedulerQueueNumber queue_num) {
-	size_t stack_size = DEFAULT_STACK_PAGES * MEMORY_PAGE_SIZE;
-	void* stack = pageframe_request_pages(DEFAULT_STACK_PAGES);
-	paging_set_attribute(paging_get_pagetable_l4(), stack, DEFAULT_STACK_PAGES, PAGE_DIRECTORY_USERSPACE, true);
-	paging_set_attribute(paging_get_pagetable_l4(), entry, code_pages, PAGE_DIRECTORY_USERSPACE, true);
-	struct SchedulerTaskInitialState default_state = (struct SchedulerTaskInitialState){
-		.entry = entry,
-		.stack = stack + stack_size,
-		.rpl = DEFAULT_RPL
-	};
-	return scheduler_add_task(&default_state, queue_num);
 }
 
 void scheduler_free_task(struct SchedulerNode* node) {

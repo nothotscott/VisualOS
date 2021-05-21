@@ -28,6 +28,7 @@ enum SysNum {
 	SYS_NUM_IOCTL				= 16,
 	SYS_NUM_READV				= 19,
 	SYS_NUM_WRITEV				= 20,
+	SYS_NUM_EXECVE				= 59,
 	SYS_NUM_EXIT				= 60,
 
 	SYS_NUM_GETRLIMIT			= 97,
@@ -59,6 +60,7 @@ uint64_t sys_munmap(void* addr, size_t len);
 uint64_t sys_ioctl(int fd, int cmd, long arg);
 uint64_t sys_readv(int fd, struct iovec* vec, size_t vlen);
 uint64_t sys_writev(int fd, struct iovec* vec, size_t vlen);
+uint64_t sys_execve(const char* filename, const char* const* argv, const char* const* envp);
 uint64_t sys_exit(uint64_t error_code);
 
 uint64_t sys_getrlimit(int resource, struct rlimit* rlim);

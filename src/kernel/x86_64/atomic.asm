@@ -23,6 +23,19 @@ atomic_unlock:	; rdi=[mutex], rsi=[bit]
 	CF_RESULT
 	ret
 
+GLOBAL	atomic_spinlock
+atomic_spinlock:	; rdi=[mutex], rsi=[bit]
+	.acquire:
+		lock bts	QWORD [rdi], rsi
+		jnc			.exit				; CF = 0 to begin with
+	.spin:
+		pause
+		bt			QWORD [rdi], rsi
+		jc			.spin				; CF = 1 still
+		jmp			.acquire
+	.exit:
+		ret
+
 GLOBAL	atomic_accumulate
 atomic_accumulate:	; rdi=[accumulator], rsi=[amount]
 	lock xadd	QWORD [rdi], rsi

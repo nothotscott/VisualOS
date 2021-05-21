@@ -19,11 +19,17 @@
 #include "cpu.h"
 
 
+struct TimerStackTop {
+	uint64_t	context_self, kernel_pml4;
+	uint64_t	padding;
+	uint64_t	reserved;
+} __attribute__((packed));
+
 // Allocates a stack of [pages] size and turns the top of the stack (ready to be loaded into rsp)
 // Will memset the stack to 0 if [clear] is true
 static inline void* _cpu_allocate_stack(size_t pages, bool clear);
 
-uint8_t g_bsp_stack[MEMORY_PAGE_SIZE * CPU_BSP_STACK_PAGES] __attribute__((aligned (MEMORY_PAGE_SIZE)));
+uint8_t g_bsp_stack[MEMORY_PAGE_SIZE * CPU_BSP_STACK_PAGES] __attribute__((aligned(MEMORY_PAGE_SIZE)));
 static struct IDTBlock s_shared_idt __attribute__((aligned(8)));
 static bool s_idt_initialized = false;
 
@@ -49,12 +55,15 @@ void cpu_allocate(struct CPUContext* cpu_context) {
 	cpu_context->stack_isr = _cpu_allocate_stack(CPU_STACK_PAGES_ISR, false);
 	cpu_context->stack_irq = _cpu_allocate_stack(CPU_STACK_PAGES_IRQ, false);
 	cpu_context->stack_timer = _cpu_allocate_stack(CPU_STACK_PAGES_TIMER, true);
-	cpu_context->stack_timer -= 16;	// stack must be 16-byte aligned for some reason
+	cpu_context->stack_timer_begin = cpu_context->stack_timer - CPU_STACK_PAGES_TIMER * MEMORY_PAGE_SIZE;
+	cpu_context->stack_timer -= sizeof(struct TimerStackTop);	// stack must be 16 byte aligned
 }
 
 void cpu_init(struct CPUContext* cpu_context) {
 	cpu_allocate(cpu_context);
 	bool is_bsp = cpu_context->local_apic_id == s_cpu_bsp.local_apic_id;
+	// Set top of timer stack
+	((struct TimerStackTop*)cpu_context->stack_timer)->kernel_pml4 = (uint64_t)paging_get_pagetable_l4();
 	// Setup GDT
 	gdt_init(cpu_context->gdt_block);
 	gdt_set_tss_ring(cpu_context->gdt_block, 0, cpu_context->stack_kernel);
