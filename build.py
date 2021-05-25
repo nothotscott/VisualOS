@@ -14,12 +14,12 @@ from xml.etree import ElementTree
 OSNAME			= "VisualOS"
 BUILD_DIR		= "build"
 BIN_DIR			= "bin"
-DEFAULT_TASKS	= ["bootloader", "libs", "kernel", "vos"]
+DEFAULT_TASKS	= ["bootloader", "libs", "kernel", "modules", "vos"]
 IMG_SIZE_MB		= 16
 # Qemu configuration
 QEMU_CPU		= "qemu64"
 QEMU_MEMORY		= "512M"
-QEMU_CORES		= 1
+QEMU_CORES		= 2
 QEMU_MISC		= "-machine type=q35 -net none -serial stdio -no-reboot"
 
 # Internal configuration
@@ -182,10 +182,12 @@ def main():
 	parser.add_option("--clean-bin", action="store_true", help="Deletes the bin directory")
 	parser.add_option("--clean-libs", action="store_true", help="Cleans the libraries build")
 	parser.add_option("--clean-kernel", action="store_true", help="Cleans the kernel build")
+	parser.add_option("--clean-modules", action="store_true", help="Cleans kernel modules")
 	parser.add_option("-b", "--bootloader", action="store_true", help="Downloads the latest bootloader binary")
 	parser.add_option("-o", "--ovmf", action="store_true", help="Downloads the latest OVMF binary")
 	parser.add_option("-l", "--libs", action="store_true", help="Builds the libraries")
 	parser.add_option("-k", "--kernel", action="store_true", help="Builds the kernel")
+	parser.add_option("-m", "--modules", action="store_true", help="Builds modules")
 	parser.add_option("-v", "--vos", action="store_true", help="Builds the VisualOS elf file")
 	parser.add_option("-i", "--img", action="store_true", help="Builds img")
 	parser.add_option("-r", "--run", action="store_true", help="Runs VisualOS in qemu")
@@ -203,6 +205,8 @@ def main():
 		make_clean("libs")
 	if options.clean_kernel:
 		make_clean("kernel")
+	if options.clean_modules:
+		make_clean("modules")
 	if options.bootloader:
 		get_bootloader()
 		get_ovmf()
@@ -210,6 +214,8 @@ def main():
 		make("libs")
 	if options.kernel:
 		make("kernel")
+	if options.modules:
+		make("modules")
 	if options.vos:
 		make_executable()
 	if options.img:

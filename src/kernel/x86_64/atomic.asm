@@ -6,7 +6,7 @@
 
 %macro	CF_RESULT	0
 	mov		rcx, 1
-	mov		rax, 1
+	mov		rax, 0
 	cmovnc	rax, rcx	; conditional mov if not carry
 %endmacro
 

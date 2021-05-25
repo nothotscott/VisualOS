@@ -10,5 +10,10 @@
 	<directory name="boot">
 		<file>build/vos.elf</file>
 	</directory>
-	<wildcard name="extras">extras</wildcard>
+	<directory name="modules">
+		<wildcard name="extras">extras</wildcard>
+		<directory name="applications">
+			<file>build/modules/applications/hello_world.elf</file>
+		</directory>
+	</directory>
 </directory>

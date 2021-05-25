@@ -8,6 +8,7 @@ KERNEL		:= kernel
 LIBS		:= libraries
 LIBC		:= musl
 VOSLIB		:= voslib
+MODULES		:= modules
 
 # Explicit kernel linking directive
 KERNEL_SUFFIX		:= _k
@@ -18,6 +19,7 @@ SRC_DIR			:= src
 BOOTLOADER_DIR	:= $(BIN_DIR)/bootloader
 KERNEL_DIR		:= $(BUILD_DIR)/$(KERNEL)
 LIBS_DIR		:= $(BUILD_DIR)/$(LIBS)
+MODULES_DIR		:= $(BUILD_DIR)/$(MODULES)
 ASMDUMP_DIR		:= $(BUILD_DIR)/asm
 
 # Programs

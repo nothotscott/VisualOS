@@ -57,23 +57,15 @@ static inline void _process_add(struct Process* parent, struct Process* process)
 
 static inline struct PageTable* _process_pagemap(struct ProcessEnvironment* environment) {
 	struct PageTable* pml4 = (struct PageTable*)pageframe_request();
-	if(environment->stack_pages) {
-		paging_map(pml4, PROCESS_STACK_VIRTUAL_BASE, environment->stack_physical, environment->stack_pages);
-		paging_set_attribute(pml4, PROCESS_STACK_VIRTUAL_BASE, environment->stack_pages, PAGE_DIRECTORY_WRITABLE, true);
-	}
-	if(environment->text_pages) {
-		paging_map(pml4, environment->text_virtual, environment->text_physical, environment->text_pages);
-	}
-	if(environment->data_pages) {
-		paging_map(pml4, environment->data_virtual, environment->data_physical, environment->data_pages);
-		paging_set_attribute(pml4, environment->data_virtual, environment->data_pages, PAGE_DIRECTORY_WRITABLE, true);
-	}
-	if(environment->bss_pages) {
-		paging_map(pml4, environment->bss_virtual, environment->bss_physical, environment->bss_pages);
-		paging_set_attribute(pml4, environment->bss_virtual, environment->bss_pages, PAGE_DIRECTORY_WRITABLE, true);
-	}
-	if(environment->rodata_pages) {
-		paging_map(pml4, environment->rodata_virtual, environment->rodata_physical, environment->rodata_pages);
+	while(environment != NULL) {
+		paging_map(pml4, environment->virtual_address, environment->physical_address, environment->pages);
+		if(environment->flags & (1 << PROCESS_ENVIRONMENT_WRITABLE)) {
+			paging_set_attribute(pml4, environment->virtual_address, environment->pages, PAGE_DIRECTORY_WRITABLE, true);
+		}
+		if(environment->flags & ( 1 << PROCESS_ENVIRONMENT_STACK)) {
+			// TODO map page to thread
+		}
+		environment = environment->next;
 	}
 	return pml4;
 }
@@ -84,7 +76,7 @@ void process_init() {
 	s_root.pml4 = paging_get_pagetable_l4();
 }
 
-void process_create_new(struct Process* parent, struct ProcessEnvironment* environment, enum SchedulerQueueNumber queue_num) {
+void process_create_new(struct Process* parent, struct ProcessEnvironment* environment, void* entry, enum SchedulerQueueNumber queue_num) {
 	struct Process* process = malloc(sizeof(struct Process));
 	if(parent == NULL) {
 		parent = &s_root;
@@ -99,15 +91,24 @@ void process_create_new(struct Process* parent, struct ProcessEnvironment* envir
 		.next = NULL,
 		.child_list = NULL
 	};
-	memcpy(&process->environment, environment, sizeof(struct ProcessEnvironment));
+	// Find stack
+	void* stack = NULL;
+	struct ProcessEnvironment* current_environment = environment;
+	while(current_environment != NULL) {
+		if(current_environment->flags & (1 << PROCESS_ENVIRONMENT_STACK)) {
+			stack = current_environment->virtual_address;
+			break;
+		}
+	}
 	// Create the context & thread
 	struct SchedulerTaskInitialState new_state = (struct SchedulerTaskInitialState){
-		.entry = environment->entry,
-		.stack = (void*)PROCESS_STACK_VIRTUAL_BASE,
+		.entry = entry,
+		.stack = stack,
 		.rpl = PROCESS_RPL
 	};
 	// Set the process's thread context and exit
 	process->thread_contexts = &scheduler_add_task(&new_state, queue_num)->context;
+	process->thread_contexts->task.process = process;
 	_process_add(parent, process);
 	_process_unlock(parent);
 }

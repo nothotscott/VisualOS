@@ -12,26 +12,14 @@
 #include "scheduler.h"
 
 #define PROCESS_DEFAULT_QUEUE		SCHEDULER_QUEUE_REGULAR
-
-#define PROCESS_STACK_VIRTUAL_BASE	((void*)0x8000000000000000)
 #define PROCESS_RPL					3
 
 struct ProcessEnvironment {
-	void*		entry;
-	void*		stack_physical;
-	size_t		stack_pages;
-	void*		text_physical;	// code
-	void*		text_virtual;
-	size_t		text_pages;
-	void*		data_physical;
-	void*		data_virtual;
-	size_t		data_pages;
-	void*		bss_physical;	// block starting symbol
-	void*		bss_virtual;
-	size_t		bss_pages;
-	void*		rodata_physical;
-	void*		rodata_virtual;
-	size_t		rodata_pages;
+	void*						virtual_address;
+	void*						physical_address;
+	uint64_t					flags;
+	size_t						pages;
+	struct ProcessEnvironment*	next;
 } __attribute__((packed));
 struct Process {
 	uint64_t					pid;
@@ -42,11 +30,18 @@ struct Process {
 	struct Process*				parent;
 	struct Process*				next;
 	struct Process*				child_list;
-	struct ProcessEnvironment	environment;
+	void*						entry;
+	struct ProcessEnvironment*	environment;
 } __attribute__((packed));
 
-enum ProcessFlagBits {
+enum ProcessFlagBit {
 	PROCESS_FLAG_LOCKED
+};
+enum ProcessEnvironmentFlagBit {
+	PROCESS_ENVIRONMENT_EXECUTABLE	= 1,
+	PROCESS_ENVIRONMENT_WRITABLE	= 2,
+	PROCESS_ENVIRONMENT_READABLE	= 3,
+	PROCESS_ENVIRONMENT_STACK		= 4,
 };
 
 // Initializes by setting the root process
@@ -54,4 +49,5 @@ void process_init();
 
 // Creates a new process as a subprocess of [parent] in [environment] and adds the main thread to [queue_num]
 // If [parent] is null, it will use the root process
-void process_create_new(struct Process* parent, struct ProcessEnvironment* environment, enum SchedulerQueueNumber queue_num);
+// NOTE: [environment] is a linked list and should NOT be passed as a stack variable
+void process_create_new(struct Process* parent, struct ProcessEnvironment* environment, void* entry, enum SchedulerQueueNumber queue_num);
