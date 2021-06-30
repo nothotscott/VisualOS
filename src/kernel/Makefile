@@ -12,7 +12,7 @@ INCLUDE_DIRS		:= $(THIS)/
 INCLUDE_LIB_DIRS	:= $(DEFAULT_LIBC_INCLUDES)
 
 CFLAGS	:= $(addprefix -include , $(GIVENS)) $(addprefix -I ,$(INCLUDE_DIRS)) $(addprefix -isystem , $(INCLUDE_LIB_DIRS)) $(DEFAULT_CFLAGS) $(DEBUG_CFLAGS)
-CFLAGS	+= -std=c11 -fshort-wchar -Wno-address-of-packed-member
+CFLAGS	+= -std=c11 -fshort-wchar -mno-red-zone -Wno-address-of-packed-member
 ifeq ($(CC), gcc)
 	CFLAGS	+= -mgeneral-regs-only
 endif

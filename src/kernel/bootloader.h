@@ -20,6 +20,7 @@ struct BootloaderInformation {
 	long				kernel_offset;
 	struct Module*		font;
 	struct Module*		image;
+	struct Module*		test_module;
 };
 
 

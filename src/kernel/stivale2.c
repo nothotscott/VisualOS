@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include "x86_64/cpu.h"
+#include "elf.h"
 #include "bootloader.h"
 #include "framebuffer.h"
 #include "module.h"
@@ -43,6 +44,7 @@ void stivale2_init(struct Stivale2Structure* structure) {
 	info->kernel_offset = ((struct Stivale2StructureKernelSlide*)stivale2_get_structure(structure, STIVALE2_STRUCTURE_TAG_IDENTIFIER_KERNEL_SLIDE))->kernel_slide;
 	stivale2_get_module(structure, info->font, MODULE_SIGNATURE_FONT, sizeof(struct ModulePSF1Header));
 	stivale2_get_module(structure, info->image, MODULE_SIGNATURE_IMAGE, sizeof(struct ModuleTGAHeader));
+	stivale2_get_module(structure, info->test_module, "test_module", sizeof(struct ELF64Header));
 }
 
 struct Stivale2StructureTag* stivale2_get_structure(struct Stivale2Structure* structure, enum Stivale2StructureTagIdentifier identifier) {

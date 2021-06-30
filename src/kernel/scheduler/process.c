@@ -57,6 +57,7 @@ static inline void _process_add(struct Process* parent, struct Process* process)
 
 static inline struct PageTable* _process_pagemap(struct ProcessEnvironment* environment) {
 	struct PageTable* pml4 = (struct PageTable*)pageframe_request();
+	memset(pml4, 0, MEMORY_PAGE_SIZE);
 	while(environment != NULL) {
 		paging_map(pml4, environment->virtual_address, environment->physical_address, environment->pages);
 		if(environment->flags & (1 << PROCESS_ENVIRONMENT_WRITABLE)) {
@@ -99,6 +100,7 @@ void process_create_new(struct Process* parent, struct ProcessEnvironment* envir
 			stack = current_environment->virtual_address;
 			break;
 		}
+		current_environment = current_environment->next;
 	}
 	// Create the context & thread
 	struct SchedulerTaskInitialState new_state = (struct SchedulerTaskInitialState){

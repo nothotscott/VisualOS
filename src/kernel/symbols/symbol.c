@@ -67,6 +67,7 @@ void symbol_init() {
 	// Filter and order symbol map (insertion sort)
 	size_t ai = 0;	// adjusted i
 	for(size_t i = 0; i < s_symbol_table.symbol_entries_num; i++) {
+		// real hardware crashes here?
 		struct ELF64Symbol* symbol = s_symbol_table.symbol_entries + i;
 		uint64_t value = symbol->st_value;
 		if(value == 0) {

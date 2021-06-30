@@ -5,6 +5,9 @@
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+%ifndef	CPU_INC
+%define	CPU_INC
+
 
 %define	CPU_MSR_FSBASE			0xc0000100
 %define	CPU_MSR_GSBASE			0xc0000101
@@ -22,3 +25,6 @@ struc	CPUContext
 	.stack_timer_begin:	resq	1
 	.stack_timer:		resq	1
 endstruc
+
+
+%endif

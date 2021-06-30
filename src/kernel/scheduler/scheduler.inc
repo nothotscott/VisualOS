@@ -5,6 +5,9 @@
 ;; Check the LICENSE file that came with this program for licensing terms
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+%ifndef	SCHEDULER_INC
+%define	SCHEDULER_INC
+
 %include	"x86_64/cpu.inc"
 
 %define	SCHEDULER_CONTEXT_FRAME_GENERAL_NUM		15
@@ -44,3 +47,5 @@ endstruc
 	mov		edx, edi
 	wrmsr
 %endmacro
+
+%endif

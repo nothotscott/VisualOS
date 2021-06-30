@@ -26,6 +26,7 @@
 #include "x86_64/apic/madt.h"
 #include "x86_64/apic/local_apic.h"
 #include "x86_64/syscall.h"
+#include "scheduler/loader.h"
 #include "scheduler/process.h"
 
 
@@ -90,6 +91,8 @@ void setup_tasks() {
 	// TODO load up some modules for the scheduler
 	//process_create(test_userspace, 1);
 	//process_create(test_userspace2, 1);
+	struct Module* test_module = bootloader_get_info()->test_module;
+	loader_execute_elf(test_module);
 }
 
 // *** ORDERED SETUP FUNCTIONS *** //
